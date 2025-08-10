@@ -4,8 +4,12 @@ const errorHandler = require('express-error-handler');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-module.exports = (async () => {
+module.exports = async function createApp(config) {
   const app = express();
+
+  if (config) {
+    app.locals.config = config;
+  }
 
   //const routes = require('./src/route/route.js');
   const mode = process.env.NODE_ENV || "production";
@@ -38,6 +42,6 @@ module.exports = (async () => {
   //await routes(app);
 
   return app;
-})();
+};
 
 

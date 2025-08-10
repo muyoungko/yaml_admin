@@ -1,0 +1,1 @@
+export { default as YMLAdmin } from './YMLAdmin.jsx';

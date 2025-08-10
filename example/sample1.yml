@@ -1,0 +1,51 @@
+login:
+  jwt-secret: dfjdieskdfkj
+  id-password:
+    entity: admin
+    id-field: email 
+    password-field: pass
+    password-encoding: bcrypt
+    bcrypt-salt: 10
+
+entity:
+  member:
+    fields:
+      - name: name
+        type: string
+        required: true
+      - name: member_no
+        type: string
+        required: true
+  admin:
+    fields:
+      - name: email
+        type: string
+        required: true
+      - name: pass
+        type: string
+        required: true
+      - name: name
+        type: string
+        required: true
+  board:
+    fields:
+      - name: title
+        type: string
+        required: true
+      - name: desc
+        type: string
+        required: true
+      - name: id
+        type: string
+        required: true
+
+front:
+  menu:
+    - name: User Management
+      icon: "solar:user-broken"
+    - name: Admin Management
+      icon: "solar:shield-user-linear"
+      
+
+api:
+
