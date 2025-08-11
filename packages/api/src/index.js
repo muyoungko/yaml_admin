@@ -1,1 +1,3 @@
-export { default as YMLAdmin } from './yml-admin-api.js';
+const registerRoutes = require('./yml-admin-api.js');
+
+module.exports = { registerRoutes };

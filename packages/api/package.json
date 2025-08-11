@@ -1,0 +1,15 @@
+{
+  "name": "yaml-admin-api",
+  "version": "0.0.1",
+  "description": "YAML Admin API package",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "files": [
+    "src"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "^6.18.0",
+    "yaml": "^2.8.1"
+  }
+}

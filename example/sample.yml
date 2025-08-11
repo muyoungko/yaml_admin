@@ -1,12 +1,14 @@
 login:
-  jwt-secret: dfjdieskdfkj
+  jwt-secret: ${JWT_SECRET}
   id-password:
     entity: admin
     id-field: email 
     password-field: pass
     password-encoding: bcrypt
     bcrypt-salt: 10
-
+database:
+  mongodb: 
+    uri: ${MONGODB_URL}
 entity:
   member:
     fields:

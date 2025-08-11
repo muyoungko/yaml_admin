@@ -1,0 +1,43 @@
+service: yaml-admin-api-demo
+
+plugins:
+  - serverless-offline
+
+package: # Optional deployment packaging configuration
+  exclude:
+    - .git
+    - .idea/**
+    - package-lock.json
+    - README.md
+    - client/**
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  timeout: 200
+  region: ap-northeast-2
+  stage: production
+  environment:
+    NODE_ENV: ${opt:stage, 'production'}
+    TZ: 'Asia/Seoul'    
+  app:
+    handler: lambda.handler
+    events:
+      - http:
+          path: '/'
+          method: ANY
+          cors: true
+      - http:
+          path: '/'
+          method: OPTIONS
+          cors: true
+      - http:
+          path: '{proxy+}'
+          method: ANY
+          cors: true
+      - http:
+          path: '{proxy+}'
+          method: OPTIONS
+          cors: true
+
+

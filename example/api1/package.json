@@ -15,7 +15,9 @@
     "express-error-handler": "^1.1.0",
     "mongodb": "^6.18.0",
     "morgan": "^1.10.1",
-    "body-parser": "^1.20.3"
+    "body-parser": "^1.20.3",
+    "serverless-http": "^2.0.2",
+    "yaml-admin-api": "file:../../packages/api"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
