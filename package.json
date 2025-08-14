@@ -1,7 +1,7 @@
 {
   "name": "yaml-admin",
   "version": "0.0.1",
-  "private": true,
+  "private": false,
   "description": "yaml admin monorepo (workspaces)",
   "workspaces": [
     "packages/*"

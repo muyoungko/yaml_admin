@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --mode development",
+    "start": "vite --mode production",
+    "build": "vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -11,16 +11,19 @@ async function registerRoutes(app, options = {}) {
     yml = await readYml(yamlPath);
   } else if(yamlString) {
     yml = yaml.parse(yamlString);
-  }
-  if(!yml) {
-    throw new Error('yml is not found. yamlPath or yamlString is required.')
+  } else {
+    let yamlString = await fs.readFile('./admin.yml', 'utf8');
+    if(!yamlString) {
+      throw new Error('admin.yml is not found. yamlPath or yamlString is required.')
+    }
+    yamlString = yamlString.replace('${JWT_SECRET}', process.env.JWT_SECRET);
+    yamlString = yamlString.replace('${MONGODB_URL}', process.env.MONGODB_URL);
+    yml = yaml.parse(yamlString);
   }
 
-  if(yml.login) {
-    const {jwtSecret, idPassword} = yml.login;
-  }
+  await generateLoginApi(yml.login)
 
-  const {database, entity, login} = yml;
+  const {database, entity} = yml;
   let db = null;
   if(database) {
     const {mongodb} = database;

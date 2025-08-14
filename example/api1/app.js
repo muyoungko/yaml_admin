@@ -1,10 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
-const errorHandler = require('express-error-handler');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { registerRoutes } = require('yaml-admin-api');
-const fs = require('fs').promises;
 
 module.exports = async function createApp() {
   const app = express();
@@ -31,21 +29,8 @@ module.exports = async function createApp() {
   app.use(bodyParser.urlencoded({extended: true, limit: '30mb'}));
   app.use(bodyParser.json({limit: '30mb'}));
   app.use(morgan('dev'));
-  app.use(errorHandler({dumpExceptions: true, showStack: true}));
-
-  app.get('/hello', function (req, res) {
-      res.json({hello: 'hello'});
-  });
-
-  let yamlString = await fs.readFile('../sample.yml', 'utf8');
-  yamlString = yamlString.replace('${JWT_SECRET}', process.env.JWT_SECRET);
-  yamlString = yamlString.replace('${MONGODB_URL}', process.env.MONGODB_URL);
   
-  await registerRoutes(app, {
-    //yamlPath: '../sample.yml',
-    yamlString
-  })
-  //await routes(app);
+  await registerRoutes(app, {})
   
   return app;
 };

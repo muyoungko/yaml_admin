@@ -1,5 +1,10 @@
 import { YMLAdmin } from 'yaml-admin-front';
+import adminYamlText from '../admin.yml?raw';
 
 export default function App() {
-  return <YMLAdmin />;
+  return (
+    <div>
+        <YMLAdmin adminYaml={adminYamlText}/>
+    </div>
+  );
 }
