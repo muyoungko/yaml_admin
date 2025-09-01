@@ -10,7 +10,14 @@ database:
   mongodb: 
     uri: ${MONGODB_URL}
 entity:
+  floor:
+    icon: "material-symbols:file-map-stack"
+    laebl: "Floor"
+    custom:
+      front: "custom/floor.js"
   member:
+    icon: "solar:user-hands-outline"
+    label: "User"
     fields:
       - name: name
         type: string
@@ -19,6 +26,8 @@ entity:
         type: string
         required: true
   admin:
+    icon: "solar:shield-user-broken"
+    label: "Admin"
     fields:
       - name: email
         type: string
@@ -30,6 +39,8 @@ entity:
         type: string
         required: true
   board:
+    icon: "solar:file-broken"
+    label: "Board"
     fields:
       - name: title
         type: string
