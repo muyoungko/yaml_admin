@@ -1,21 +1,60 @@
-// in src/MyMenu.js
+import { useState, useMemo } from 'react';
 import { Menu } from 'react-admin';
-import { Divider } from '@mui/material';
+import SubMenu from './SubMenu';
+import { Icon } from '@iconify/react';
 import { useAdminContext } from '../AdminContext';
 
 const MyMenu = () => {
     const yml = useAdminContext();
+    const [state, setState] = useState({
+        
+    });
+    const handleToggle = (menu) => {
+        setState(state => ({ ...state, [menu]: !state[menu] }));
+    };
+
+    const categoryList = useMemo(() => {
+        const list = yml?.front?.category || []
+        list.forEach(m=>{
+            state[m.name] = true
+            m.menuList = yml?.entity && Object.keys(yml.entity).map(m=>{
+                let r = yml.entity[m]
+                r.name = m
+                return r
+            }).filter(f=>f.category == m.name)
+        })
+        return list
+    }, [yml]);
+
+    const noCartegoryList = useMemo(() => {
+        const list = yml?.entity && Object.keys(yml.entity).map(m=>{
+            let r = yml.entity[m]
+            r.name = m
+            return r
+        }).filter(f=>!f.category)
+        return list || [];
+    }, [yml]);
+
     return (
         <Menu>
             <Menu.DashboardItem />
-            {yml?.entity && Object.keys(yml.entity).map(name => {
 
-                return (
-                    <>
-                        <Menu.ResourceItem name={name} />
-                    </>
-                )
+            {/* <Menu.ResourceItem name='member' /> */}
+            {categoryList.map(c => {
+                return <SubMenu
+                    key={c.name}
+                    handleToggle={() => handleToggle(c.name)}
+                    isOpen={state[c.name]}
+                    name={c.name}
+                    icon={<Icon icon={c.icon} />}
+                    dense={true}
+                >
+                    {c.menuList.map(m => <Menu.ResourceItem key={m.name} name={m.name} />)}
+                </SubMenu>
             })}
+
+            {noCartegoryList.map(m => <Menu.ResourceItem key={m.name} name={m.name} />)}
+
         </Menu>
     )
 };

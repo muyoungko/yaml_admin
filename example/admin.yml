@@ -11,11 +11,13 @@ database:
     uri: ${MONGODB_URL}
 entity:
   floor:
+    category : 'Factory'
     icon: "material-symbols:file-map-stack"
     laebl: "Floor"
     custom:
       front: "custom/floor.js"
   member:
+    category : 'User Manangement'
     icon: "solar:user-hands-outline"
     label: "User"
     fields:
@@ -26,6 +28,7 @@ entity:
         type: string
         required: true
   admin:
+    category : 'User Manangement'
     icon: "solar:shield-user-broken"
     label: "Admin"
     fields:
@@ -39,6 +42,7 @@ entity:
         type: string
         required: true
   board:
+    category : 'Etc'
     icon: "solar:file-broken"
     label: "Board"
     fields:
@@ -53,11 +57,14 @@ entity:
         required: true
 
 front:
-  menu:
-    - name: User Management
-      icon: "solar:user-broken"
-    - name: Admin Management
-      icon: "solar:shield-user-linear"
+  useDashboard: true
+  category:
+    - name: 'Factory'
+      icon: 'material-symbols:factory-outline'
+    - name: 'User Manangement'
+      icon: 'solar:user-hands-outline'
+    - name: 'Etc'
+      icon: 'solar:file-broken'
       
 
 api:
