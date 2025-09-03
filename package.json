@@ -11,7 +11,8 @@
     "dev:example-api": "cd example/api1 && npm run dev",
     "dev:example-front": "cd example/front1 && npm run dev",
     "publish:front": "npm publish -w yaml-admin-front --access public",
-    "publish:api": "npm publish -w yaml-admin-api --access public"
+    "publish:api": "npm publish -w yaml-admin-api --access public",
+    "publish": "npm publish -w yaml-admin-front --access public && npm publish -w yaml-admin-api --access public"
   },
   "repository": {
     "type": "git",

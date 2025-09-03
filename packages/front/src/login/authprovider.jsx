@@ -1,5 +1,5 @@
 import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_ERROR, AUTH_CHECK, PreviousLocationStorageKey } from 'react-admin';
-import { postFetcher } from '../common/axios'
+import axios, { postFetcher } from '../common/axios'
 
 function getUrlParams(url) {
     var params = {};
@@ -10,7 +10,7 @@ function getUrlParams(url) {
 const authProvider = {
     login: params => {
         const { username, password } = params;
-        let p = postFetcher('/member/login', {}, {
+        return postFetcher('/member/login', {}, {
             type: 'email',
             email: username,
             pass: password
