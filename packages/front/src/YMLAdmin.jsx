@@ -1,10 +1,13 @@
 import { Admin, Resource, ListGuesser } from "react-admin";
 import jsonServerProvider from "ra-data-json-server";
 import YAML from 'yaml';
+import LoginPage from './login/LoginPage';
 import MyLayout from './layout/MyLayout'
 import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { AdminProvider } from './AdminContext';
+import authProvider from './login/authProvider';
+
 const API_HOST = import.meta.env.VITE_HOST_API || 'http://localhost:6911'
 const dataProvider = jsonServerProvider(API_HOST);
 
@@ -24,9 +27,10 @@ const YMLAdmin = ({ adminYaml }) => {
   }, []);
 
   return (
-    <AdminProvider initialYml={yml}>
+    <AdminProvider initialYml={yml} width="1250px">
       <Admin
         layout={MyLayout}
+        authProvider={authProvider}
         dataProvider={dataProvider}>
         {yml?.entity && Object.keys(yml.entity).map(name => {
           const entity = yml.entity[name];

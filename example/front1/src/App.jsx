@@ -3,8 +3,6 @@ import adminYamlText from '../../admin.yml?raw';
 
 export default function App() {
   return (
-    <div>
-      <YMLAdmin adminYaml={adminYamlText}/>
-    </div>
+    <YMLAdmin adminYaml={adminYamlText}/>
   );
 }

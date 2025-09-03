@@ -6,6 +6,11 @@ login:
     password-field: pass
     password-encoding: bcrypt
     bcrypt-salt: 10
+
+api_host: 
+  uri: localhost:6911
+web_host: 
+  uri: localhost:6900
 database:
   mongodb: 
     uri: ${MONGODB_URL}
@@ -14,8 +19,7 @@ entity:
     category : 'Factory'
     icon: "material-symbols:file-map-stack"
     laebl: "Floor"
-    custom:
-      front: "custom/floor.js"
+    custom: "custom/floor.js"
   member:
     category : 'User Manangement'
     icon: "solar:user-hands-outline"
@@ -65,7 +69,4 @@ front:
       icon: 'solar:user-hands-outline'
     - name: 'Etc'
       icon: 'solar:file-broken'
-      
-
-api:
-
+  

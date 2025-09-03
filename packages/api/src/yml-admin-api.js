@@ -35,12 +35,20 @@ async function registerRoutes(app, options = {}) {
   }
 
   entity && Object.keys(entity).forEach(async (entityName) => {
-    await generateEntityApi(app, db, entityName, entity[entityName])
+    await generateEntityApi({
+      app, db, 
+      name:entityName, 
+      entity:entity[entityName], 
+      jwt_secret:yml.login["jwt-secret"]
+    })
   })
 }
 
 async function readYml(path) {
-  const yml = await fs.readFile(path, 'utf8');
+  let yml = await fs.readFile(path, 'utf8');
+  yml = yml.replace('${JWT_SECRET}', process.env.JWT_SECRET);
+  yml = yml.replace('${MONGODB_URL}', process.env.MONGODB_URL);
+    
   return yaml.parse(yml);
 
 }

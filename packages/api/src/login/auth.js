@@ -1,10 +1,7 @@
 const bcrypt = require('bcryptjs');
-const cookieSession = require('cookie-session');
 const request = require('request');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const { OAuth2Client } = require('google-auth-library');
-const DapiService = require('../dapi/DapiService.js');
 
 var cryptPassword = function (password, callback) {
   bcrypt.genSalt(10, function (err, salt) {
@@ -135,17 +132,7 @@ var isAdminAuthenticated = function (req, res, next) {
 };
 
 const init = async function (app) {
-
-  app.use(cookieSession({
-    keys: ['auth'],
-    cookie: {
-      path: '/', httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 30 * 24// 유효기간 한달
-    }
-  }));
 };
-
-
 
 const authenticate = async (req, res, next) => {
   const db = await DapiService.getProjectDb(req.projectKey)

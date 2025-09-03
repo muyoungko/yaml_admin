@@ -30,7 +30,7 @@ module.exports = async function createApp() {
   app.use(bodyParser.json({limit: '30mb'}));
   app.use(morgan('dev'));
   
-  await registerRoutes(app, {})
+  await registerRoutes(app, {yamlPath:'../admin.yml'})
   
   return app;
 };
