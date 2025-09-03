@@ -8,7 +8,7 @@ import {
 	Box,
 	Typography
 } from '@mui/material';
-import client from '../common/client.jsx';
+import client from '../common/axios.jsx';
 
 const LoginPage = ({ theme }) => {
 	const login = useLogin();

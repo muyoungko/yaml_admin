@@ -21,8 +21,6 @@ async function registerRoutes(app, options = {}) {
     yml = yaml.parse(yamlString);
   }
 
-  await generateLoginApi(yml.login)
-
   const {database, entity} = yml;
   let db = null;
   if(database) {
@@ -33,13 +31,16 @@ async function registerRoutes(app, options = {}) {
       console.log('db connected')
     }
   }
+  const jwt_secret = yml.login["jwt-secret"]
+  app.set('jwt-secret', jwt_secret);
 
+  await generateLoginApi(app, db, yml.login)
   entity && Object.keys(entity).forEach(async (entityName) => {
     await generateEntityApi({
       app, db, 
       name:entityName, 
       entity:entity[entityName], 
-      jwt_secret:yml.login["jwt-secret"]
+      jwt_secret
     })
   })
 }

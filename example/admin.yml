@@ -7,9 +7,9 @@ login:
     password-encoding: bcrypt
     bcrypt-salt: 10
 
-api_host: 
+api-host: 
   uri: localhost:6911
-web_host: 
+web-host: 
   uri: localhost:6900
 database:
   mongodb: 

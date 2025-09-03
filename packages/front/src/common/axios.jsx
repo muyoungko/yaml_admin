@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({});
 
-export const setUpApiHost = (host) => {
+export const setApiHost = (host) => {
   let base = host ?? import.meta.env.VITE_HOST_API ?? 'http://localhost:6911';
   if (base && !base.startsWith('http')) {
     base = `http://${base}`;
@@ -13,7 +13,7 @@ export const setUpApiHost = (host) => {
 };
 
 // initialize with defaults so it's usable before YAML is loaded
-setUpApiHost();
+setApiHost();
 
 axiosInstance.interceptors.response.use(
   (res) => res,

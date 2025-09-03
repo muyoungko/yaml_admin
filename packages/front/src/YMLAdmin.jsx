@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { AdminProvider } from './AdminContext';
 import authProvider from './login/authProvider';
+import { setApiHost} from './common/axios';
 
 const API_HOST = import.meta.env.VITE_HOST_API || 'http://localhost:6911'
 const dataProvider = jsonServerProvider(API_HOST);
@@ -18,6 +19,7 @@ const YMLAdmin = ({ adminYaml }) => {
       try {
         const json = YAML.parse(adminYaml);
         setYml(json);
+        setApiHost(json['api-host'].uri);
       } catch (error) {
         console.error('YAML 파일을 읽는 중 오류가 발생했습니다:', error);
       }
