@@ -2,6 +2,8 @@ import { Admin, Resource, ListGuesser, CreateBase, fetchUtils } from "react-admi
 import jsonServerProvider from "ra-data-json-server";
 import YAML from 'yaml';
 import MyLayout from './layout/MyLayout'
+import DynamicList from './section/DynamicList';
+import DynamicCreate from './section/DynamicCreate';
 import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { AdminProvider } from './AdminContext';

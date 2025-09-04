@@ -3,7 +3,7 @@ import axios, { postFetcher, fetcher } from '../common/axios'
 
 function getUrlParams(url) {
     var params = {};
-    url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str, key, value) { params[key] = value; });
+    url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) { params[key] = value; });
     return params;
 }
 
@@ -14,12 +14,12 @@ const authProvider = {
             type: 'email',
             email: username,
             pass: password
-        }).then(({ token, r , msg}) => {
-            if(!r)
+        }).then(({ token, r, msg }) => {
+            if (!r)
                 throw new Error(msg);
             localStorage.setItem('token', token);
             axios.defaults.headers.common['x-access-token'] = token;
-        }).catch(e=>{
+        }).catch(e => {
             console.log('e', e)
         });
     },
@@ -31,22 +31,22 @@ const authProvider = {
 
         const query = getUrlParams(window.location.href);
         let { token } = query;
-        
-        if(!token) {
+
+        if (!token) {
             token = localStorage.getItem('token');
         }
 
-        if(token){
+        if (token) {
             axios.defaults.headers.common['x-access-token'] = token;
             return fetcher(`/member/islogin?token=${encodeURIComponent(token)}`)
-            .then(res => {
-                if(res.r){
-                    localStorage.setItem('token', token);
-                    return Promise.resolve();
-                } else {
-                    return Promise.reject();
-                }
-            })
+                .then(res => {
+                    if (res.r) {
+                        localStorage.setItem('token', token);
+                        return Promise.resolve();
+                    } else {
+                        return Promise.reject();
+                    }
+                })
         } else {
             return Promise.reject();
         }
@@ -56,7 +56,18 @@ const authProvider = {
         document.cookie = ''
         return Promise.resolve();
     },
-    getIdentity: () => Promise.resolve(/* ... */),
+    getIdentity: () =>
+        fetcher('/member/islogin').then(res => {
+            if (res?.r && res?.member) {
+                const m = res.member;
+                return {
+                    id: m.id || m.email,
+                    fullName: m.name || m.email,
+                    avatar: m.avatar, // 있으면
+                };
+            }
+            return Promise.reject(); // 비로그인 시
+        }),
     handleCallback: () => {
         return Promise.resolve(/* ... */)
     },
