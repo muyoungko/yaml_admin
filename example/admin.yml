@@ -15,20 +15,84 @@ database:
   mongodb: 
     uri: ${MONGODB_URL}
 entity:
+  server:
+    icon: "solar:buildings-3-outline"
+    label: "Factory"
+    
+    crud:
+      list:
+        search:
+          - name: id
+          - name: region
+          - name: factory
+        export:
+          - name: id
+          - name: region
+          - name: factory
+        import:
+          - name: id
+          - name: region
+          - name: factory
+      create: true
+      edit: true
+      delete: true
+
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+        filter: true
+      - name: region
+        label: "지역"
+        type: string
+        required: true
+        filter: true
+      - name: factory
+        label: "공장명"
+        type: string
+        required: true
+        filter: true
   floor:
     category : 'Factory'
     icon: "material-symbols:file-map-stack"
-    laebl: "Floor"
+    label: "Floor"
     custom: "custom/floor.js"
   member:
     category : 'User Manangement'
     icon: "solar:user-hands-outline"
     label: "User"
     fields:
+      - name: member_no
+        label: "회원번호"
+        type: string
+        required: true
+        key: true
+        autogenerate: true
+      - name: email
+        type: string
+        required: true
+      - name: server_id
+        type: integer
+        required: true
       - name: name
         type: string
         required: true
       - name: member_no
+        type: string
+        required: true
+      - name: pass
+        type: password
+        required: true
+      - name: user_type
+        type: string
+        required: true
+      - name: phone
+        type: string
+        required: true
+      - name: department
         type: string
         required: true
   admin:
@@ -63,10 +127,10 @@ entity:
 front:
   useDashboard: true
   category:
-    - name: 'Factory'
-      icon: 'material-symbols:factory-outline'
     - name: 'User Manangement'
       icon: 'solar:user-hands-outline'
+    - name: 'Factory'
+      icon: 'material-symbols:factory-outline'
     - name: 'Etc'
       icon: 'solar:file-broken'
   

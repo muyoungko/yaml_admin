@@ -66,7 +66,7 @@ const authProvider = {
                     avatar: m.avatar, // 있으면
                 };
             }
-            return Promise.reject(); // 비로그인 시
+            return Promise.reject();
         }),
     handleCallback: () => {
         return Promise.resolve(/* ... */)

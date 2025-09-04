@@ -1,11 +1,32 @@
-const {withConfig} = require('../login/auth.js');
+const { withConfig } = require('../login/auth.js');
+const { genEntityIdWithKey } = require('../common/util.js');
+const { v4 : uuidv4 } = require('uuid');
+const { ObjectId } = require('mongodb');
 
-const generateList = async ({app, db, entity_name, entity, yml}) => {
+const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+    
+    let key_field = yml_entity.fields?.find(field => field.key)
+    if(!key_field) {
+        key_field = {
+            name: '_id',
+            type: 'objectId',
+            key: true,
+            autogenerate: true
+        }
+    }
+
+    const generateKey = async () => {
+        if(key_field.type == 'integer')
+            return await genEntityIdWithKey(db, key_field.name)
+        else if(key_field.type == 'string')
+            return uuidv4()
+        return null
+    }
 
     //list
-    app.get(`/${entity_name}`, auth.isAuthenticated, async function (req, res) {
+    app.get(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
         var s = {};
         var _sort = req.query._sort;
         var _order = req.query._order;
@@ -78,24 +99,74 @@ const generateList = async ({app, db, entity_name, entity, yml}) => {
         //Custom f list End
 
         var count = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).count();
+        console.log('list', entity_name, f)
         let list = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).skip(parseInt(_start)).limit(l).toArray()
         list.map(m => {
-            m.id = entity.key
+            m.id = m[key_field.name]
         })
         //Custom list Start
 
         //Custom list End
         //await addInfo(db, list)
         res.header('X-Total-Count', count);
-        console.log('list', list)
         res.json(list);
+    });
+
+
+    const constructEntity = async (req, entityId) => {
+        var entity = {};
+        
+        if(entityId)
+            entity[key_field.name] = entityId
+
+        yml_entity.fields.forEach(field => {
+            if(!field.key)
+                entity[field.name] = req.body[field.name]
+        })
+        entity['update_date'] = new Date()
+        
+        //Custom ConstructEntity Start
+
+        //Custom ConstructEntity End
+
+        return entity;
+    };
+
+    //create
+    app.post(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
+        let entityId
+        if (key_field.autogenerate)
+            entityId = await generateKey()        
+        
+        if(entityId) {
+            let f = {}
+            f[key_field.name] = entityId
+            let already = await db.collection(entity_name).findOne(f)
+            if (already)
+                return res.status(400).json({ status: 400, statusText: 'error', message: "duplicate key [" + entity_id + "]" });
+        }
+
+        const entity = await constructEntity(req, entityId);
+        entity['update_date'] = entity['create_date'] = new Date()
+        entity['create_admin_id'] = req.user.id
+
+        //Custom Create Start
+        
+        //Custom Create End
+
+        var r = await db.collection(entity_name).insertOne(entity);
+        //Custom Create Tail Start
+        
+        //Custom Create Tail End
+
+        res.json(entity);
     });
 }
 
-const generateEntityApi = async ({app, db, entity_name, entity, yml}) => {
+const generateEntityApi = async ({ app, db, entity_name, entity, yml }) => {
     const { fields } = entity;
-    console.log('generateEntityApi', entity_name)
-    await generateList({app, db, entity_name, entity, yml})
+
+    await generateCrud({ app, db, entity_name, yml_entity: entity, yml })
 }
 
 module.exports = {

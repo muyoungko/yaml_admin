@@ -2,7 +2,7 @@
 import { useEffect, useMemo } from 'react';
 import {
     AutocompleteInput,
-    Create,
+    Edit,
     NumberInput,
     ReferenceInput,
     SelectInput,
@@ -39,7 +39,7 @@ const validateName = [required(), maxLength(15)];
 const validateRequire = [required()];
 
 
-export const DynamicCreate = props => {
+export const DynamicEdit = props => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
     const resource = useResourceContext(props); // 예: "ils", "server" 등
@@ -54,7 +54,7 @@ export const DynamicCreate = props => {
     }, [props, yml, resource])
     //Custom Create Code End
     return (
-        <Create title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
+        <Edit title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
         //Custom Create Property Start
 
         //Custom Create Property End
@@ -87,12 +87,12 @@ export const DynamicCreate = props => {
 
                 {/* Custom Create End */}
             </SimpleForm>
-        </Create>
+        </Edit>
     )
 }
 
 
-export default DynamicCreate;
+export default DynamicEdit;
 
 
 

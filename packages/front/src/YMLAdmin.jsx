@@ -4,6 +4,7 @@ import YAML from 'yaml';
 import MyLayout from './layout/MyLayout'
 import DynamicList from './section/DynamicList';
 import DynamicCreate from './section/DynamicCreate';
+import DynamicEdit from './section/DynamicEdit';
 import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { AdminProvider } from './AdminContext';
@@ -55,8 +56,10 @@ const YMLAdmin = ({ adminYaml }) => {
               <Resource key={name} name={name}
                 options={{ label: entity.label }}
                 icon={IconComponent}
-                list={ListGuesser}
-                create={CreateBase} />
+                list={DynamicList}
+                create={DynamicCreate} 
+                edit={DynamicEdit}
+              />
             )
           })}
 
