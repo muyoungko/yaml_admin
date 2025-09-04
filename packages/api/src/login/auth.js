@@ -31,8 +31,8 @@ const withConfig = (config) => {
   };
 
   const isAuthenticated = function (req, res, next) {
+    
     const token = req.headers['x-access-token'] || req.query.token || req.cookies.token;
-
     if (token == null)
       res.json({ r: false, err: { code: 666 }, msg: '로그인 필요' });
     else

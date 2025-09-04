@@ -31,16 +31,14 @@ async function registerRoutes(app, options = {}) {
       console.log('db connected')
     }
   }
-  const jwt_secret = yml.login["jwt-secret"]
-  app.set('jwt-secret', jwt_secret);
 
   await generateLoginApi(app, db, yml)
-  entity && Object.keys(entity).forEach(async (entityName) => {
+  entity && Object.keys(entity).forEach(async (entity_name) => {
     await generateEntityApi({
       app, db, 
-      name:entityName, 
-      entity:entity[entityName], 
-      jwt_secret
+      entity_name, 
+      entity:entity[entity_name], 
+      yml
     })
   })
 }

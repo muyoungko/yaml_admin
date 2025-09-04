@@ -1,25 +1,11 @@
-const isAuthenticated = (jwt_secret) => {
-    return async (req, res, next) => {
-        const token = req.headers['x-access-token'] || req.query.token || req.cookies.token;
-        if (token == null)
-            res.json({ r: false, err: { code: 666 }, msg: '로그인 필요' });
-        else {
-            jwt.verify(token, jwt_secret, (err, decoded) => {
-                if (err) {
-                    res.json({ r: false, err: { code: 666 }, msg: '로그인 필요' });
-                    return;
-                }
-                req.user = decoded;
-                delete req.user.password;
-                next();
-            })
-        }
-    }
-} 
+const {withConfig} = require('../login/auth.js');
 
-const generateList = async ({app, db, name, entity, jwt_secret}) => {
+const generateList = async ({app, db, entity_name, entity, yml}) => {
+
+    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+
     //list
-    app.get(`/${name}`, isAuthenticated(jwt_secret), async function (req, res) {
+    app.get(`/${entity_name}`, auth.isAuthenticated, async function (req, res) {
         var s = {};
         var _sort = req.query._sort;
         var _order = req.query._order;
@@ -91,26 +77,25 @@ const generateList = async ({app, db, name, entity, jwt_secret}) => {
 
         //Custom f list End
 
-        var count = await db.collection('${name}').find(f).project({ _id: false }).sort(s).count();
-        let list = await db.collection('${name}').find(f).project({ _id: false }).sort(s).skip(parseInt(_start)).limit(l).toArray()
-        console.log('entity', entity)
+        var count = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).count();
+        let list = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).skip(parseInt(_start)).limit(l).toArray()
         list.map(m => {
             m.id = entity.key
         })
         //Custom list Start
 
         //Custom list End
-        await addInfo(db, list)
+        //await addInfo(db, list)
         res.header('X-Total-Count', count);
+        console.log('list', list)
         res.json(list);
     });
 }
 
-const generateEntityApi = async ({app, db, name, entity, jwt_secret}) => {
+const generateEntityApi = async ({app, db, entity_name, entity, yml}) => {
     const { fields } = entity;
-    console.log('generateEntityApi', name)
-
-    await generateList({app, db, name, entity, jwt_secret})
+    console.log('generateEntityApi', entity_name)
+    await generateList({app, db, entity_name, entity, yml})
 }
 
 module.exports = {

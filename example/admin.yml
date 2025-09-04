@@ -8,9 +8,9 @@ login:
     bcrypt-salt: 10
 
 api-host: 
-  uri: localhost:6911
+  uri: http://localhost:6911
 web-host: 
-  uri: localhost:6900
+  uri: http://localhost:6900
 database:
   mongodb: 
     uri: ${MONGODB_URL}
