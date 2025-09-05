@@ -25,6 +25,18 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         return null
     }
 
+    const getKeyFromEntity = (entity) => {
+        return entity[key_field.name]
+    }
+
+    const parseKey = (key) => {
+        if(key_field.type == 'integer')
+            return parseInt(key)
+        else if(key_field.type == 'string')
+            return key
+        return key
+    }
+    
     //list
     app.get(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
         var s = {};
@@ -99,7 +111,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         //Custom f list End
 
         var count = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).count();
-        console.log('list', entity_name, f)
         let list = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).skip(parseInt(_start)).limit(l).toArray()
         list.map(m => {
             m.id = m[key_field.name]
@@ -158,6 +169,69 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         //Custom Create Tail Start
         
         //Custom Create Tail End
+
+        res.json(entity);
+    });
+
+
+    //edit
+    app.put(`/${entity_name}/:id`, auth.isAuthenticated, async (req, res) => {
+        let entityId = parseKey(req.params.id)
+        
+        const entity = await constructEntity(req, entityId);
+        entity['update_date'] = new Date()
+        
+
+        //Custom Create Start
+        
+        //Custom Create End
+
+        let f = {}
+        f[key_field.name] = entityId
+        await db.collection(entity_name).updateOne(f, { $set: entity });
+
+        //Custom Create Tail Start
+        
+        //Custom Create Tail End
+
+        res.json(entity);
+    });
+
+    //view
+    app.get(`/${entity_name}/:id`, auth.isAuthenticated, async (req, res) => {
+        let f = {}
+        f[key_field.name] = parseKey(req.params.id)
+        const m = await db.collection(entity_name).findOne(f);
+        if(!m) 
+            return res.status(404).send('Not found');
+
+        m.id = getKeyFromEntity(m)
+        
+        res.json(m);
+    })
+
+    //delete
+    app.delete(`/${entity_name}/:id`, auth.isAuthenticated, async function (req, res) {
+        let f = {}
+        f[key_field.name] = parseKey(req.params.id)
+        const entity= await db.collection(entity_name).findOne(f);
+        if(!entity) 
+            return res.status(404).send('Not found');
+
+        entity.id = getKeyFromEntity(entity)
+
+        let customDelete = false
+        let softDelete = false
+        //Custom Delete Api Start
+
+        //Custom Delete Api End
+        
+        if(customDelete)
+            ;
+        else if(softDelete)
+            await db.collection(entity_name).updateOne(f, {$set:{remove:true}});
+        else 
+            await db.collection(entity_name).deleteOne(f);
 
         res.json(entity);
     });

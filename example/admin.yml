@@ -35,6 +35,7 @@ entity:
           - name: factory
       create: true
       edit: true
+      show: true
       delete: true
 
     fields:
