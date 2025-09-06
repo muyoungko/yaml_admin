@@ -57,7 +57,8 @@ const DynamicFilter = props => {
                     const field = yml_entity.fields.find(f => f.name == m.name)
                     if(field?.type == 'reference')
                         return <ReferenceInput key={m.name} label={field?.label} source={m.name} reference={field?.reference_entity} alwaysOn>
-                            <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name} />
+                            <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name} 
+                                filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })} />
                         </ReferenceInput>
                     else
                         return <TextInput key={m.name} label={field?.label} source={m.name} alwaysOn/>

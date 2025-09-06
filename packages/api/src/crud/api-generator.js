@@ -37,7 +37,18 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         return key
     }
 
-    const parseValueByType = (value, type) => {
+    const parseValueByType = (value, field) => {
+        const {type, reference_entity, reference_field} = field
+        if(type == 'reference') {
+            const referenceEntity = yml.entity[reference_entity]
+            const referenceField = referenceEntity.fields.find(f => f.name == reference_field)
+            return parseValueByTypeCore(value, referenceField)
+        } else {
+            return parseValueByTypeCore(value, field)
+        }
+    }
+    const parseValueByTypeCore = (value, field) => {
+        const {type} = field
         if(type == 'integer')
             return parseInt(value)
         else if(type == 'string')
@@ -64,10 +75,11 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
             const q = req.query[m.name];
             if(q) {
                 if (Array.isArray(q)) {
-                    f[field.name] = { $in: q.map(v => parseValueByType(v, field.type)) };
+                    f[field.name] = { $in: q.map(v => parseValueByType(v, field)) };
                 } else {
+                    console.log('value', field.name, q, field.type, m.exact != false)
                     if(m.exact != false)
-                        f[field.name] = parseValueByType(q, field.type)
+                        f[field.name] = parseValueByType(q, field)
                     else
                         f[field.name] = { $regex: ".*" + q + ".*" };
                 }
