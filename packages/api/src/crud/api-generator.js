@@ -2,6 +2,7 @@ const { withConfig } = require('../login/auth.js');
 const { genEntityIdWithKey } = require('../common/util.js');
 const { v4 : uuidv4 } = require('uuid');
 const { ObjectId } = require('mongodb');
+const crypto = require('crypto');
 
 const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
 
@@ -56,6 +57,15 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         return value
     }
     
+    const addInfo = async (db, list) => {
+        let passwordFields = yml_entity.fields.filter(f=>f.type == 'password').map(f=>f.name)
+        list.forEach(m => {
+            passwordFields.forEach(f => {
+                delete m[f]
+            })
+        })
+    }
+
     //list
     app.get(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
         var s = {};
@@ -107,7 +117,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         //Custom list Start
 
         //Custom list End
-        //await addInfo(db, list)
+        await addInfo(db, list)
         res.header('X-Total-Count', count);
         res.json(list);
     });
@@ -125,6 +135,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         })
         entity['update_date'] = new Date()
         
+        let passwordFields = yml_entity.fields.filter(f=>f.type == 'password').map(f=>f.name)
+        passwordFields.forEach(f => {
+            entity[f] = crypto.createHash('sha256').update(req.body[f]).digest('hex')
+        })
         //Custom ConstructEntity Start
 
         //Custom ConstructEntity End
@@ -197,7 +211,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
             return res.status(404).send('Not found');
 
         m.id = getKeyFromEntity(m)
-        
+        await addInfo(db, [m])
+
         res.json(m);
     })
 

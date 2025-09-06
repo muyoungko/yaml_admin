@@ -27,6 +27,7 @@ const koreanMessages = {
       close: '닫기',
       open_menu: '메뉴 열기',
       close_menu: '메뉴 닫기',
+      unselect: '선택 해제',
     },
     boolean: {
       true: '예',
@@ -127,6 +128,15 @@ const koreanMessages = {
       email: '유효한 이메일이 아닙니다',
       oneOf: '다음 중 하나여야 합니다: %{options}',
       regex: '형식이 유효하지 않습니다 (패턴: %{pattern})',
+    },
+    configurable: {
+      customize: '사용자 정의',
+      configureMode: '구성 모드',
+      inspector: '구성 도우미',
+    },
+    sort: {
+      ASC: '오름차순',
+      DESC: '내림차순',
     },
   },
 };
