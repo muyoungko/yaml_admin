@@ -27,19 +27,10 @@ entity:
             exact: false
           - name: factory
             exact: false
-        export:
-          - name: id
-          - name: region
-          - name: factory
-        import:
-          - name: id
-          - name: region
-          - name: factory
       create: true
       edit: true
       show: true
       delete: true
-
     fields:
       - name: id
         label: "ID"
@@ -67,6 +58,27 @@ entity:
     category : '사용자'
     icon: "solar:user-hands-outline"
     label: "사용자 관리"
+    crud:
+      list:
+        search:
+          - name: server_id
+            exact: false
+          - name: email
+            exact: false
+          - name: name
+            exact: false
+        export:
+          - name: id
+          - name: region
+          - name: factory
+        import:
+          - name: id
+          - name: region
+          - name: factory
+      create: true
+      edit: true
+      show: true
+      delete: true
     fields:
       - name: member_no
         label: "회원번호"
@@ -78,15 +90,14 @@ entity:
         type: string
         required: true
       - name: server_id
+        label: "공장"
         type: reference
         reference_entity: server
         reference_key: id
         reference_name: factory
         required: true
       - name: name
-        type: string
-        required: true
-      - name: member_no
+        label: "이름"
         type: string
         required: true
       - name: pass

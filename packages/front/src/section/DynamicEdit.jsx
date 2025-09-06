@@ -66,10 +66,16 @@ export const DynamicEdit = props => {
             >
                 {fields.map(field => {
                     const {type, autogenerate} = field
-                    if(autogenerate) 
-                        return <></>
-                    else
-                        return <TextInput resettable label={field.label} source={field.name} validate={validateRequire} />
+                    if (autogenerate) return null
+                    return (
+                        <TextInput
+                            key={field.name}
+                            resettable
+                            label={field.label}
+                            source={field.name}
+                            validate={validateRequire}
+                        />
+                    )
                 })}
                 {/* <TextInput resettable label="키" source="key" validate={validateRequire} />
                 <ReferenceInput source="server_id" reference="server" alwaysOn>

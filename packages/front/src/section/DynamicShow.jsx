@@ -23,6 +23,7 @@ import {
     useRecordContext,
     useRefresh,
     useResourceContext,
+    BooleanField,
 } from 'react-admin';
 
 import { useNavigate } from 'react-router-dom';

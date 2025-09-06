@@ -22,6 +22,7 @@ import {
     useRecordContext,
     useRefresh,
     useResourceContext,
+    BooleanField,
 } from 'react-admin';
 
 import { useNavigate } from 'react-router-dom';
@@ -53,7 +54,13 @@ const DynamicFilter = props => {
         <Filter {...props}>
             {
                 yml_entity.crud?.list?.search?.map(m => {
-                    return <TextInput key={m.name} label={m.label} source={m.name} alwaysOn/>
+                    const field = yml_entity.fields.find(f => f.name == m.name)
+                    if(field?.type == 'reference')
+                        return <ReferenceInput key={m.name} label={field?.label} source={m.name} reference={field?.reference_entity} alwaysOn>
+                            <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name} />
+                        </ReferenceInput>
+                    else
+                        return <TextInput key={m.name} label={field?.label} source={m.name} alwaysOn/>
                 })
             }
             {
@@ -100,7 +107,7 @@ export const DynamicList = props => {
                         else if (m.type == 'integer')
                             return <NumberField key={m.name} label={m.label} source={m.name} />
                         else if (m.type == 'reference')
-                            return <ReferenceField link="show" label={m.label} source={m.name} reference={m.reference_entity}>
+                            return <ReferenceField key={m.name} link="show" label={m.label} source={m.name} reference={m.reference_entity}>
                                 <TextField source={m.reference_name} />
                             </ReferenceField>
                         else if (m.type == 'date')
