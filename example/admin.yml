@@ -16,15 +16,17 @@ database:
     uri: ${MONGODB_URL}
 entity:
   server:
+    category: '공장'
     icon: "solar:buildings-3-outline"
-    label: "Factory"
-    
+    label: "공장 관리"
     crud:
       list:
         search:
           - name: id
           - name: region
+            exact: false
           - name: factory
+            exact: false
         export:
           - name: id
           - name: region
@@ -44,7 +46,7 @@ entity:
         type: integer
         required: true
         key: true
-        autogenerate: true
+        autogenerate: false
         filter: true
       - name: region
         label: "지역"
@@ -57,14 +59,14 @@ entity:
         required: true
         filter: true
   floor:
-    category : 'Factory'
+    category : '공장'
     icon: "material-symbols:file-map-stack"
-    label: "Floor"
+    label: "도면 관리"
     custom: "custom/floor.js"
   member:
-    category : 'User Manangement'
+    category : '사용자'
     icon: "solar:user-hands-outline"
-    label: "User"
+    label: "사용자 관리"
     fields:
       - name: member_no
         label: "회원번호"
@@ -76,7 +78,10 @@ entity:
         type: string
         required: true
       - name: server_id
-        type: integer
+        type: reference
+        reference_entity: server
+        reference_key: id
+        reference_name: factory
         required: true
       - name: name
         type: string
@@ -96,20 +101,6 @@ entity:
       - name: department
         type: string
         required: true
-  admin:
-    category : 'User Manangement'
-    icon: "solar:shield-user-broken"
-    label: "Admin"
-    fields:
-      - name: email
-        type: string
-        required: true
-      - name: pass
-        type: string
-        required: true
-      - name: name
-        type: string
-        required: true
   board:
     category : 'Etc'
     icon: "solar:file-broken"
@@ -124,14 +115,24 @@ entity:
       - name: id
         type: string
         required: true
+  ils:
+    category : '자원 관리'
+    icon: "solar:lock-keyhole-minimalistic-outline"
+    label: "ILS 관리"
+    fields:
+      - name: key
+        type: string
+        required: true
 
 front:
   useDashboard: true
   category:
-    - name: 'User Manangement'
-      icon: 'solar:user-hands-outline'
-    - name: 'Factory'
+    - name: '공장'
       icon: 'material-symbols:factory-outline'
+    - name: '사용자'
+      icon: 'solar:user-hands-outline'
+    - name: '자원 관리'
+      icon: 'solar:lock-keyhole-minimalistic-outline'
     - name: 'Etc'
       icon: 'solar:file-broken'
   

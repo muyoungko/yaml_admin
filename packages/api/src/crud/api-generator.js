@@ -36,6 +36,14 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
             return key
         return key
     }
+
+    const parseValueByType = (value, type) => {
+        if(type == 'integer')
+            return parseInt(value)
+        else if(type == 'string')
+            return value
+        return value
+    }
     
     //list
     app.get(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
@@ -50,54 +58,23 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         var l = _end - _start;
 
         //검색 파라미터
-        var f = {};
-        var id = req.query.id;
-        if (id) {
-            if (Array.isArray(id))
-                f['id'] = { $in: id.map(m => parseInt(m)) };
-            else
-                f['id'] = parseInt(id);
-        }
+        const f = {};
+        yml_entity.crud?.list?.search?.forEach(m=>{
+            const field = yml_entity.fields.find(f=>f.name == m.name)
+            const q = req.query[m.name];
+            if(q) {
+                if (Array.isArray(q)) {
+                    f[field.name] = { $in: q.map(v => parseValueByType(v, field.type)) };
+                } else {
+                    if(m.exact != false)
+                        f[field.name] = parseValueByType(q, field.type)
+                    else
+                        f[field.name] = { $regex: ".*" + q + ".*" };
+                }
+            }
+        })
 
-        // ${
-        //     entity.property.filter(f=>f.search && f.type != 'divider').map(m=>{
-        //         if(m.type == 'bool') {
-        //             return `
-        //             if (req.query.${m.name})
-        //                 f['${m.name}'] = req.query.${m.name} == 'true'
-        //             `
-        //         } else if(m.type == 'text') {
-        //             return `
-        //             if (req.query.${m.name})
-        //                 f['${m.name}'] = { $regex: ".*" + req.query.${m.name} + ".*" }
-        //             `    
-        //         } else if(m.type == 'reference') {
-        //             //reference의 키는 integer인지 string인지 모른다. 그리고 member_no같이 string으로 취급되어야할 integer도 있다
-        //             return `
-        //             if (req.query.${m.name})
-        //                 f['${m.name}'] = isNaN(Number(req.query.${m.name}))|| parseInt(req.query.${m.name}) > 1569340492095?req.query.${m.name}:parseInt(req.query.${m.name})
-        //             `    
-        //         } else if(m.type == 'date') {
-        //             return `
-        //             if (req.query.date) {
-        //                 if(req.query.date.replace(/-/g, '').length == 8) {
-        //                     //해당 날짜의 시작Date와 끝Date로 검색
-        //                     f['date'] = {
-        //                         $gte: moment(req.query.date).startOf('day').toDate(),
-        //                         $lte: moment(req.query.date).endOf('day').toDate()
-        //                     }
-        //                 }
-        //             }
-        //             `
-        //         } else {
-        //             return `
-        //             if (req.query.${m.name})
-        //                 f['${m.name}'] = req.query.${m.name}
-        //             `    
-        //         } 
-
-        //     }).join('\n')
-        // }
+        console.log('f', f)
 
         var name = req.query.name;
         if (name == null && req.query.q)
@@ -147,7 +124,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
     app.post(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
         let entityId
         if (key_field.autogenerate)
-            entityId = await generateKey()        
+            entityId = await generateKey()
+        else
+            entityId = parseKey(req.body[key_field.name])
         
         if(entityId) {
             let f = {}

@@ -55,10 +55,10 @@ export const DynamicShow = props => {
             <SimpleShowLayout>
                 
                 {fields.map(m=>{
-                    if(m.type == 'integer')
-                        return <NumberField key={m.name} label={m.label} source={m.name} />
-                    else if(m.type == 'string')
+                    if(m.type == 'string' || m.key)
                         return <TextField key={m.name} label={m.label} source={m.name} />
+                    else if(m.type == 'integer')
+                        return <NumberField key={m.name} label={m.label} source={m.name} />
                     else if(m.type == 'date')
                         return <DateField key={m.name} label={m.label} source={m.name} />
                     else if(m.type == 'boolean')

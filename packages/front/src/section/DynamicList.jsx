@@ -42,22 +42,34 @@ const EditToolbar = props => (
     </Toolbar>
 );
 
-const DynamicFilter = props => (
-    <Filter {...props}>
+const DynamicFilter = props => {
+    const yml = useAdminContext();
+    const resource = useResourceContext(props);
+    const yml_entity = useMemo(() => {
+        return yml.entity[resource]
+    }, [yml, resource])
 
-        {
-            //Custom Filter Start
+    return (
+        <Filter {...props}>
+            {
+                yml_entity.crud?.list?.search?.map(m => {
+                    return <TextInput key={m.name} label={m.label} source={m.name} alwaysOn/>
+                })
+            }
+            {
+                //Custom Filter Start
 
-            //Custom Filter End
-        }
-    </Filter>
-);
+                //Custom Filter End
+            }
+        </Filter>
+    )
+};
 
 export const DynamicList = props => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
-    const resource = useResourceContext(props); // 예: "ils", "server" 등
+    const resource = useResourceContext(props);
 
     const fields = useMemo(() => {
         return yml.entity[resource].fields
@@ -82,17 +94,21 @@ export const DynamicList = props => {
             }
             <Datagrid rowClick="show" bulkActionButtons={true}>
                 {
-                    fields.map(field => {
-                        if(field.type == 'integer')
-                            return <NumberField key={field.name} label={field.label} source={field.name} />
-                        else if(field.type == 'string')
-                            return <TextField key={field.name} label={field.label} source={field.name} />
-                        else if(field.type == 'date')
-                            return <DateField key={field.name} label={field.label} source={field.name} />
-                        else if(field.type == 'boolean')
-                            return <BooleanField key={field.name} label={field.label} source={field.name} />
-                        else if(field.type == 'objectId')
-                            return <TextField key={field.name} label={field.label} source={field.name} />
+                    fields.map(m => {
+                        if (m.type == 'string' || m.key)
+                            return <TextField key={m.name} label={m.label} source={m.name} />
+                        else if (m.type == 'integer')
+                            return <NumberField key={m.name} label={m.label} source={m.name} />
+                        else if (m.type == 'reference')
+                            return <ReferenceField link="show" label={m.label} source={m.name} reference={m.reference_entity}>
+                                <TextField source={m.reference_name} />
+                            </ReferenceField>
+                        else if (m.type == 'date')
+                            return <DateField key={m.name} label={m.label} source={m.name} />
+                        else if (m.type == 'boolean')
+                            return <BooleanField key={m.name} label={m.label} source={m.name} />
+                        else if (m.type == 'objectId')
+                            return <TextField key={m.name} label={m.label} source={m.name} />
                     })
                 }
                 //Custom List Start
