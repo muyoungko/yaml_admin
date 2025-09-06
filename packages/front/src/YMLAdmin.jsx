@@ -21,7 +21,7 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 }
 
-const YMLAdmin = ({ adminYaml }) => {
+const YMLAdmin = ({ adminYaml, i18nProvider }) => {
   const [yml, setYml] = useState(null);
   const [dataProvider, setDataProvider] = useState(null);
 
@@ -47,6 +47,7 @@ const YMLAdmin = ({ adminYaml }) => {
         <Admin
           layout={MyLayout}
           authProvider={authProvider}
+          i18nProvider={i18nProvider}
           dataProvider={dataProvider}>
           {yml?.entity && Object.keys(yml.entity).map(name => {
             const entity = yml.entity[name];

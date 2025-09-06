@@ -13,7 +13,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "yaml-admin-front": "file:../../packages/front"
+    "yaml-admin-front": "file:../../packages/front",
+    "ra-i18n-polyglot": "^5.10.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
