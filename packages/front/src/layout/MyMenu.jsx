@@ -37,9 +37,8 @@ const MyMenu = () => {
 
     return (
         <Menu>
-            <Menu.DashboardItem />
+            {/* <Menu.DashboardItem /> */}
 
-            {/* <Menu.ResourceItem name='member' /> */}
             {noCartegoryList.map(m => <Menu.ResourceItem key={m.name} name={m.name} />)}
             {categoryList.map(c => {
                 return <SubMenu
@@ -50,7 +49,9 @@ const MyMenu = () => {
                     icon={<Icon icon={c.icon} />}
                     dense={true}
                 >
-                    {c.menuList.map(m => <Menu.ResourceItem key={m.name} name={m.name} />)}
+                    {c.menuList.map(m => {
+                        return <Menu.ResourceItem key={m.name} name={m.name} />
+                    })}
                 </SubMenu>
             })}
 
