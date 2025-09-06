@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { registerRoutes } = require('yaml-admin-api');
+const crypto = require('crypto');
 
 module.exports = async function createApp() {
   const app = express();
@@ -30,7 +31,13 @@ module.exports = async function createApp() {
   app.use(bodyParser.json({limit: '30mb'}));
   app.use(morgan('dev'));
   
-  await registerRoutes(app, {yamlPath:'../admin.yml'})
+  await registerRoutes(app, {yamlPath:'../admin.yml', 
+    password : {
+      encrypt : (plainPass) => {
+        return crypto.createHash('sha512').update(plainPass).digest('hex')
+      }
+    }
+  })
   
   return app;
 };

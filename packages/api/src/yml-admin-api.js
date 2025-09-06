@@ -38,7 +38,8 @@ async function registerRoutes(app, options = {}) {
       app, db, 
       entity_name, 
       entity:entity[entity_name], 
-      yml
+      yml,
+      options,
     })
   })
 }

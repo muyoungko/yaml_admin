@@ -8,13 +8,6 @@ export default function App() {
     <YMLAdmin
       adminYaml={adminYamlText}
       i18nProvider={polyglotI18nProvider(() => koreanMessages, 'ko')}
-      inject={
-        {
-          password: {
-            
-          }
-        }
-      }
     />
   );
 }

@@ -4,7 +4,7 @@ const { v4 : uuidv4 } = require('uuid');
 const { ObjectId } = require('mongodb');
 const crypto = require('crypto');
 
-const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
+const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) => {
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
     
@@ -87,7 +87,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
                 if (Array.isArray(q)) {
                     f[field.name] = { $in: q.map(v => parseValueByType(v, field)) };
                 } else {
-                    console.log('value', field.name, q, field.type, m.exact != false)
                     if(m.exact != false)
                         f[field.name] = parseValueByType(q, field)
                     else
@@ -96,7 +95,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
             }
         })
 
-        console.log('f', f)
+        //console.log('f', f)
 
         var name = req.query.name;
         if (name == null && req.query.q)
@@ -137,7 +136,11 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         
         let passwordFields = yml_entity.fields.filter(f=>f.type == 'password').map(f=>f.name)
         passwordFields.forEach(f => {
-            entity[f] = crypto.createHash('sha256').update(req.body[f]).digest('hex')
+            if(options?.password?.encrypt) {
+                entity[f] = options.password.encrypt(req.body[f])
+            } else {
+                entity[f] = crypto.createHash('sha512').update(req.body[f]).digest('hex')
+            }
         })
         //Custom ConstructEntity Start
 
@@ -203,7 +206,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
 
         // Ensure React-Admin receives an `id` in the response
         entity.id = entityId
-        
+
         res.json(entity);
     });
 
@@ -248,10 +251,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
     });
 }
 
-const generateEntityApi = async ({ app, db, entity_name, entity, yml }) => {
+const generateEntityApi = async ({ app, db, entity_name, entity, yml, options }) => {
     const { fields } = entity;
 
-    await generateCrud({ app, db, entity_name, yml_entity: entity, yml })
+    await generateCrud({ app, db, entity_name, yml_entity: entity, yml, options })
 }
 
 module.exports = {
