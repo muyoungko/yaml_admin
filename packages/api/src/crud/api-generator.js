@@ -175,6 +175,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         
         //Custom Create Tail End
 
+        entity.id = entityId;
+
         res.json(entity);
     });
 
@@ -199,6 +201,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml }) => {
         
         //Custom Create Tail End
 
+        // Ensure React-Admin receives an `id` in the response
+        entity.id = entityId
+        
         res.json(entity);
     });
 
