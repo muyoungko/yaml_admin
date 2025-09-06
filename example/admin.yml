@@ -79,15 +79,6 @@ entity:
       show: true
       delete: true
     fields:
-      - name: member_no
-        label: "회원번호"
-        type: string
-        required: true
-        key: true
-        autogenerate: true
-      - name: email
-        type: string
-        required: true
       - name: server_id
         label: "공장"
         type: reference
@@ -95,15 +86,31 @@ entity:
         reference_field: id
         reference_name: factory
         required: true
+      - name: member_no
+        label: "회원번호"
+        type: string
+        required: true
+        key: true
+        autogenerate: true
+      - name: email
+        label: "로그인아이디"
+        type: string
+        required: true
       - name: name
         label: "이름"
         type: string
         required: true
       - name: pass
+        label: "비밀번호"
         type: password
         required: true
       - name: user_type
-        type: string
+        type: select
+        select_values:
+          - name: "관리자"
+            label: "관리자"
+          - name: "작업자"
+            label: "작업자"
         required: true
       - name: phone
         type: string

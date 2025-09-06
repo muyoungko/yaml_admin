@@ -28,6 +28,7 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
+import { getFieldShow } from '../common/field';
 //Custom Import Start
 
 //Custom Import End
@@ -56,16 +57,7 @@ export const DynamicShow = props => {
             <SimpleShowLayout>
                 
                 {fields.map(m=>{
-                    if(m.type == 'string' || m.key)
-                        return <TextField key={m.name} label={m.label} source={m.name} />
-                    else if(m.type == 'integer')
-                        return <NumberField key={m.name} label={m.label} source={m.name} />
-                    else if(m.type == 'date')
-                        return <DateField key={m.name} label={m.label} source={m.name} />
-                    else if(m.type == 'boolean')
-                        return <BooleanField key={m.name} label={m.label} source={m.name} />
-                    else if(m.type == 'objectId')
-                        return <TextField key={m.name} label={m.label} source={m.name} />
+                    return getFieldShow(m)
                 })}
                 
             //Custom Show Start

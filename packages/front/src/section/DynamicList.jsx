@@ -27,6 +27,7 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
+import { getFieldShow, getFieldEdit } from '../common/field';
 //Custom Import Start
 
 //Custom Import End
@@ -55,13 +56,7 @@ const DynamicFilter = props => {
             {
                 yml_entity.crud?.list?.search?.map(m => {
                     const field = yml_entity.fields.find(f => f.name == m.name)
-                    if(field?.type == 'reference')
-                        return <ReferenceInput key={m.name} label={field?.label} source={m.name} reference={field?.reference_entity} alwaysOn>
-                            <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name} 
-                                filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })} />
-                        </ReferenceInput>
-                    else
-                        return <TextInput key={m.name} label={field?.label} source={m.name} alwaysOn/>
+                    return getFieldEdit(field)
                 })
             }
             {
@@ -72,6 +67,7 @@ const DynamicFilter = props => {
         </Filter>
     )
 };
+
 
 export const DynamicList = props => {
     const navigate = useNavigate()
@@ -103,20 +99,7 @@ export const DynamicList = props => {
             <Datagrid rowClick="show" bulkActionButtons={true}>
                 {
                     fields.map(m => {
-                        if (m.type == 'string' || m.key)
-                            return <TextField key={m.name} label={m.label} source={m.name} />
-                        else if (m.type == 'integer')
-                            return <NumberField key={m.name} label={m.label} source={m.name} />
-                        else if (m.type == 'reference')
-                            return <ReferenceField key={m.name} link="show" label={m.label} source={m.name} reference={m.reference_entity}>
-                                <TextField source={m.reference_name} />
-                            </ReferenceField>
-                        else if (m.type == 'date')
-                            return <DateField key={m.name} label={m.label} source={m.name} />
-                        else if (m.type == 'boolean')
-                            return <BooleanField key={m.name} label={m.label} source={m.name} />
-                        else if (m.type == 'objectId')
-                            return <TextField key={m.name} label={m.label} source={m.name} />
+                        return getFieldShow(m)
                     })
                 }
                 //Custom List Start

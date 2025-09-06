@@ -49,10 +49,9 @@ export const DynamicCreate = props => {
     }, [yml, resource])
 
     //Custom Create Code Start
-    useEffect(() => {
-        console.log('props', props, yml.entity[resource])
-    }, [props, yml, resource])
+    
     //Custom Create Code End
+    
     return (
         <Create title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
         //Custom Create Property Start
