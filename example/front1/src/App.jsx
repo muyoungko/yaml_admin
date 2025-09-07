@@ -1,6 +1,6 @@
+import polyglotI18nProvider from 'ra-i18n-polyglot';
 import { YMLAdmin } from 'yaml-admin-front';
 import adminYamlText from '../../admin.yml?raw';
-import polyglotI18nProvider from 'ra-i18n-polyglot';
 import koreanMessages from './i18n/ko';
 
 export default function App() {
@@ -9,9 +9,11 @@ export default function App() {
       adminYaml={adminYamlText}
       i18nProvider={polyglotI18nProvider(() => koreanMessages, 'ko')}
       custom={{
-        show: {
-          floor: (record) => {
-            return <div>{record.id} - custom</div>
+        entity: {
+          floor: {
+            show: (record) => {
+              return <div>{record.id} - custom</div>
+            }
           }
         }
       }}

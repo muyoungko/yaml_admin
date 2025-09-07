@@ -39,13 +39,22 @@ const DynamicTitle = () => {
     return <span></span>;
 };
 
+const ShowContent = ({ customFunc }) => {
+    const record = useRecordContext();
+    if (!record) return null;
+    return (
+        <>
+            {customFunc(record)}
+        </>
+    )
+};
+
 export const DynamicShow = ({custom, ...props}) => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
     const resource = useResourceContext(props); 
-    const record = useRecordContext();
-    console.log('record', record)
+    
     const fields = useMemo(() => {
         return yml.entity[resource].fields
     }, [yml, resource])
@@ -55,7 +64,7 @@ export const DynamicShow = ({custom, ...props}) => {
     }, [yml, resource])
 
     const customFunc = useMemo(()=> {
-        return custom?.show?.[resource]
+        return custom?.entity?.[resource]?.show
     }, [yml, resource])
     // Custom List Code Start
 
@@ -63,12 +72,10 @@ export const DynamicShow = ({custom, ...props}) => {
     return (
         <Show title={<DynamicTitle />} {...props} >
             <SimpleShowLayout>
-                
-                {customFunc && record && customFunc(record)}
+                {customFunc && <ShowContent customFunc={customFunc} fields={fields} />}
                 {!customFunc && fields.map(m=>{
                     return getFieldShow(m)
                 })}
-                
             //Custom Show Start
 
             //Custom Show End
