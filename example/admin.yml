@@ -27,8 +27,7 @@ upload:
   local:
     path: ./upload
     path_private: ./upload_private
-    base_url: http://localhost:6911/upload
-    base_url_private: http://localhost:6911/upload_private
+    base_url: http://localhost:6911
 entity:
   server:
     category: '공장'
@@ -214,6 +213,7 @@ entity:
         required: true
       - name: user_type
         type: select
+        label: "역할"
         select_values:
           - name: "관리자"
             label: "관리자"

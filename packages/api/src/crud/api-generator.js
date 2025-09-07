@@ -11,6 +11,7 @@ const { withConfigS3 } = require('../upload/s3Upload.js');
 const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) => {
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+    const api_host = yml["api-host"].uri;
     const uploader = yml.upload.s3 ? withConfigS3({
         access_key_id: yml.upload.s3.access_key_id,
         secret_access_key: yml.upload.s3.secret_access_key,
@@ -21,7 +22,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         path: yml.upload.local.path,
         path_private: yml.upload.local.path_private,
         base_url: yml.upload.local.base_url,
-        base_url_private: yml.upload.local.base_url_private,
+        api_host,
     })
 
     let key_field = yml_entity.fields?.find(field => field.key)
@@ -282,25 +283,12 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         app.post(`/excel/${entity_name}/export`, auth.isAuthenticated, async (req, res) => {
             const filename = `${entity_name}_`
             const fields = yml_entity.fields.map(field => ({
-                label: field.label,
+                label: field.name,
                 value: field.name,
                 key: field.key
             }))
+            //{ label: '상품', value: row => row.product_list?.map(m=>m.total_name).join(',') },
             
-            // [
-            //     { label: '아이디', value: 'id', key:true },
-            //     { label: '결제대상', value: 'entity' },
-            //     { label: '결제번호', value: 'entity_id' },
-            //     { label: '배송지', value: 'address' },
-            //     { label: '배송지 상세', value: 'address_detail' },
-            //     { label: '우편번호', value: 'zip_code' },
-            //     { label: '이름', value: 'name' },
-            //     { label: '전화번호', value: 'phone' },
-            //     { label: '상품', value: row => row.product_list?.map(m=>m.total_name).join(',') },
-            //     { label: '배송상태', value: 'status', import:true },
-            //     { label: '택배사', value: 'track_company', import:true },
-            //     { label: '송장번호', value: 'track_id', import:true },
-            // ];
 
             let f = req.body.filter || {}
             console.log('export f', f)
@@ -328,8 +316,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
             const currentTime = moment().format('YYYYMMDD_HHmmss');
             const key = `${filename}${currentTime}.xlsx`;
-            const s3Result = await uploader.uploadSecure(key, excelBuffer);
-            const url = await uploader.getUrlSecure(s3Result.Key);
+            await uploader.uploadSecure(key, excelBuffer);
+            let url = await uploader.getUrlSecure(key);
+            url += `&token=${req.headers['x-access-token']}`
             return res.json({ r: true, url });
         })
     }

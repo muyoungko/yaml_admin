@@ -1,7 +1,7 @@
 import React from 'react';
 import { TextField, NumberField, ReferenceField, DateField, BooleanField,
     ReferenceInput, AutocompleteInput, TextInput,
-    SelectInput,
+    SelectInput, FunctionField
  } from 'react-admin';
 
 export const getFieldShow = (field) => {
@@ -10,6 +10,9 @@ export const getFieldShow = (field) => {
         return <TextField key={field.name} label={field.label} source={field.name} />
     else if (field.type == 'integer')
         return <NumberField key={field.name} label={field.label} source={field.name} />
+    else if (field.type == 'select')
+        return <FunctionField key={field.name} label={field.label} source={field.name}
+            render={record => field.select_values.find(m => m.name == record[field.name])?.label} />
     else if (field.type == 'reference')
         return <ReferenceField key={field.name} link="show" label={field.label} source={field.name} reference={field.reference_entity}>
             <TextField source={field.reference_name} />
@@ -20,8 +23,8 @@ export const getFieldShow = (field) => {
         return <BooleanField key={field.name} label={field.label} source={field.name} />
     else if (field.type == 'objectId')
         return <TextField key={field.name} label={field.label} source={field.name} />
-    return 
-        <TextField key={field.name} label={field.label} source={field.name} />
+    else 
+        return <TextField key={field.name} label={field.label} source={field.name} />
 }
 
 export const getFieldEdit = (field) => {

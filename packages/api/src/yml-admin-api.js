@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const yaml = require('yaml');
 const { generateEntityApi } = require('./crud/api-generator');
 const { generateLoginApi } = require('./crud/login-api-generator');
+const { withConfig } = require('./login/auth.js');
 
 async function registerRoutes(app, options = {}) {
   const { yamlPath, yamlString } = options;
@@ -41,6 +42,17 @@ async function registerRoutes(app, options = {}) {
       yml,
       options,
     })
+  })
+
+  //local secure download api
+  const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+  app.get('/local-secure-download', auth.isAuthenticated, async (req, res) => {
+    const {key} = req.query;
+    const a = `${yml.upload.local.path_private}/${key}`
+    const file = await fs.readFile(a)
+    res.setHeader('Content-Disposition', `attachment; filename=${key}`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.send(file);
   })
 }
 

@@ -1,43 +1,27 @@
 
-import React, { useMemo } from 'react';
-import {
-    AutocompleteInput,
-    ChipField,
-    Datagrid,
-    DateField,
-    EditButton,
-    Filter,
-    FunctionField,
-    List,
-    NumberField,
-    ReferenceArrayField,
-    ReferenceField,
-    ReferenceInput,
-    SaveButton,
-    SelectInput,
-    SingleFieldList,
-    TextField,
-    TextInput,
-    Toolbar,
-    useRecordContext,
-    useRefresh,
-    useNotify,
-    TopToolbar,
-    useResourceContext,
-    BooleanField,
-    CreateButton,
-    Button,
-} from 'react-admin';
-import {
-    Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField as MuiTextField,
-    Box, CircularProgress, Avatar, CardContent, CardActions, CardHeader, Card, Grid, Chip, Typography, Stack
-} from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAdminContext } from '../AdminContext';
-import { getFieldShow, getFieldEdit } from '../common/field';
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
-import {postFetcher} from '../common/axios.jsx';
+import moment from 'moment';
+import React, { useMemo } from 'react';
+import {
+    Button,
+    CreateButton,
+    Datagrid,
+    EditButton,
+    Filter,
+    List,
+    SaveButton,
+    Toolbar,
+    TopToolbar,
+    useNotify,
+    useRecordContext,
+    useRefresh,
+    useResourceContext
+} from 'react-admin';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAdminContext } from '../AdminContext';
+import { postFetcher } from '../common/axios.jsx';
+import { getFieldEdit, getFieldShow } from '../common/field';
 
 //Custom Import Start
 
@@ -152,7 +136,7 @@ const ListActions = (props) => {
                 document.body.removeChild(link);
 
                 notify(
-                    'csv 생성하였습니다.',
+                    'Download Start...',
                     'info',
                     {},
                     true
