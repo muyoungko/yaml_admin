@@ -37,50 +37,82 @@ entity:
         type: integer
         required: true
         key: true
-        autogenerate: false
-        filter: true
+        autogenerate: true
       - name: region
         label: "지역"
         type: string
         required: true
-        filter: true
       - name: factory
         label: "공장명"
         type: string
         required: true
-        filter: true
   floor:
     category : '공장'
     icon: "solar:map-outline"
     label: "도면 관리"
     custom: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
   region:
     category : '공장'
     label: '장소 관리'
     icon: "solar:download-square-outline"
     fields:
+      - name: server_id
+        label: "공장"
+        type: reference
+        reference_entity: server
+        reference_field: id
+        reference_name: factory
+        required: true
       - name: id
         label: "ID"
         type: integer
         required: true
         key: true
-        autogenerate: false
-        filter: true
+        autogenerate: true
+      - name: key
+        label: "키"
+        type: string
+        required: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
   item:
     category : '공장'
     label: '개소 관리'
     icon: "solar:download-twice-square-outline"
     fields:
+      - name: server_id
+        label: "공장"
+        type: reference
+        reference_entity: server
+        reference_field: id
+        reference_name: factory
+        required: true
       - name: id
         label: "ID"
         type: integer
         required: true
         key: true
-        autogenerate: false
-        filter: true
+        autogenerate: true
+      - name: key
+        label: "키"
+        type: string
+        required: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
   place:
     category: '공장'
-    label: '위치 관리'
+    label: 'ILS 위치 관리'
     icon: "solar:download-minimalistic-bold-duotone"
     fields:
       - name: id
@@ -88,8 +120,7 @@ entity:
         type: integer
         required: true
         key: true
-        autogenerate: false
-        filter: true
+        autogenerate: true
   member:
     category : '사용자'
     icon: "solar:user-hands-outline"
@@ -162,6 +193,8 @@ entity:
       - name: key
         type: string
         required: true
+        key: true
+        autogenerate: true
 
 front:
   useDashboard: true

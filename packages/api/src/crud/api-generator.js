@@ -27,7 +27,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }
 
     const getKeyFromEntity = (entity) => {
-        return entity[key_field.name]
+        const keyValue = entity[key_field.name]
+        if(key_field.type == 'objectId' && keyValue)
+            return keyValue.toString()
+        return keyValue
     }
 
     const parseKey = (key) => {
@@ -35,6 +38,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             return parseInt(key)
         else if(key_field.type == 'string')
             return key
+        else if(key_field.type == 'objectId')
+            return ObjectId.isValid(key) ? new ObjectId(key) : key
         return key
     }
 
@@ -54,6 +59,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             return parseInt(value)
         else if(type == 'string')
             return value
+        else if(type == 'objectId')
+            return ObjectId.isValid(value) ? new ObjectId(value) : value
         return value
     }
     
@@ -95,7 +102,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         })
 
-        //console.log('f', f)
+        console.log('f', f)
 
         var name = req.query.name;
         if (name == null && req.query.q)
@@ -108,10 +115,11 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         //Custom f list End
 
-        var count = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).count();
-        let list = await db.collection(entity_name).find(f).project({ _id: false }).sort(s).skip(parseInt(_start)).limit(l).toArray()
+        const projection = (key_field.name == '_id' ? {} : { _id: false })
+        var count = await db.collection(entity_name).find(f).project(projection).sort(s).count();
+        let list = await db.collection(entity_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
         list.map(m => {
-            m.id = m[key_field.name]
+            m.id = getKeyFromEntity(m)
         })
         //Custom list Start
 
@@ -162,7 +170,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             f[key_field.name] = entityId
             let already = await db.collection(entity_name).findOne(f)
             if (already)
-                return res.status(400).json({ status: 400, statusText: 'error', message: "duplicate key [" + entity_id + "]" });
+                return res.status(400).json({ status: 400, statusText: 'error', message: "duplicate key [" + entityId + "]" });
         }
 
         const entity = await constructEntity(req, entityId);
@@ -178,7 +186,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         
         //Custom Create Tail End
 
-        entity.id = entityId;
+        const generatedId = entityId || r.insertedId
+        entity.id = (key_field.type == 'objectId') ? generatedId?.toString() : generatedId;
 
         res.json(entity);
     });
@@ -190,6 +199,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         
         const entity = await constructEntity(req, entityId);
         entity['update_date'] = new Date()
+        // Do not attempt to set the key field during update (immutable `_id` etc.)
+        if(entity[key_field.name] !== undefined)
+            delete entity[key_field.name]
         
 
         //Custom Create Start
@@ -205,7 +217,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         //Custom Create Tail End
 
         // Ensure React-Admin receives an `id` in the response
-        entity.id = entityId
+        entity.id = (key_field.type == 'objectId') ? entityId?.toString() : entityId
 
         res.json(entity);
     });

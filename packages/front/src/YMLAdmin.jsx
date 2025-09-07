@@ -58,7 +58,7 @@ const YMLAdmin = ({ adminYaml, i18nProvider, customEntity }) => {
               : undefined;
 
             if (entity.custom)
-              return <Resource key={name} name={name} icon={IconComponent}/>  
+              return <Resource key={name} name={name} options={{ label: entity.label }} icon={IconComponent}/>  
             else 
               return (
                 <Resource key={name} name={name}
