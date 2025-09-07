@@ -50,8 +50,26 @@ entity:
     category : '공장'
     icon: "solar:map-outline"
     label: "도면 관리"
-    custom: true
+    crud:
+      list:
+        search:
+          - name: id
+          - name: region
+            exact: false
+          - name: factory
+            exact: false
+      create: true
+      edit: true
+      show: true
+      delete: true
     fields:
+      - name: server_id
+        label: "공장"
+        type: reference
+        reference_entity: server
+        reference_field: id
+        reference_name: factory
+        required: true
       - name: id
         label: "ID"
         type: integer

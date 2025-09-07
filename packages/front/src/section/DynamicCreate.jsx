@@ -43,7 +43,7 @@ const validateRequire = [required()];
 export const DynamicCreate = props => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
-    const resource = useResourceContext(props); // 예: "ils", "server" 등
+    const resource = useResourceContext(props); 
     
     const fields = useMemo(() => {
         return yml.entity[resource].fields

@@ -39,24 +39,33 @@ const DynamicTitle = () => {
     return <span></span>;
 };
 
-export const DynamicShow = props => {
+export const DynamicShow = ({custom, ...props}) => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
-    const resource = useResourceContext(props); // 예: "ils", "server" 등
-
+    const resource = useResourceContext(props); 
+    const record = useRecordContext();
+    console.log('record', record)
     const fields = useMemo(() => {
         return yml.entity[resource].fields
     }, [yml, resource])
 
-    //Custom List Code Start
+    const yml_entity = useMemo(() => {
+        return yml.entity[resource]
+    }, [yml, resource])
+
+    const customFunc = useMemo(()=> {
+        return custom?.show?.[resource]
+    }, [yml, resource])
+    // Custom List Code Start
 
     //Custom List Code End
     return (
         <Show title={<DynamicTitle />} {...props} >
             <SimpleShowLayout>
                 
-                {fields.map(m=>{
+                {customFunc && record && customFunc(record)}
+                {!customFunc && fields.map(m=>{
                     return getFieldShow(m)
                 })}
                 

@@ -24,19 +24,9 @@ export const getFieldShow = (field) => {
         <TextField key={field.name} label={field.label} source={field.name} />
 }
 
-// const {type, autogenerate} = field
-//                     if (autogenerate) return null
-//                     return (
-//                         <TextInput
-//                             key={field.name}
-//                             resettable
-//                             label={field.label}
-//                             source={field.name}
-//                             validate={validateRequire}
-//                         />
-//                     )
-
 export const getFieldEdit = (field) => {
+    if(!field) 
+        return null;
     const {type, autogenerate} = field
     if(autogenerate) return null
     if(type == 'reference')

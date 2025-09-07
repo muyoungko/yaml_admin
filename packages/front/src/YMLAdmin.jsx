@@ -22,7 +22,7 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 }
 
-const YMLAdmin = ({ adminYaml, i18nProvider, customEntity }) => {
+const YMLAdmin = ({ adminYaml, i18nProvider, custom }) => {
   const [yml, setYml] = useState(null);
   const [dataProvider, setDataProvider] = useState(null);
 
@@ -64,24 +64,24 @@ const YMLAdmin = ({ adminYaml, i18nProvider, customEntity }) => {
                 <Resource key={name} name={name}
                   options={{ label: entity.label }}
                   icon={IconComponent}
-                  list={(!entity.crud || entity.crud?.list) ? DynamicList : undefined}
-                  create={(!entity.crud || entity.crud?.create) ? DynamicCreate : undefined}
-                  edit={(!entity.crud || entity.crud?.edit) ? DynamicEdit : undefined}
-                  show={(!entity.crud || entity.crud?.show) ? DynamicShow : undefined}
+                  list={(props => <DynamicList {...props} custom={custom} />)}
+                  create={(props => <DynamicCreate {...props} custom={custom} />)}
+                  edit={(props => <DynamicEdit {...props} custom={custom} />)}
+                  show={(props => <DynamicShow {...props} custom={custom} />)}
                 />
               )
 
           })}
 
-          <CustomRoutes>
+          {/* <CustomRoutes>
             {yml?.entity && Object.keys(yml.entity).map(name => {
               const entity = yml.entity[name];
               if (entity.custom)
                 return (
-                  <Route path={`/${name}`} element={customEntity(name)} />
+                  <Route path={`/${name}`} element={customEntity(name, 'entire')} />
                 )
             })}
-          </CustomRoutes>
+          </CustomRoutes> */}
         </Admin>
       </AdminProvider>
       }
