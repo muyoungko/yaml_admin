@@ -21,13 +21,24 @@ import {
     Toolbar,
     useRecordContext,
     useRefresh,
+    useNotify,
+    TopToolbar,
     useResourceContext,
     BooleanField,
+    CreateButton,
+    Button,
 } from 'react-admin';
-
-import { useNavigate } from 'react-router-dom';
+import {
+    Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField as MuiTextField,
+    Box, CircularProgress, Avatar, CardContent, CardActions, CardHeader, Card, Grid, Chip, Typography, Stack
+} from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
 import { getFieldShow, getFieldEdit } from '../common/field';
+import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
+import {postFetcher} from '../common/axios.jsx';
+
 //Custom Import Start
 
 //Custom Import End
@@ -68,12 +79,115 @@ const DynamicFilter = props => {
     )
 };
 
+const ListActions = (props) => {
+    const resource = useResourceContext(props);
+    const fileInputRef = React.createRef();
+    const notify = useNotify();
+    const refresh = useRefresh();
+    const location = useLocation()
+
+    const convertFileToBase64 = async file => {
+        
+        if(file){
+            const arrayBuffer = await file.arrayBuffer(); // ArrayBuffer 얻기
+            const uint8Array = new Uint8Array(arrayBuffer); // Uint8Array로 변환
+        
+            // Uint8Array를 문자열로 변환
+            const binaryString = uint8Array.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+        
+            // Base64 인코딩
+            return btoa(binaryString);
+        } else  {
+            return null
+        }
+    };
+
+    const handleImportFiles = async files => {
+        const file = files[0];
+
+        const base64 = await convertFileToBase64(file)
+        await postFetcher(`/api/${resource}/import`, {}, {base64}).then(res => {
+            if (res && res.r) {
+                notify(
+                    res.msg,
+                    { type: 'success' },
+                    {},
+                    true
+                );
+                window.location.reload(true);
+            } else {
+                notify(
+                    res.msg,
+                    { type: 'error' },
+                    {},
+                    true
+                );
+            }
+        });
+    };
+
+    const handleImportClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleExportClick = () => {
+        //url에서 filter paremeters를 가져와서 export
+        const params = new URLSearchParams(location.search); // Query String 파싱
+        const filter = params.get("filter")
+        postFetcher(`/excel/${resource}/export`, {}, { filter: (filter && JSON.parse(filter)) }).then(r => {
+            if (!r.r) {
+                notify(
+                    r.msg ? r.msg : 'xlsx 생성에 실패하였습니다.',
+                    'warning',
+                    {},
+                    true
+                );
+            } else if (r && r.r) {
+                const link = document.createElement('a');
+                link.href = r.url;
+                const today = moment().format('YYYYMMDDHHmmss');
+                link.setAttribute('download', `${today}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                notify(
+                    'csv 생성하였습니다.',
+                    'info',
+                    {},
+                    true
+                );
+            }
+        });
+    }
+
+    return (
+        <TopToolbar>
+            <CreateButton />
+            <>
+                <input
+                    type="file"
+                    accept=".xlsx"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={e => handleImportFiles(e.target.files)}
+                />
+                <Button onClick={handleImportClick} startIcon={<UploadIcon />} label='Import'/>
+            </>
+            <Button onClick={handleExportClick} startIcon={<DownloadIcon />} label='Export'/>
+        </TopToolbar>
+    );
+};
 
 export const DynamicList = props => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
     const resource = useResourceContext(props);
+
+    const crud = useMemo(() => {
+        return yml.entity[resource].crud
+    }, [yml, resource])
 
     const fields = useMemo(() => {
         return yml.entity[resource].fields
@@ -87,6 +201,7 @@ export const DynamicList = props => {
             exporter={false}
             sort={{ field: 'id', order: 'DESC' }}
             perPage={30}
+            actions={<ListActions />}
         //Custom List Action Start
 
         //Custom List Action End

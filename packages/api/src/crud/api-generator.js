@@ -1,15 +1,31 @@
 const { withConfig } = require('../login/auth.js');
 const { genEntityIdWithKey } = require('../common/util.js');
-const { v4 : uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const { ObjectId } = require('mongodb');
 const crypto = require('crypto');
+const XLSX = require('xlsx');
+const moment = require('moment');
+const { withConfigLocal } = require('../upload/localUpload.js');
+const { withConfigS3 } = require('../upload/s3Upload.js');
 
 const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) => {
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
-    
+    const uploader = yml.upload.s3 ? withConfigS3({
+        access_key_id: yml.upload.s3.access_key_id,
+        secret_access_key: yml.upload.s3.secret_access_key,
+        bucket: yml.upload.s3.bucket,
+        bucket_private: yml.upload.s3.bucket_private,
+        base_url: yml.upload.s3.base_url,
+    }) : withConfigLocal({
+        path: yml.upload.local.path,
+        path_private: yml.upload.local.path_private,
+        base_url: yml.upload.local.base_url,
+        base_url_private: yml.upload.local.base_url_private,
+    })
+
     let key_field = yml_entity.fields?.find(field => field.key)
-    if(!key_field) {
+    if (!key_field) {
         key_field = {
             name: '_id',
             type: 'objectId',
@@ -19,33 +35,33 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }
 
     const generateKey = async () => {
-        if(key_field.type == 'integer')
+        if (key_field.type == 'integer')
             return await genEntityIdWithKey(db, key_field.name)
-        else if(key_field.type == 'string')
+        else if (key_field.type == 'string')
             return uuidv4()
         return null
     }
 
     const getKeyFromEntity = (entity) => {
         const keyValue = entity[key_field.name]
-        if(key_field.type == 'objectId' && keyValue)
+        if (key_field.type == 'objectId' && keyValue)
             return keyValue.toString()
         return keyValue
     }
 
     const parseKey = (key) => {
-        if(key_field.type == 'integer')
+        if (key_field.type == 'integer')
             return parseInt(key)
-        else if(key_field.type == 'string')
+        else if (key_field.type == 'string')
             return key
-        else if(key_field.type == 'objectId')
+        else if (key_field.type == 'objectId')
             return ObjectId.isValid(key) ? new ObjectId(key) : key
         return key
     }
 
     const parseValueByType = (value, field) => {
-        const {type, reference_entity, reference_field} = field
-        if(type == 'reference') {
+        const { type, reference_entity, reference_field } = field
+        if (type == 'reference') {
             const referenceEntity = yml.entity[reference_entity]
             const referenceField = referenceEntity.fields.find(f => f.name == reference_field)
             return parseValueByTypeCore(value, referenceField)
@@ -54,18 +70,18 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         }
     }
     const parseValueByTypeCore = (value, field) => {
-        const {type} = field
-        if(type == 'integer')
+        const { type } = field
+        if (type == 'integer')
             return parseInt(value)
-        else if(type == 'string')
+        else if (type == 'string')
             return value
-        else if(type == 'objectId')
+        else if (type == 'objectId')
             return ObjectId.isValid(value) ? new ObjectId(value) : value
         return value
     }
-    
+
     const addInfo = async (db, list) => {
-        let passwordFields = yml_entity.fields.filter(f=>f.type == 'password').map(f=>f.name)
+        let passwordFields = yml_entity.fields.filter(f => f.type == 'password').map(f => f.name)
         list.forEach(m => {
             passwordFields.forEach(f => {
                 delete m[f]
@@ -87,14 +103,14 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         //검색 파라미터
         const f = {};
-        yml_entity.crud?.list?.search?.forEach(m=>{
-            const field = yml_entity.fields.find(f=>f.name == m.name)
+        yml_entity.crud?.list?.search?.forEach(m => {
+            const field = yml_entity.fields.find(f => f.name == m.name)
             const q = req.query[m.name];
-            if(q) {
+            if (q) {
                 if (Array.isArray(q)) {
                     f[field.name] = { $in: q.map(v => parseValueByType(v, field)) };
                 } else {
-                    if(m.exact != false)
+                    if (m.exact != false)
                         f[field.name] = parseValueByType(q, field)
                     else
                         f[field.name] = { $regex: ".*" + q + ".*" };
@@ -102,7 +118,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         })
 
-        console.log('f', f)
+        //console.log('f', f)
 
         var name = req.query.name;
         if (name == null && req.query.q)
@@ -132,19 +148,19 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const constructEntity = async (req, entityId) => {
         var entity = {};
-        
-        if(entityId)
+
+        if (entityId)
             entity[key_field.name] = entityId
 
         yml_entity.fields.forEach(field => {
-            if(!field.key)
+            if (!field.key)
                 entity[field.name] = req.body[field.name]
         })
         entity['update_date'] = new Date()
-        
-        let passwordFields = yml_entity.fields.filter(f=>f.type == 'password').map(f=>f.name)
+
+        let passwordFields = yml_entity.fields.filter(f => f.type == 'password').map(f => f.name)
         passwordFields.forEach(f => {
-            if(options?.password?.encrypt) {
+            if (options?.password?.encrypt) {
                 entity[f] = options.password.encrypt(req.body[f])
             } else {
                 entity[f] = crypto.createHash('sha512').update(req.body[f]).digest('hex')
@@ -164,8 +180,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             entityId = await generateKey()
         else
             entityId = parseKey(req.body[key_field.name])
-        
-        if(entityId) {
+
+        if (entityId) {
             let f = {}
             f[key_field.name] = entityId
             let already = await db.collection(entity_name).findOne(f)
@@ -178,12 +194,12 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         entity['create_admin_id'] = req.user.id
 
         //Custom Create Start
-        
+
         //Custom Create End
 
         var r = await db.collection(entity_name).insertOne(entity);
         //Custom Create Tail Start
-        
+
         //Custom Create Tail End
 
         const generatedId = entityId || r.insertedId
@@ -196,16 +212,16 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     //edit
     app.put(`/${entity_name}/:id`, auth.isAuthenticated, async (req, res) => {
         let entityId = parseKey(req.params.id)
-        
+
         const entity = await constructEntity(req, entityId);
         entity['update_date'] = new Date()
         // Do not attempt to set the key field during update (immutable `_id` etc.)
-        if(entity[key_field.name] !== undefined)
+        if (entity[key_field.name] !== undefined)
             delete entity[key_field.name]
-        
+
 
         //Custom Create Start
-        
+
         //Custom Create End
 
         let f = {}
@@ -213,7 +229,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         await db.collection(entity_name).updateOne(f, { $set: entity });
 
         //Custom Create Tail Start
-        
+
         //Custom Create Tail End
 
         // Ensure React-Admin receives an `id` in the response
@@ -227,7 +243,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
         const m = await db.collection(entity_name).findOne(f);
-        if(!m) 
+        if (!m)
             return res.status(404).send('Not found');
 
         m.id = getKeyFromEntity(m)
@@ -240,8 +256,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     app.delete(`/${entity_name}/:id`, auth.isAuthenticated, async function (req, res) {
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
-        const entity= await db.collection(entity_name).findOne(f);
-        if(!entity) 
+        const entity = await db.collection(entity_name).findOne(f);
+        if (!entity)
             return res.status(404).send('Not found');
 
         entity.id = getKeyFromEntity(entity)
@@ -251,21 +267,83 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         //Custom Delete Api Start
 
         //Custom Delete Api End
-        
-        if(customDelete)
+
+        if (customDelete)
             ;
-        else if(softDelete)
-            await db.collection(entity_name).updateOne(f, {$set:{remove:true}});
-        else 
+        else if (softDelete)
+            await db.collection(entity_name).updateOne(f, { $set: { remove: true } });
+        else
             await db.collection(entity_name).deleteOne(f);
 
         res.json(entity);
     });
+
+    if (yml_entity.crud?.list?.export) {
+        app.post(`/excel/${entity_name}/export`, auth.isAuthenticated, async (req, res) => {
+            const filename = `${entity_name}_`
+            const fields = yml_entity.fields.map(field => ({
+                label: field.label,
+                value: field.name,
+                key: field.key
+            }))
+            
+            // [
+            //     { label: '아이디', value: 'id', key:true },
+            //     { label: '결제대상', value: 'entity' },
+            //     { label: '결제번호', value: 'entity_id' },
+            //     { label: '배송지', value: 'address' },
+            //     { label: '배송지 상세', value: 'address_detail' },
+            //     { label: '우편번호', value: 'zip_code' },
+            //     { label: '이름', value: 'name' },
+            //     { label: '전화번호', value: 'phone' },
+            //     { label: '상품', value: row => row.product_list?.map(m=>m.total_name).join(',') },
+            //     { label: '배송상태', value: 'status', import:true },
+            //     { label: '택배사', value: 'track_company', import:true },
+            //     { label: '송장번호', value: 'track_id', import:true },
+            // ];
+
+            let f = req.body.filter || {}
+            console.log('export f', f)
+            const list = await db.collection(entity_name).find(f).project({
+                _id: false,
+            }).toArray();
+
+            if (list.length == 0)
+                return res.json({ r: false, msg: 'No Data' });
+
+            await addInfo(db, list)
+
+            const data = list.map(row => {
+                let obj = {};
+                fields.forEach(field => {
+                    obj[field.label] = typeof field.value === 'function' ? field.value(row) : row[field.value];
+                });
+                return obj;
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+
+            const currentTime = moment().format('YYYYMMDD_HHmmss');
+            const key = `${filename}${currentTime}.xlsx`;
+            const s3Result = await uploader.uploadSecure(key, excelBuffer);
+            const url = await uploader.getUrlSecure(s3Result.Key);
+            return res.json({ r: true, url });
+        })
+    }
+
+    if (yml_entity.crud?.list?.import) {
+        app.post(`/excel/${entity_name}/import`, auth.isAuthenticated, async (req, res) => {
+            const filter = req.body.filter
+            const list = await db.collection(entity_name).find(filter).toArray()
+            res.json(list)
+        })
+    }
 }
 
 const generateEntityApi = async ({ app, db, entity_name, entity, yml, options }) => {
-    const { fields } = entity;
-
     await generateCrud({ app, db, entity_name, yml_entity: entity, yml, options })
 }
 

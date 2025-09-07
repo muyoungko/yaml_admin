@@ -14,6 +14,7 @@ const koreanMessages = {
       delete: '삭제',
       edit: '편집',
       export: '내보내기',
+      import: '가져오기',
       list: '목록',
       refresh: '새로고침',
       remove: '제거',
@@ -139,6 +140,8 @@ const koreanMessages = {
       DESC: '내림차순',
     },
   },
+  Import: '가져오기',
+  Export: '내보내기',
 };
 
 export default koreanMessages;

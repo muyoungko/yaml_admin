@@ -59,10 +59,6 @@ export const DynamicShow = ({custom, ...props}) => {
         return yml.entity[resource].fields
     }, [yml, resource])
 
-    const yml_entity = useMemo(() => {
-        return yml.entity[resource]
-    }, [yml, resource])
-
     const customFunc = useMemo(()=> {
         return custom?.entity?.[resource]?.show
     }, [yml, resource])
