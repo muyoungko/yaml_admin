@@ -81,6 +81,14 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         return value
     }
 
+    const passwordEncrypt = (value) => {
+        if (options?.password?.encrypt) {
+            return options.password.encrypt(value)
+        } else {
+            return crypto.createHash('sha512').update(value).digest('hex')
+        }
+    }
+
     const addInfo = async (db, list) => {
         let passwordFields = yml_entity.fields.filter(f => f.type == 'password').map(f => f.name)
         list.forEach(m => {
@@ -161,11 +169,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         let passwordFields = yml_entity.fields.filter(f => f.type == 'password').map(f => f.name)
         passwordFields.forEach(f => {
-            if (options?.password?.encrypt) {
-                entity[f] = options.password.encrypt(req.body[f])
-            } else {
-                entity[f] = crypto.createHash('sha512').update(req.body[f]).digest('hex')
-            }
+            entity[f] = passwordEncrypt(req.body[f])
         })
         //Custom ConstructEntity Start
 
@@ -282,13 +286,11 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     if (yml_entity.crud?.list?.export) {
         app.post(`/excel/${entity_name}/export`, auth.isAuthenticated, async (req, res) => {
             const filename = `${entity_name}_`
-            const fields = yml_entity.fields.map(field => ({
+            const fields = yml_entity.crud.list.export.fields.map(field => ({
                 label: field.name,
                 value: field.name,
-                key: field.key
             }))
             //{ label: '상품', value: row => row.product_list?.map(m=>m.total_name).join(',') },
-            
 
             let f = req.body.filter || {}
             const list = await db.collection(entity_name).find(f).project({
@@ -323,9 +325,57 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     if (yml_entity.crud?.list?.import) {
         app.post(`/excel/${entity_name}/import`, auth.isAuthenticated, async (req, res) => {
-            const filter = req.body.filter
-            const list = await db.collection(entity_name).find(filter).toArray()
-            res.json(list)
+            const { base64 } = req.body
+            const buf = Buffer.from(base64, 'base64');
+            const workbook = XLSX.read(buf, { type: 'buffer' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            let list = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            //엑셀 첫번째 행 타이틀 데이터 제거
+            let header = list[0]
+            list.shift();
+
+            let upsert = yml_entity.crud.list.import.upsert || true
+
+            const fields = yml_entity.crud.list.import.fields.map(m=>m)
+            fields.map(field => {
+                let original = yml_entity.fields.find(f=>f.name == field.name)
+                field.type = original.type
+            })
+            
+            let key_field = yml_entity.fields.find(f=>f.key)
+            let bulk = []
+            list.map(m => {
+                let f = {}
+                
+                let m_obj = {}
+                header.map((h, index) => {
+                    m_obj[h] = m[index]
+                })
+                
+                f[key_field.name] = getKeyFromEntity(m_obj)
+                if(!f[key_field.name])
+                    return
+                let entity = {}
+                fields.forEach(field => {
+                    if(field.type == 'integer')
+                        entity[field.name] = parseInt(m_obj[field.name])
+                    else if(field.type == 'password')
+                        entity[field.name] = passwordEncrypt(m_obj[field.name] + '')
+                    else 
+                        entity[field.name] = m_obj[field.name] + ''
+                })
+                
+                bulk.push({
+                    updateOne: {
+                        filter: f,
+                        update: { $set: entity },
+                        upsert: upsert
+                    }
+                })
+            })
+
+            let result = await db.collection('delivery').bulkWrite(bulk);
+            res.json({ r: true, msg: 'Import success - ' + result.upsertedCount + ' rows effected' });
         })
     }
 }

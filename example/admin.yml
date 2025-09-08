@@ -166,21 +166,26 @@ entity:
           - name: name
             exact: false
         export:
-          - name: server_id
-          - name: email
-          - name: name
-          - name: user_type
-          - name: pass
-          - name: phone
-          - name: department
+          fields:
+            - name: server_id
+            - name: member_no
+            - name: email
+            - name: name
+            - name: user_type
+            - name: pass
+            - name: phone
+            - name: department
         import:
-          - name: server_id
-          - name: email
-          - name: name
-          - name: user_type
-          - name: pass
-          - name: phone
-          - name: department
+          fields:
+            - name: server_id
+            - name: member_no
+            - name: email
+            - name: name
+            - name: user_type
+            - name: pass
+            - name: phone
+            - name: department
+          upsert: true
       create: true
       edit: true
       show: true

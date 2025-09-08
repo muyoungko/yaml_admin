@@ -63,7 +63,7 @@ const DynamicFilter = props => {
     )
 };
 
-const ListActions = (props) => {
+const ListActions = ({crud, ...props}) => {
     const resource = useResourceContext(props);
     const fileInputRef = React.createRef();
     const notify = useNotify();
@@ -90,23 +90,30 @@ const ListActions = (props) => {
         const file = files[0];
 
         const base64 = await convertFileToBase64(file)
-        await postFetcher(`/api/${resource}/import`, {}, {base64}).then(res => {
+        await postFetcher(`/excel/${resource}/import`, {}, {base64}).then(res => {
             if (res && res.r) {
                 notify(
                     res.msg,
                     { type: 'success' },
                     {},
-                    true
+                    false
                 );
-                window.location.reload(true);
+                refresh();
             } else {
                 notify(
                     res.msg,
                     { type: 'error' },
                     {},
-                    true
+                    false
                 );
             }
+        }).catch(e => {
+            notify(
+                e.message,
+                { type: 'error' },
+                {},
+                false
+            );
         });
     };
 
@@ -124,7 +131,7 @@ const ListActions = (props) => {
                     r.msg ? r.msg : 'xlsx 생성에 실패하였습니다.',
                     'warning',
                     {},
-                    true
+                    false
                 );
             } else if (r && r.r) {
                 const link = document.createElement('a');
@@ -139,7 +146,7 @@ const ListActions = (props) => {
                     'Download Start...',
                     'info',
                     {},
-                    true
+                    false
                 );
             }
         });
@@ -147,8 +154,8 @@ const ListActions = (props) => {
 
     return (
         <TopToolbar>
-            <CreateButton />
-            <>
+            {crud?.create && <CreateButton />}
+            {crud?.list?.import && <>
                 <input
                     type="file"
                     accept=".xlsx"
@@ -157,8 +164,8 @@ const ListActions = (props) => {
                     onChange={e => handleImportFiles(e.target.files)}
                 />
                 <Button onClick={handleImportClick} startIcon={<UploadIcon />} label='Import'/>
-            </>
-            <Button onClick={handleExportClick} startIcon={<DownloadIcon />} label='Export'/>
+            </>}
+            {crud?.list?.export && <Button onClick={handleExportClick} startIcon={<DownloadIcon />} label='Export'/>}
         </TopToolbar>
     );
 };
@@ -170,7 +177,16 @@ export const DynamicList = props => {
     const resource = useResourceContext(props);
 
     const crud = useMemo(() => {
-        return yml.entity[resource].crud
+        return yml.entity[resource].crud || {
+            show: true,
+            edit: true,
+            create: true,
+            delete: true,
+            list: {
+                import: false,
+                export: false
+            }
+        }
     }, [yml, resource])
 
     const fields = useMemo(() => {
@@ -185,7 +201,7 @@ export const DynamicList = props => {
             exporter={false}
             sort={{ field: 'id', order: 'DESC' }}
             perPage={30}
-            actions={<ListActions />}
+            actions={<ListActions crud={crud} />}
         //Custom List Action Start
 
         //Custom List Action End
