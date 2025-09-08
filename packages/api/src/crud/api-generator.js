@@ -291,7 +291,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             
 
             let f = req.body.filter || {}
-            console.log('export f', f)
             const list = await db.collection(entity_name).find(f).project({
                 _id: false,
             }).toArray();
@@ -317,8 +316,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             const currentTime = moment().format('YYYYMMDD_HHmmss');
             const key = `${filename}${currentTime}.xlsx`;
             await uploader.uploadSecure(key, excelBuffer);
-            let url = await uploader.getUrlSecure(key);
-            url += `&token=${req.headers['x-access-token']}`
+            let url = await uploader.getUrlSecure(key, auth);
             return res.json({ r: true, url });
         })
     }

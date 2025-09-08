@@ -232,11 +232,21 @@ entity:
     icon: "solar:lock-keyhole-minimalistic-outline"
     label: "ILS 관리"
     fields:
+      - name: server_id
+        label: "공장"
+        type: reference
+        reference_entity: server
+        reference_field: id
+        reference_name: factory
+        required: true
       - name: key
         type: string
         required: true
         key: true
         autogenerate: true
+      - name: serial
+        type: string
+        required: true
 
 front:
   useDashboard: true

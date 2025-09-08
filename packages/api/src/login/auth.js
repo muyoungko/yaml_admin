@@ -12,7 +12,25 @@ const withConfig = (config) => {
     });
   };
 
-  const authenticateSuccess = function (req, res, user, next) {
+  const genenrateShortToken = () => {
+    return new Promise((resolve, reject) => {
+      jwt.sign(
+        {},
+        jwt_secret,
+        {
+          expiresIn: '5m',
+          subject: 'shortToken'
+        }, (err, token) => {
+          if (err) 
+            reject(err);
+          else 
+            resolve(token);
+        }
+      );
+    })
+  }
+
+  const authenticateSuccess = (req, res, user, next) => {
     jwt.sign(
       user,
       jwt_secret,
@@ -30,15 +48,15 @@ const withConfig = (config) => {
     );
   };
 
-  const isAuthenticated = function (req, res, next) {
-    
+  const isAuthenticated = (req, res, next) => {
+
     const token = req.headers['x-access-token'] || req.query.token || req.cookies.token;
     if (token == null)
-      res.json({ r: false, err: { code: 666 }, msg: '로그인 필요' });
+      res.json({ r: false, err: { code: 666 }, msg: 'No authentication' });
     else
       jwt.verify(token, jwt_secret, (err, decoded) => {
         if (err) {
-          res.json({ r: false, err: { code: 666 }, msg: '로그인 필요' });
+          res.json({ r: false, err: { code: 666 }, msg: 'No authentication' });
           return;
         }
         req.user = decoded;
@@ -78,6 +96,7 @@ const withConfig = (config) => {
   return {
     isAuthenticated,
     authenticate,
+    genenrateShortToken,
   }
 }
 

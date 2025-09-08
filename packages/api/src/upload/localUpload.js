@@ -22,8 +22,10 @@ const withConfigLocal = ({path, path_private, base_url, api_host}) => {
         return await fs.writeFileSync(path_private + '/' + key, stream)
     }
 
-    const getUrlSecure = async (Key) => { 
+    const getUrlSecure = async (Key, auth) => { 
         let r = `${api_host}/local-secure-download?key=${Key}`
+        let shortToken = await auth.genenrateShortToken()
+        r += `&token=${shortToken}`
         console.log('getUrlSecure', r)
         return r
     }
