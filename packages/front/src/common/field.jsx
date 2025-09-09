@@ -54,6 +54,7 @@ export const getFieldEdit = (field, search = false) => {
     if (type == 'reference')
         return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity} alwaysOn>
             <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name}
+                filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })} 
                 validate={field.required && !search && validateRequire}
                 />
         </ReferenceInput>
