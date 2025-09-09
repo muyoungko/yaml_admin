@@ -51,7 +51,7 @@ const DynamicFilter = props => {
             {
                 yml_entity.crud?.list?.search?.map(m => {
                     const field = yml_entity.fields.find(f => f.name == m.name)
-                    return getFieldEdit(field)
+                    return getFieldEdit(field, true)
                 })
             }
             {

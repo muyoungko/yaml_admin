@@ -98,6 +98,18 @@ entity:
     category : '공장'
     label: '장소 관리'
     icon: "solar:download-square-outline"
+    crud:
+      list:
+        search:
+          - name: server_id
+          - name: id
+            exact: false
+          - name: name
+            exact: false
+      create: true
+      edit: true
+      show: true
+      delete: true
     fields:
       - name: server_id
         label: "공장"
@@ -112,10 +124,6 @@ entity:
         required: true
         key: true
         autogenerate: true
-      - name: key
-        label: "키"
-        type: string
-        required: true
       - name: name
         label: "이름"
         type: string
@@ -148,7 +156,7 @@ entity:
         required: true
   place:
     category: '공장'
-    label: 'ILS 위치 관리'
+    label: 'Location'
     icon: "solar:download-minimalistic-bold-duotone"
     fields:
       - name: id
@@ -252,7 +260,6 @@ entity:
         type: string
         required: true
         key: true
-        autogenerate: true
       - name: serial
         type: string
         required: true

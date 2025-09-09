@@ -9,9 +9,9 @@ import ClickableImageField from '../component/ClickableImageField';
 
 export const getFieldShow = (field, isList = false) => {
     if (!field || field.type == 'password') return null;
-    if (field.type == 'string' || field.key)
+    if (field.type == 'string' || field.key){
         return <TextField key={field.name} label={field.label} source={field.name} />
-    else if (field.type == 'integer')
+    } else if (field.type == 'integer')
         return <NumberField key={field.name} label={field.label} source={field.name} />
     else if (field.type == 'select')
         return <FunctionField key={field.name} label={field.label} source={field.name}
@@ -42,35 +42,35 @@ export const getFieldShow = (field, isList = false) => {
         return <TextField key={field.name} label={field.label} source={field.name} />
 }
 
-const required = (message = 'Required') =>
+const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = (field) => {
+export const getFieldEdit = (field, search = false) => {
     if (!field)
         return null;
     const { type, autogenerate } = field
-    if (autogenerate) return null
+    if (autogenerate && !search) return null
     if (type == 'reference')
         return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity} alwaysOn>
             <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name}
-                filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })} 
-                validate={field.required && validateRequire}
+                validate={field.required && !search && validateRequire}
                 />
         </ReferenceInput>
     else if (field?.type == 'select')
         return <SelectInput key={field.name} label={field?.label} source={field.name} alwaysOn
             choices={field?.select_values}
             optionText="name" optionValue="label"
-            validate={field.required && validateRequire}
+            validate={field.required && !search && validateRequire}
         />
     else if (field?.type == 'image')
         return <ImageInput key={field.name} source={field.name} label={field.label} accept="image/*" placeholder={<p>{field.label}</p>} 
-            validate={field.required && validateRequire}>
+            validate={field.required && !search && validateRequire}>
             <ImageField source="src" title="title" sx={{ '& img': { maxHeight: '20rem' } }} />
         </ImageInput>
-    else
+    else {
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn 
-            validate={field.required && validateRequire}
+            validate={field.required && !search && validateRequire}
         />
+    }
 }
