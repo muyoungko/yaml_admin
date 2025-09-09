@@ -12,6 +12,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
     const api_host = yml["api-host"].uri;
+    let isS3 = yml.upload.s3
+    let host_image = isS3 ? yml.upload.s3.base_url : yml.upload.local.base_url
     const uploader = yml.upload.s3 ? withConfigS3({
         access_key_id: yml.upload.s3.access_key_id,
         secret_access_key: yml.upload.s3.secret_access_key,
@@ -97,7 +99,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             })
         })
 
-        let mediaFields = yml_entity.fields.filter(f => ['image', 'video'].includes(f.type))
+        let mediaFields = yml_entity.fields.filter(f => ['image', 'mp4', 'file'].includes(f.type))
         for(let m of list) {
             for(let field of mediaFields) {
                 m[field.name] = await mediaToFront(m[field.name], field.private)
@@ -107,9 +109,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const mediaKeyToFullUrl = async (key, private) => {
         
-        let isS3 = yml.upload.s3
-        let host_image = isS3 ? yml.upload.s3.base_url : yml.upload.local.base_url
-
         let url = key
         if(url && !url.startsWith('http'))
             url= host_image + '/' + url
@@ -123,24 +122,19 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const mediaToFront = async (media, private) => {
         if (media && typeof media == 'string') {
-            let url = media
-            url = await mediaKeyToFullUrl(url, private)
-            media = { src: url }
+            media= { src: url }
+            media.image_preview = await mediaKeyToFullUrl(url, private)
         } else if (media && typeof media == 'object') {
-            let { image, video, src, title } = media
+            let { image, video, src } = media
             let url = image || src
-
-            url = await mediaKeyToFullUrl(url, private)
-
-            media = { src: url, title }
-
+            media.image_preview = await mediaKeyToFullUrl(url, private)
             if (video) {
-                video = await  mediaKeyToFullUrl(video, private)
-                media.video = video
+                media.video_preview = await mediaKeyToFullUrl(video, private)
             }
         }
         return media
     }
+    
 
     //list
     app.get(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
@@ -275,6 +269,15 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         let f = {}
         f[key_field.name] = entityId
+
+        for(let field of yml_entity.fields) {
+            if(['mp4', 'image', 'file'].includes(field.type)) {
+                let a = entity[field.name]
+                delete a.image_preview
+                delete a.video_preview
+            }
+        }
+
         await db.collection(entity_name).updateOne(f, { $set: entity });
 
         //Custom Create Tail Start

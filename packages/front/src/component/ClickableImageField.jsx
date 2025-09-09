@@ -76,16 +76,15 @@ const ClickableImageField = ({label, source, width, height}) => {
         let resultImageSource = ''
         let imageUrl = ''
         
-        console.log('v', v)
         if(typeof v == 'object') {
-            imageUrl = v.src
+            imageUrl = v.image_preview
             if(v.video) {
-                setVideoUrl(v.video)
+                setVideoUrl(v.video_preview)
                 setMediaType('video')
             } else
                 setMediaType('image')
 
-            resultImageSource = source + '.src'
+            resultImageSource = source + '.image_preview'
         } else if(typeof v == 'string') {
             if(v.endsWith('.mp4')) {
                 setVideoUrl(v)

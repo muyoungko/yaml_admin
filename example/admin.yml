@@ -67,11 +67,9 @@ entity:
     crud:
       list:
         search:
+          - name: server_id
           - name: id
-          - name: region
-            exact: false
-          - name: factory
-            exact: false
+          - name: name
       create: true
       edit: true
       show: true
@@ -90,6 +88,10 @@ entity:
         required: true
         key: true
         autogenerate: true
+      - name: name
+        label: "도면이름"
+        type: name
+        required: true
       - name: image
         label: "도면"
         type: image

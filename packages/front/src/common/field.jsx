@@ -29,10 +29,8 @@ export const getFieldShow = (field, isList = false) => {
     else if (field.type == 'image') {
         if(field.avatar)
             return <FunctionField label={field.label} render={record =>
-                (record?.[field.name]?.url || record?.[field.name]?.src) ? 
-                    <Avatar alt="Natacha" src={record[field.name].url || record[field.name].src} 
+                <Avatar alt="Natacha" src={record[field.name].image_preview} 
                         sx={isList ? {width: 100, height: 100} : {width: 256, height: 256}}/>
-                    :<Avatar alt="Natacha" sx={isList ? {width: 100, height: 100} : {width: 256, height: 256}}/>
             } />
         else 
             return <ClickableImageField key={field.name} label={field.label} source={field.name} 
