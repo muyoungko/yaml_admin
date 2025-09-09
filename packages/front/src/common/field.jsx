@@ -6,6 +6,7 @@ import {
 } from 'react-admin';
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
+import SafeImageField from '../component/SafeImageField';
 
 export const getFieldShow = (field, isList = false) => {
     if (!field || field.type == 'password') return null;
@@ -62,11 +63,12 @@ export const getFieldEdit = (field, search = false) => {
             optionText="name" optionValue="label"
             validate={field.required && !search && validateRequire}
         />
-    else if (field?.type == 'image')
+    else if (field?.type == 'image') {
         return <ImageInput key={field.name} source={field.name} label={field.label} accept="image/*" placeholder={<p>{field.label}</p>} 
             validate={field.required && !search && validateRequire}>
-            <ImageField source="src" title="title" sx={{ '& img': { maxHeight: '20rem' } }} />
+            <SafeImageField source={'src'} title={'title'} />
         </ImageInput>
+    }
     else {
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn 
             validate={field.required && !search && validateRequire}
