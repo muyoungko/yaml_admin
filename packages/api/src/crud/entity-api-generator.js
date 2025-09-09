@@ -96,6 +96,50 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                 delete m[f]
             })
         })
+
+        let mediaFields = yml_entity.fields.filter(f => ['image', 'video'].includes(f.type))
+        for(let m of list) {
+            for(let field of mediaFields) {
+                m[field.name] = await mediaToFront(m[field.name], field.private)
+            }
+        }
+    }
+
+    const mediaKeyToFullUrl = async (key, private) => {
+        
+        let isS3 = yml.upload.s3
+        let host_image = isS3 ? yml.upload.s3.base_url : yml.upload.local.base_url
+
+        let url = key
+        if(url && !url.startsWith('http'))
+            url= host_image + '/' + url
+
+        if(private) {
+            url = await uploader.getUrlSecure(key, auth);
+        }
+
+        return url
+    }
+
+    const mediaToFront = async (media, private) => {
+        if (media && typeof media == 'string') {
+            let url = media
+            url = await mediaKeyToFullUrl(url, private)
+            media = { src: url }
+        } else if (media && typeof media == 'object') {
+            let { image, video, src, title } = media
+            let url = image || src
+
+            url = await mediaKeyToFullUrl(url, private)
+
+            media = { src: url, title }
+
+            if (video) {
+                video = await  mediaKeyToFullUrl(video, private)
+                media.video = video
+            }
+        }
+        return media
     }
 
     //list
@@ -336,35 +380,35 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
             let upsert = yml_entity.crud.list.import.upsert || true
 
-            const fields = yml_entity.crud.list.import.fields.map(m=>m)
+            const fields = yml_entity.crud.list.import.fields.map(m => m)
             fields.map(field => {
-                let original = yml_entity.fields.find(f=>f.name == field.name)
+                let original = yml_entity.fields.find(f => f.name == field.name)
                 field.type = original.type
             })
-            
-            let key_field = yml_entity.fields.find(f=>f.key)
+
+            let key_field = yml_entity.fields.find(f => f.key)
             let bulk = []
             list.map(m => {
                 let f = {}
-                
+
                 let m_obj = {}
                 header.map((h, index) => {
                     m_obj[h] = m[index]
                 })
-                
+
                 f[key_field.name] = getKeyFromEntity(m_obj)
-                if(!f[key_field.name])
+                if (!f[key_field.name])
                     return
                 let entity = {}
                 fields.forEach(field => {
-                    if(field.type == 'integer')
+                    if (field.type == 'integer')
                         entity[field.name] = parseInt(m_obj[field.name])
-                    else if(field.type == 'password')
+                    else if (field.type == 'password')
                         entity[field.name] = passwordEncrypt(m_obj[field.name] + '')
-                    else 
+                    else
                         entity[field.name] = m_obj[field.name] + ''
                 })
-                
+
                 bulk.push({
                     updateOne: {
                         filter: f,

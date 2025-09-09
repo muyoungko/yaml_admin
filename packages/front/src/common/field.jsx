@@ -4,8 +4,10 @@ import {
     ReferenceInput, AutocompleteInput, TextInput,
     SelectInput, FunctionField, ImageInput, ImageField,
 } from 'react-admin';
+import { Avatar } from '@mui/material';
+import ClickableImageField from '../component/ClickableImageField';
 
-export const getFieldShow = (field) => {
+export const getFieldShow = (field, isList = false) => {
     if (!field || field.type == 'password') return null;
     if (field.type == 'string' || field.key)
         return <TextField key={field.name} label={field.label} source={field.name} />
@@ -24,8 +26,18 @@ export const getFieldShow = (field) => {
         return <BooleanField key={field.name} label={field.label} source={field.name} />
     else if (field.type == 'objectId')
         return <TextField key={field.name} label={field.label} source={field.name} />
-    else if (field.type == 'image')
-        return <TextField key={field.name} label={field.label} source={field.name} />
+    else if (field.type == 'image') {
+        if(field.avatar)
+            return <FunctionField label={field.label} render={record =>
+                (record?.[field.name]?.url || record?.[field.name]?.src) ? 
+                    <Avatar alt="Natacha" src={record[field.name].url || record[field.name].src} 
+                        sx={isList ? {width: 100, height: 100} : {width: 256, height: 256}}/>
+                    :<Avatar alt="Natacha" sx={isList ? {width: 100, height: 100} : {width: 256, height: 256}}/>
+            } />
+        else 
+            return <ClickableImageField key={field.name} label={field.label} source={field.name} 
+                width={isList ? "100px" : "200px"} height={isList ? "100px" : "200px"}/>
+    } 
     else
         return <TextField key={field.name} label={field.label} source={field.name} />
 }

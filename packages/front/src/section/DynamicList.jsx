@@ -214,7 +214,7 @@ export const DynamicList = props => {
             <Datagrid rowClick="show" bulkActionButtons={true}>
                 {
                     fields.map(m => {
-                        return getFieldShow(m)
+                        return getFieldShow(m, true)
                     })
                 }
                 //Custom List Start

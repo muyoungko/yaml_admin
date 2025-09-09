@@ -26,7 +26,6 @@ const withConfigLocal = ({path, path_private, base_url, api_host}) => {
         let r = `${api_host}/local-secure-download?key=${Key}`
         let shortToken = await auth.genenrateShortToken()
         r += `&token=${shortToken}`
-        console.log('getUrlSecure', r)
         return r
     }
 
