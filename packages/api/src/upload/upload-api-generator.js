@@ -3,8 +3,7 @@ const { PutObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, Compl
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { genEntityIdWithKey } = require('../common/util.js');
 const { S3Client } = require('@aws-sdk/client-s3')
-
-
+const fs = require('fs')
 
 const getContentType = (ext) => {
     let contentType = 'image/jpeg'
@@ -69,7 +68,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
     // request uploadId
     app.get('/api/media/url/secure/init/:ext', auth.isAuthenticated, async function (req, res) {
         let s3 = getS3();
-        let { member_no } = req.user;
+        let member_no = req.user.member_no || req.user.id;
         let fileName = await genEntityIdWithKey(db, 'file');
         let ext = req.params.ext;
         
@@ -145,7 +144,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         
         let r = {list:[], r:true}
         for(let ext of ext_list) {
-            let fileName = await await genEntityIdWithKey(db, 'file')
+            let fileName = await genEntityIdWithKey(db, 'file')
             let key = `media/${member_no}/${fileName}.${ext}`
             let contentType = getContentType(ext)
             const upload_url = await getSignedUrl(s3, new PutObjectCommand({Bucket: aws_bucket_image,
@@ -165,7 +164,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
 
         let r = {list:[], r:true}
         for(let ext of ext_list) {
-            let fileName = await await genEntityIdWithKey(db, 'file')
+            let fileName = await genEntityIdWithKey(db, 'file')
             let key = `media/${member_no}/${fileName}.${ext}`
             let contentType = getContentType(ext)
             const upload_url = await getSignedUrl(s3, new PutObjectCommand({Bucket: aws_bucket_private,
@@ -180,12 +179,60 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
 }
 
 const generateLocalUploadApi = async ({ app, db, yml, options }) => {
-    
+    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+    const { path, path_private } = yml.upload.local;
+
+    // Accept raw binary for local upload and stream to disk
+    app.put('/api/local/media/upload', auth.isAuthenticated, async function(req, res) {
+        let member_no = req.user.member_no || req.user.id;
+        let {ext, name} = req.query
+        let fileName = await genEntityIdWithKey(db, 'file')
+        let key = `media/${member_no}/${fileName}.${ext}`
+
+        // Ensure directory exists
+        const fullPath = `${path}/${key}`;
+        fs.mkdirSync(require('path').dirname(fullPath), { recursive: true });
+
+        const writeStream = fs.createWriteStream(fullPath);
+        req.pipe(writeStream);
+        writeStream.on('finish', () => {
+            res.json({ r: true, key })
+        });
+        writeStream.on('error', (err) => {
+            console.error(err);
+            res.status(500).json({ r: false, msg:err.message })
+        });
+    })
+
+    app.put('/api/local/media/upload/secure', auth.isAuthenticated, async function(req, res) {
+        let member_no = req.user.member_no || req.user.id;
+        let {ext, name} = req.query
+
+        let fileName = await genEntityIdWithKey(db, 'file')
+        let key = `media/${member_no}/${fileName}.${ext}`
+
+        try {
+            // Ensure directory exists
+            const fullPath = `${path_private}/${key}`;
+            fs.mkdirSync(require('path').dirname(fullPath), { recursive: true });
+
+            const writeStream = fs.createWriteStream(fullPath);
+            req.pipe(writeStream);
+            writeStream.on('finish', () => {
+                res.json({ r: true, key })
+            });
+            writeStream.on('error', (err) => {
+                console.error(err);
+                res.status(500).json({ r: false, msg:err.message })
+            });
+        } catch (e) {
+            console.error(e)
+            res.status(500).json({ r:false })
+        }
+    })
 }
 
 const generateUploadApi = async ({ app, db, yml, options }) => {
-    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
-
     if(yml.upload.s3) {
         await generateS3UploadApi({ app, db, yml, options })
     } 

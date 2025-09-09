@@ -93,7 +93,7 @@ entity:
       - name: image
         label: "도면"
         type: image
-        required: true
+        private: true
   region:
     category : '공장'
     label: '장소 관리'

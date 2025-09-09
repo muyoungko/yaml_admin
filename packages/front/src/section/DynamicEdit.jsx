@@ -56,7 +56,7 @@ export const DynamicEdit = props => {
     return (
         <Edit title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
         //Custom Create Property Start
-
+       
         //Custom Create Property End
         >
             <SimpleForm toolbar={<EditToolbar />}

@@ -33,7 +33,26 @@ const YMLAdmin = ({ adminYaml, i18nProvider, custom }) => {
         const json = YAML.parse(adminYaml);
         setYml(json);
         const api_host = json['api-host'].uri;
-        setDataProvider(fileUploader(jsonServerProvider(api_host, httpClient)));
+        const privateEntityMap = {}
+        Object.entries(json.entity).map(([key, val])=>{
+            val.fields.map((field)=>{
+                if(field.private) {
+                    privateEntityMap[key] = {
+                      ...privateEntityMap[key],
+                        [field.name]: field.private
+                    }
+                }
+            })
+        });
+
+        if(json.upload?.local) {
+          setDataProvider(fileUploader(jsonServerProvider(api_host, httpClient), true, privateEntityMap));
+        } else if(json.upload?.s3) {
+          setDataProvider(fileUploader(jsonServerProvider(api_host, httpClient), false, privateEntityMap));
+        } else {
+          setDataProvider(jsonServerProvider(api_host, httpClient));
+        }
+        
         setApiHost(api_host);
       } catch (error) {
         console.error('YAML file load error', error);
