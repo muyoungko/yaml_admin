@@ -1,7 +1,6 @@
 import React, { forwardRef, useState, useEffect } from 'react'
 import { AppBar, UserMenu, Logout, MenuItemLink, useRefresh, useUserMenu, LoadingIndicator } from 'react-admin';
 import Avatar from '@mui/material/Avatar';
-// import client from '../common/client'
 import { Badge, Typography, Toolbar, Tabs, Tab, Button, Box, List as CoreList, Chip, CircularProgress } from '@mui/material';
 
 

@@ -12,6 +12,7 @@ import { Icon } from '@iconify/react';
 import { AdminProvider } from './AdminContext';
 import authProvider from './login/authProvider';
 import { setApiHost } from './common/axios';
+import fileUploader from './common/fileUploader';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -32,7 +33,7 @@ const YMLAdmin = ({ adminYaml, i18nProvider, custom }) => {
         const json = YAML.parse(adminYaml);
         setYml(json);
         const api_host = json['api-host'].uri;
-        setDataProvider(jsonServerProvider(api_host, httpClient));
+        setDataProvider(fileUploader(jsonServerProvider(api_host, httpClient)));
         setApiHost(api_host);
       } catch (error) {
         console.error('YAML file load error', error);

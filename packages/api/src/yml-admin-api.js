@@ -1,9 +1,10 @@
 const { MongoClient } = require('mongodb');
 const fs = require('fs').promises;
 const yaml = require('yaml');
-const { generateEntityApi } = require('./crud/api-generator');
+const { generateEntityApi } = require('./crud/entity-api-generator');
 const { generateLoginApi } = require('./crud/login-api-generator');
 const { withConfig } = require('./login/auth.js');
+const { generateUploadApi } = require('./upload/upload-api-generator');
 
 async function registerRoutes(app, options = {}) {
   const { yamlPath, yamlString } = options;
@@ -44,6 +45,12 @@ async function registerRoutes(app, options = {}) {
     })
   })
 
+  await generateUploadApi({
+    app, db,
+    yml,
+    options,
+  })
+  
   //local secure download api
   const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
   app.get('/local-secure-download', auth.isAuthenticated, async (req, res) => {

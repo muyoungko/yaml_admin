@@ -31,13 +31,16 @@ module.exports = async function createApp() {
   app.use(bodyParser.json({limit: '30mb'}));
   app.use(morgan('dev'));
   
-  await registerRoutes(app, {yamlPath:'../admin.yml', 
+  const router = express.Router();
+  await registerRoutes(router, {yamlPath:'../admin.yml', 
     password : {
       encrypt : (plainPass) => {
         return crypto.createHash('sha512').update(plainPass).digest('hex')
       }
     }
   })
+
+  app.use('/', router)
   
   return app;
 };
