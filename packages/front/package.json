@@ -1,10 +1,12 @@
 {
   "name": "yaml-admin-front",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "type": "module",
   "description": "React components for yaml-admin front (library)",
   "main": "src/index.js",
-  "scripts": {},
+  "scripts": {
+    "publish": "npm publish -w yaml-admin-front --access public"
+  },
   "dependencies": {
     "@iconify/react": "^6.0.0",
     "axios": "^1.11.0",

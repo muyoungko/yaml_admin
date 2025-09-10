@@ -6,20 +6,32 @@ const { generateLoginApi } = require('./crud/login-api-generator');
 const { withConfig } = require('./login/auth.js');
 const { generateUploadApi } = require('./upload/upload-api-generator');
 
+const changeEnv = (yamlString, env = {}) => {
+  if (!yamlString) return yamlString;
+  const mergedEnv = { ...process.env, ...env };
+  return yamlString.replace(/\$\{([A-Z0-9_\.\-]+)\}/g, (match, varName) => {
+    console.log('env', varName, mergedEnv[varName]);
+    const value = mergedEnv[varName];
+    return value !== undefined && value !== null ? String(value) : match;
+  });
+}
+
 async function registerRoutes(app, options = {}) {
-  const { yamlPath, yamlString } = options;
+  const { yamlPath, yamlString, env } = options;
   let yml;
   if(yamlPath) {
-    yml = await readYml(yamlPath);
+    yml = await readYml(yamlPath, env);
   } else if(yamlString) {
-    yml = yaml.parse(yamlString);
+    const replaced = changeEnv(yamlString, env);
+    yml = yaml.parse(replaced);
   } else {
     let yamlString = await fs.readFile('./admin.yml', 'utf8');
     if(!yamlString) {
       throw new Error('admin.yml is not found. yamlPath or yamlString is required.')
     }
-    yamlString = yamlString.replace('${JWT_SECRET}', process.env.JWT_SECRET);
-    yamlString = yamlString.replace('${MONGODB_URL}', process.env.MONGODB_URL);
+    
+    yamlString = changeEnv(yamlString, env);
+
     yml = yaml.parse(yamlString);
   }
 
@@ -63,13 +75,10 @@ async function registerRoutes(app, options = {}) {
   })
 }
 
-async function readYml(path) {
+async function readYml(path, env = {}) {
   let yml = await fs.readFile(path, 'utf8');
-  yml = yml.replace('${JWT_SECRET}', process.env.JWT_SECRET);
-  yml = yml.replace('${MONGODB_URL}', process.env.MONGODB_URL);
-    
+  yml = changeEnv(yml, env);
   return yaml.parse(yml);
-
 }
 
 module.exports = registerRoutes;
