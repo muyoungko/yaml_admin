@@ -366,7 +366,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
 
             const currentTime = moment().format('YYYYMMDD_HHmmss');
-            const key = `${filename}${currentTime}.xlsx`;
+            const key = `/excel/${filename}${currentTime}.xlsx`;
             await uploader.uploadSecure(key, excelBuffer);
             let url = await uploader.getUrlSecure(key, auth);
             return res.json({ r: true, url });
