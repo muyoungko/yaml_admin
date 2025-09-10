@@ -42,8 +42,7 @@ export const fetcher = async (args) => {
 };
 
 export const postFetcher = async (url, config, param) => {
-  if (!url.startsWith('http'))
-    url = `${import.meta.env.VITE_HOST_API}${url}`;
+
   const res = await axiosInstance.post(url, param, { ...config });
 
   return res.data;
@@ -174,7 +173,7 @@ export const uploadFileWithBase64String = (base64string, file_name) => new Promi
 });
 
 export const useGetFetcher = (path) => {
-  const url = path.startsWith('http') ? path : `${import.meta.env.VITE_HOST_API}${path}`
+  const url = path
   const { data, isLoading, error, isValidating } = useSWR(url, fetcher);
 
   const memoizedValue = useMemo(

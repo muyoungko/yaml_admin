@@ -18,6 +18,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         access_key_id: yml.upload.s3.access_key_id,
         secret_access_key: yml.upload.s3.secret_access_key,
         bucket: yml.upload.s3.bucket,
+        region: yml.upload.s3.region,
+        prefix: yml.upload.s3.prefix,
         bucket_private: yml.upload.s3.bucket_private,
         base_url: yml.upload.s3.base_url,
     }) : withConfigLocal({
@@ -166,7 +168,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         })
 
-        console.log('f', f, req.query)
+        //console.log('f', f)
 
         var name = req.query.name;
         if (name == null && req.query.q)

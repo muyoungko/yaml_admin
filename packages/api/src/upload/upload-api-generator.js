@@ -4,18 +4,7 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { genEntityIdWithKey } = require('../common/util.js');
 const { S3Client } = require('@aws-sdk/client-s3')
 const fs = require('fs')
-
-const getContentType = (ext) => {
-    let contentType = 'image/jpeg'
-    if(ext == 'mp4') 
-        contentType = 'video/mp4'
-    else if(ext == 'mov')
-        contentType = 'video/quicktime'
-    else if(ext == 'png') 
-        contentType = 'image/png'
-    return contentType
-}
-
+const { whatIsContentType } = require('./s3Upload.js');
 
 const generateS3UploadApi = async ({ app, db, yml, options }) => {
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
@@ -37,7 +26,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let fileName = await genEntityIdWithKey(db, 'file');
         let ext = req.params.ext;
 
-        let contentType = getContentType(ext)
+        let contentType = whatIsContentType(ext)
         let key = `media/${member_no}/${fileName}.${ext}`
         const uploadUrl = await getSignedUrl(s3, new PutObjectCommand({Bucket: aws_bucket_image,
             ContentType: contentType,
@@ -54,7 +43,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let fileName = await genEntityIdWithKey(db, 'file');
         let ext = req.params.ext;
 
-        let contentType = getContentType(ext)
+        let contentType = whatIsContentType(ext)
         let key = `media/${member_no}/${fileName}.${ext}`
         const uploadUrl = await getSignedUrl(s3, new PutObjectCommand({Bucket: aws_bucket_private,
             ContentType: contentType,   
@@ -73,7 +62,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let ext = req.params.ext;
         
         let key = `media/${member_no}/${fileName}.${ext}`;
-        let contentType = getContentType(ext);
+        let contentType = whatIsContentType(ext);
 
         const createMultipartUpload = await s3.send(new CreateMultipartUploadCommand({
             Bucket: aws_bucket_private,
@@ -146,7 +135,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         for(let ext of ext_list) {
             let fileName = await genEntityIdWithKey(db, 'file')
             let key = `media/${member_no}/${fileName}.${ext}`
-            let contentType = getContentType(ext)
+            let contentType = whatIsContentType(ext)
             const upload_url = await getSignedUrl(s3, new PutObjectCommand({Bucket: aws_bucket_image,
                 ContentType: contentType,
                 Key: key}), { expiresIn: 300 }); 
@@ -166,7 +155,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         for(let ext of ext_list) {
             let fileName = await genEntityIdWithKey(db, 'file')
             let key = `media/${member_no}/${fileName}.${ext}`
-            let contentType = getContentType(ext)
+            let contentType = whatIsContentType(ext)
             const upload_url = await getSignedUrl(s3, new PutObjectCommand({Bucket: aws_bucket_private,
                 ContentType: contentType,
                 Key: key}), { expiresIn: 300 }); 
