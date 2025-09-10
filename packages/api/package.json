@@ -1,6 +1,6 @@
 {
   "name": "yaml-admin-api",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "YAML Admin API package",
   "type": "commonjs",
   "main": "src/index.js",
