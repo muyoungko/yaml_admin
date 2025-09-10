@@ -120,6 +120,12 @@ entity:
         reference_field: id
         reference_name: factory
         required: true
+      - name: parent_id
+        label: "부모 장소"
+        type: reference
+        reference_entity: region
+        reference_field: id
+        reference_name: name
       - name: id
         label: "ID"
         type: integer

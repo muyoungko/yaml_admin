@@ -67,6 +67,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if (type == 'reference') {
             const referenceEntity = yml.entity[reference_entity]
             const referenceField = referenceEntity.fields.find(f => f.name == reference_field)
+            console.log('referenceField', referenceField)
             return parseValueByTypeCore(value, referenceField)
         } else {
             return parseValueByTypeCore(value, field)
@@ -150,14 +151,14 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         //검색 파라미터
         const f = {};
-        yml_entity.crud?.list?.search?.forEach(m => {
-            const field = yml_entity.fields.find(f => f.name == m.name)
-            const q = req.query[m.name];
+        yml_entity.fields?.forEach(field => {
+            const q = req.query[field.name];
             if (q) {
+                const search = yml_entity.crud?.list?.search?.find(m => m.name == field.name)
                 if (Array.isArray(q)) {
                     f[field.name] = { $in: q.map(v => parseValueByType(v, field)) };
                 } else {
-                    if (m.exact != false)
+                    if (search?.exact != false || field.type == 'integer')
                         f[field.name] = parseValueByType(q, field)
                     else
                         f[field.name] = { $regex: ".*" + q + ".*" };
@@ -165,7 +166,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         })
 
-        //console.log('f', f)
+        console.log('f', f, req.query)
 
         var name = req.query.name;
         if (name == null && req.query.q)
