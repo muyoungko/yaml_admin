@@ -32,13 +32,6 @@ const EditToolbar = props => (
     </Toolbar>
 );
 
-const required = (message = 'Required') =>
-    value => value ? undefined : message;
-const maxLength = (max, message = (max + '자 이하로 입력해주세요')) =>
-    value => value && value.length > max ? message : undefined;
-const validateName = [required(), maxLength(15)];
-const validateRequire = [required()];
-
 
 export const DynamicEdit = props => {
     const { permissions } = usePermissions();
@@ -47,6 +40,19 @@ export const DynamicEdit = props => {
     
     const fields = useMemo(() => {
         return yml.entity[resource].fields
+    }, [yml, resource])
+
+    const crud = useMemo(() => {
+        return yml.entity[resource].crud || {
+            show: true,
+            edit: true,
+            create: true,
+            delete: true,
+            list: {
+                import: false,
+                export: false
+            }
+        }
     }, [yml, resource])
 
     //Custom Create Code Start
@@ -64,7 +70,7 @@ export const DynamicEdit = props => {
 
             //Custom Create SimpleForm Property End
             >
-                {fields.map(field => {
+                {fields.filter(field =>  crud.edit == true || crud.edit.map(a=>a.name).includes(field.name) ).map(field => {
                     return getFieldEdit(field)
                 })}
 

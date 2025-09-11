@@ -49,7 +49,7 @@ const DynamicFilter = props => {
     return (
         <Filter {...props}>
             {
-                yml_entity.crud?.list?.search?.map(m => {
+                yml_entity.crud?.search?.map(m => {
                     const field = yml_entity.fields.find(f => f.name == m.name)
                     return getFieldEdit(field, true)
                 })
@@ -213,7 +213,7 @@ export const DynamicList = props => {
             }
             <Datagrid rowClick="show" bulkActionButtons={true}>
                 {
-                    fields.map(m => {
+                    fields.filter(field => crud.list == true || crud.list.map(a=>a.name).includes(field.name) ).map(m => {
                         return getFieldShow(m, true)
                     })
                 }

@@ -62,6 +62,20 @@ export const DynamicShow = ({custom, ...props}) => {
     const customFunc = useMemo(()=> {
         return custom?.entity?.[resource]?.show
     }, [yml, resource])
+
+    const crud = useMemo(() => {
+        return yml.entity[resource].crud || {
+            show: true,
+            edit: true,
+            create: true,
+            delete: true,
+            list: {
+                import: false,
+                export: false
+            }
+        }
+    }, [yml, resource])
+
     // Custom List Code Start
 
     //Custom List Code End
@@ -69,7 +83,7 @@ export const DynamicShow = ({custom, ...props}) => {
         <Show title={<DynamicTitle />} {...props} >
             <SimpleShowLayout>
                 {customFunc && <ShowContent customFunc={customFunc} fields={fields} />}
-                {!customFunc && fields.map(m=>{
+                {!customFunc && fields.filter(field => crud.show == true || crud.show.map(a=>a.name).includes(field.name) ).map(m=>{
                     return getFieldShow(m)
                 })}
             //Custom Show Start

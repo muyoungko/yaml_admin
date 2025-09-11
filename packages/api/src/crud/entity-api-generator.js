@@ -156,7 +156,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         yml_entity.fields?.forEach(field => {
             const q = req.query[field.name];
             if (q) {
-                const search = yml_entity.crud?.list?.search?.find(m => m.name == field.name)
+                const search = yml_entity.crud?.search?.find(m => m.name == field.name)
                 if (Array.isArray(q)) {
                     f[field.name] = { $in: q.map(v => parseValueByType(v, field)) };
                 } else {

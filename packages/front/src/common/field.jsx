@@ -22,12 +22,16 @@ export const getFieldShow = (field, isList = false) => {
             <TextField source={field.reference_name} />
         </ReferenceField>
     else if (field.type == 'date')
-        return <DateField key={field.name} label={field.label} source={field.name} />
+        return <DateField key={field.name} label={field.label} source={field.name} showTime={field.showtime} />
     else if (field.type == 'boolean')
         return <BooleanField key={field.name} label={field.label} source={field.name} />
     else if (field.type == 'objectId')
         return <TextField key={field.name} label={field.label} source={field.name} />
-    else if (field.type == 'image') {
+    else if (field.type == 'file') {
+        return <FunctionField key={field.name} label={field.label} render={record => 
+            <a href={record?.[field.name]?.file_preview} target="_blank">{record?.[field.name]?.title || JSON.stringify(record) || 'Download'}</a>
+        } />
+    } else if (field.type == 'image') {
         if(field.avatar)
             return <FunctionField label={field.label} render={record =>
                 <Avatar alt="Natacha" src={record[field.name].image_preview} 

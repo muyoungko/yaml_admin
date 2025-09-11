@@ -32,13 +32,13 @@ entity:
     icon: "solar:buildings-3-outline"
     label: "공장 관리"
     crud:
-      list:
-        search:
-          - name: id
-          - name: region
-            exact: false
-          - name: factory
-            exact: false
+      search:
+        - name: id
+        - name: region
+          exact: false
+        - name: factory
+          exact: false
+      list: true
       create: true
       edit: true
       show: true
@@ -63,11 +63,11 @@ entity:
     icon: "solar:map-outline"
     label: "도면 관리"
     crud:
-      list:
-        search:
-          - name: server_id
-          - name: id
-          - name: name
+      search:
+        - name: server_id
+        - name: id
+        - name: name
+      list: true
       create: true
       edit: true
       show: true
@@ -99,13 +99,13 @@ entity:
     label: '장소 관리'
     icon: "solar:download-square-outline"
     crud:
-      list:
-        search:
-          - name: server_id
-          - name: id
-            exact: false
-          - name: name
-            exact: false
+      search:
+        - name: server_id
+        - name: id
+          exact: false
+        - name: name
+          exact: false
+      list: true
       create: true
       edit: true
       show: true
@@ -269,7 +269,40 @@ entity:
       - name: serial
         type: string
         required: true
-
+  file:
+    category: '파일'
+    icon: "solar:file-check-outline"
+    label: "파일 관리"
+    crud:
+      search:
+        - name: id
+        - name: attach
+          exact: false
+      list:
+        - name: id
+        - name: attach
+        - name: create_date
+      create: 
+        - name: attach
+      edit:
+        - name: attach
+      show: true
+      delete: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: attach
+        label: "파일"
+        type: file
+        required: true
+      - name: create_date
+        label: "등록일"
+        type: date
+        showtime: true
 front:
   useDashboard: true
   category:
@@ -279,4 +312,6 @@ front:
       icon: 'solar:user-hands-outline'
     - name: '자원 관리'
       icon: 'solar:lock-keyhole-minimalistic-outline'
+    - name: '파일'
+      icon: 'solar:file-check-outline'
   
