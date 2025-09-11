@@ -95,8 +95,9 @@ const YMLAdmin = ({ adminYaml, i18nProvider, custom }) => {
 
           <CustomRoutes>
             {custom?.customRoutes?.map(m => {
+              console.log('customRoutes', m.path)
               return (
-                <Route path={m.path} element={m.element} />
+                <Route key={m.path} path={m.path} element={m.element} />
               )
             })}
           </CustomRoutes>
