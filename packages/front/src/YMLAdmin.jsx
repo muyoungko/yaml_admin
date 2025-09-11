@@ -93,15 +93,13 @@ const YMLAdmin = ({ adminYaml, i18nProvider, custom }) => {
 
           })}
 
-          {/* <CustomRoutes>
-            {yml?.entity && Object.keys(yml.entity).map(name => {
-              const entity = yml.entity[name];
-              if (entity.custom)
-                return (
-                  <Route path={`/${name}`} element={customEntity(name, 'entire')} />
-                )
+          <CustomRoutes>
+            {custom?.customRoutes?.map(m => {
+              return (
+                <Route path={m.path} element={m.element} />
+              )
             })}
-          </CustomRoutes> */}
+          </CustomRoutes>
         </Admin>
       </AdminProvider>
       }

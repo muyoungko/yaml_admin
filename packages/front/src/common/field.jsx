@@ -16,7 +16,7 @@ export const getFieldShow = (field, isList = false) => {
         return <NumberField key={field.name} label={field.label} source={field.name} />
     else if (field.type == 'select')
         return <FunctionField key={field.name} label={field.label} source={field.name}
-            render={record => field.select_values.find(m => field.name == record[field.name])?.label} />
+            render={record => field.select_values.find(m => m.name == record[field.name])?.label} />
     else if (field.type == 'reference')
         return <ReferenceField key={field.name} link="show" label={field.label} source={field.name} reference={field.reference_entity}>
             <TextField source={field.reference_name} />
@@ -64,7 +64,7 @@ export const getFieldEdit = (field, search = false) => {
     else if (field?.type == 'select')
         return <SelectInput key={field.name} label={field?.label} source={field.name} alwaysOn
             choices={field?.select_values}
-            optionText="name" optionValue="label"
+            optionText="label" optionValue="name"
             validate={field.required && !search && validateRequire}
         />
     else if (field?.type == 'image') {

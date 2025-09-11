@@ -165,6 +165,13 @@ entity:
     label: 'Location'
     icon: "solar:download-minimalistic-bold-duotone"
     fields:
+      - name: item_id
+        label: "항목"
+        type: reference
+        required: true
+        reference_entity: item
+        reference_field: id
+        reference_name: name
       - name: id
         label: "ID"
         type: integer
@@ -176,34 +183,34 @@ entity:
     icon: "solar:user-hands-outline"
     label: "사용자 관리"
     crud:
-      list:
-        search:
+      search:
           - name: server_id
           - name: email
             exact: false
           - name: name
             exact: false
-        export:
-          fields:
-            - name: server_id
-            - name: member_no
-            - name: email
-            - name: name
-            - name: user_type
-            - name: pass
-            - name: phone
-            - name: department
-        import:
-          fields:
-            - name: server_id
-            - name: member_no
-            - name: email
-            - name: name
-            - name: user_type
-            - name: pass
-            - name: phone
-            - name: department
-          upsert: true
+      export:
+        fields:
+          - name: server_id
+          - name: member_no
+          - name: email
+          - name: name
+          - name: user_type
+          - name: pass
+          - name: phone
+          - name: department
+      import:
+        fields:
+          - name: server_id
+          - name: member_no
+          - name: email
+          - name: name
+          - name: user_type
+          - name: pass
+          - name: phone
+          - name: department
+        upsert: true
+      list: true
       create: true
       edit: true
       show: true

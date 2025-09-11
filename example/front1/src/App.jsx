@@ -15,7 +15,13 @@ export default function App() {
               return <div>{record.id} - custom</div>
             }
           }
-        }
+        },
+        customRoutes: [
+          {
+            path: '/custom',
+            element: <div>custom</div>
+          }
+        ]
       }}
     />
   );
