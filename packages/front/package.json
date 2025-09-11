@@ -1,6 +1,7 @@
 {
   "name": "yaml-admin-front",
   "version": "0.0.12",
+  "license": "MIT",
   "type": "module",
   "description": "React components for yaml-admin front (library)",
   "main": "src/index.js",

@@ -1,13 +1,13 @@
 {
   "name": "yaml-admin-api",
   "version": "0.0.12",
+  "license": "MIT",
   "description": "YAML Admin API package",
   "type": "commonjs",
   "main": "src/index.js",
   "files": [
     "src"
   ],
-  "license": "MIT",
   "scripts": {
     "pub": "npm publish -w yaml-admin-api --access public"
   },
