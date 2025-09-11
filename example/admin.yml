@@ -286,7 +286,10 @@ entity:
         - name: attach
       edit:
         - name: attach
-      show: true
+      show: 
+        - name: id
+        - name: attach
+        - name: create_date
       delete: true
     fields:
       - name: id
@@ -299,6 +302,7 @@ entity:
         label: "파일"
         type: file
         required: true
+        private: true
       - name: create_date
         label: "등록일"
         type: date

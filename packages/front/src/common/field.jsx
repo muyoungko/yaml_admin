@@ -2,7 +2,7 @@ import React from 'react';
 import {
     TextField, NumberField, ReferenceField, DateField, BooleanField,
     ReferenceInput, AutocompleteInput, TextInput,
-    SelectInput, FunctionField, ImageInput, ImageField,
+    SelectInput, FunctionField, ImageInput, ImageField, FileInput, FileField
 } from 'react-admin';
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
@@ -29,7 +29,7 @@ export const getFieldShow = (field, isList = false) => {
         return <TextField key={field.name} label={field.label} source={field.name} />
     else if (field.type == 'file') {
         return <FunctionField key={field.name} label={field.label} render={record => 
-            <a href={record?.[field.name]?.file_preview} target="_blank">{record?.[field.name]?.title || JSON.stringify(record) || 'Download'}</a>
+            <a href={record?.[field.name]?.image_preview} target="_blank">{record?.[field.name]?.title || 'Download'}</a>
         } />
     } else if (field.type == 'image') {
         if(field.avatar)
@@ -72,6 +72,12 @@ export const getFieldEdit = (field, search = false) => {
             validate={field.required && !search && validateRequire}>
             <SafeImageField source={'src'} title={'title'} />
         </ImageInput>
+    }
+    else if (field?.type == 'file') {
+        return <FileInput key={field.name} source={field.name} placeholder={<p>{field.label}</p>} 
+        validate={field.required && !search && validateRequire}>
+            <FileField source="src" title="title"/>
+        </FileInput>
     }
     else {
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn 

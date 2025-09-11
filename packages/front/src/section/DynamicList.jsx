@@ -182,10 +182,9 @@ export const DynamicList = props => {
             edit: true,
             create: true,
             delete: true,
-            list: {
-                import: false,
-                export: false
-            }
+            list: true,
+            import: false,
+            export: false,
         }
     }, [yml, resource])
 

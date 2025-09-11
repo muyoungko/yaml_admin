@@ -15,6 +15,7 @@ const fileUploader = (provider, isLocal = false, privateEntityMap = {}) => {
                 isSecure = true
             }
 
+            console.log('fileUploader', entity_name, filed_name, isLocal?'local':'s3', isSecure?'secure':'public')
             if(isLocal) {
                 if(isSecure) {
                     key = await uploadFileLocalSecure(value.rawFile, value.title);

@@ -34,6 +34,8 @@ const whatIsContentType = (ext) => {
         contentType = 'audio/mpeg'
     else if(ext == 'mov') 
         contentType = 'video/quicktime'
+    else if(ext == 'hwp') 
+        contentType = 'application/vnd.ms-htmlhelp'
     return contentType
 }
 

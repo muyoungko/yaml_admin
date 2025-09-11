@@ -131,9 +131,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             let { image, video, src } = media
             let url = image || src
             media.image_preview = await mediaKeyToFullUrl(url, private)
-            if (video) {
+            if (video)
                 media.video_preview = await mediaKeyToFullUrl(video, private)
-            }
         }
         return media
     }
