@@ -110,6 +110,19 @@ entity:
       edit: true
       show: true
       delete: true
+      export:
+        fields:
+          - name: server_id
+          - name: parent_id
+          - name: id
+          - name: name
+      import:
+        fields:
+          - name: server_id
+          - name: parent_id
+          - name: id
+          - name: name
+        upsert: true
     fields:
       - name: server_id
         label: "공장"

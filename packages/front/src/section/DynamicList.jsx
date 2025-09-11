@@ -155,7 +155,7 @@ const ListActions = ({crud, ...props}) => {
     return (
         <TopToolbar>
             {crud?.create && <CreateButton />}
-            {crud?.list?.import && <>
+            {crud?.import && <>
                 <input
                     type="file"
                     accept=".xlsx"
@@ -165,7 +165,7 @@ const ListActions = ({crud, ...props}) => {
                 />
                 <Button onClick={handleImportClick} startIcon={<UploadIcon />} label='Import'/>
             </>}
-            {crud?.list?.export && <Button onClick={handleExportClick} startIcon={<DownloadIcon />} label='Export'/>}
+            {crud?.export && <Button onClick={handleExportClick} startIcon={<DownloadIcon />} label='Export'/>}
         </TopToolbar>
     );
 };

@@ -332,10 +332,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         res.json(entity);
     });
 
-    if (yml_entity.crud?.list?.export) {
+    if (yml_entity.crud?.export) {
         app.post(`/excel/${entity_name}/export`, auth.isAuthenticated, async (req, res) => {
             const filename = `${entity_name}_`
-            const fields = yml_entity.crud.list.export.fields.map(field => ({
+            const fields = yml_entity.crud.export.fields.map(field => ({
                 label: field.name,
                 value: field.name,
             }))
@@ -372,7 +372,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         })
     }
 
-    if (yml_entity.crud?.list?.import) {
+    if (yml_entity.crud?.import) {
         app.post(`/excel/${entity_name}/import`, auth.isAuthenticated, async (req, res) => {
             const { base64 } = req.body
             const buf = Buffer.from(base64, 'base64');
