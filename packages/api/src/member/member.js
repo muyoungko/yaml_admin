@@ -1,7 +1,7 @@
 const {withConfig} = require('../login/auth.js');
 
 module.exports = async function (app, db, yml, delegate) {
-    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"], passwordEncoding: yml.login["password-encoding"] });
 
     app.get('/member/login',
         auth.authenticate,

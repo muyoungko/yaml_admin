@@ -1,11 +1,10 @@
 login:
   jwt-secret: ${JWT_SECRET}
+  password-encoding: sha512 # bcrypt, sha512, sha256
   id-password:
     entity: admin
     id-field: email 
-    password-field: pass
-    password-encoding: bcrypt
-    bcrypt-salt: 10
+    password-field: password
 api-host: 
   uri: http://localhost:6911
 web-host: 
@@ -28,9 +27,9 @@ upload:
   #   base_url: http://localhost:6911
 entity:
   server:
-    category: '공장'
+    category: '공장 관리'
     icon: "solar:buildings-3-outline"
-    label: "공장 관리"
+    label: "공장"
     crud:
       search:
         - name: id
@@ -59,9 +58,9 @@ entity:
         type: string
         required: true
   floor:
-    category : '공장'
+    category : '공장 관리'
     icon: "solar:map-outline"
-    label: "도면 관리"
+    label: "도면"
     crud:
       search:
         - name: server_id
@@ -95,8 +94,8 @@ entity:
         type: image
         private: true
   region:
-    category : '공장'
-    label: '장소 관리'
+    category : '공장 관리'
+    label: '장소'
     icon: "solar:download-square-outline"
     crud:
       search:
@@ -148,8 +147,8 @@ entity:
         type: string
         required: true
   item:
-    category : '공장'
-    label: '개소 관리'
+    category : '공장 관리'
+    label: '개소'
     icon: "solar:download-twice-square-outline"
     fields:
       - name: server_id
@@ -174,7 +173,7 @@ entity:
         type: string
         required: true
   place:
-    category: '공장'
+    category: '공장 관리'
     label: 'Location'
     icon: "solar:download-minimalistic-bold-duotone"
     fields:
@@ -192,9 +191,9 @@ entity:
         key: true
         autogenerate: true
   member:
-    category : '사용자'
+    category : '사용자 관리'
     icon: "solar:user-hands-outline"
-    label: "사용자 관리"
+    label: "사용자"
     crud:
       search:
           - name: server_id
@@ -273,7 +272,7 @@ entity:
   ils:
     category : '자원 관리'
     icon: "solar:lock-keyhole-minimalistic-outline"
-    label: "ILS 관리"
+    label: "ILS"
     fields:
       - name: server_id
         label: "공장"
@@ -290,9 +289,9 @@ entity:
         type: string
         required: true
   file:
-    category: '파일'
+    category: '파일 관리'
     icon: "solar:file-check-outline"
-    label: "파일 관리"
+    label: "파일"
     crud:
       search:
         - name: id
@@ -327,15 +326,40 @@ entity:
         label: "등록일"
         type: date
         showtime: true
+  admin:
+    category: '사용자 관리'
+    icon: 'solar:user-hands-outline'
+    label: '운영자'
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: email
+        label: "이메일"
+        type: string
+        required: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
+      - name: password
+        label: "비밀번호"
+        type: password
+        required: true
 front:
   useDashboard: true
   category:
-    - name: '공장'
+    - name: '공장 관리'
       icon: 'material-symbols:factory-outline'
-    - name: '사용자'
+    - name: '사용자 관리'
       icon: 'solar:user-hands-outline'
     - name: '자원 관리'
       icon: 'solar:lock-keyhole-minimalistic-outline'
-    - name: '파일'
+    - name: '파일 관리'
       icon: 'solar:file-check-outline'
+    - name: '관리자'
+      icon: 'solar:user-hands-outline'
   

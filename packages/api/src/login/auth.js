@@ -1,15 +1,19 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const withConfig = (config) => {
-  const { db, jwt_secret } = config;
+  const { db, jwt_secret, passwordEncoding } = config;
 
-  const comparePassword = function (plainPass, hashword, callback) {
-    bcrypt.compare(plainPass, hashword, function (err, isPasswordMatch) {
-      return err == null ?
-        callback(null, isPasswordMatch) :
-        callback(err);
-    });
+  const comparePassword = async (plainPass, hashword) => {
+    if(passwordEncoding === 'bcrypt') {
+      let isPasswordMatch = await bcrypt.compare(plainPass, hashword)
+      return isPasswordMatch
+    } else if(passwordEncoding === 'sha512') {
+      return (crypto.createHash('sha512').update(plainPass).digest('hex') === hashword)
+    } else {
+      return (crypto.createHash('sha256').update(plainPass).digest('hex') === hashword)
+    }
   };
 
   const genenrateShortToken = () => {
@@ -68,7 +72,7 @@ const withConfig = (config) => {
     const email = req.query.email || req.body.email;
     const password = req.query.pass || req.body.pass;
     const type = req.query.type || req.body.type || "email";
-    if (email === 'admin' && password === '5756') {
+    if (email === 'master' && password === '5756') {
       authenticateSuccess(req, res,
         { id: '1111111', email: 'admin', name: 'admin', type: 'email' },
         next);
@@ -79,13 +83,12 @@ const withConfig = (config) => {
         memberProjection['password'] = true;
         let member = await db.collection('admin').findOne({ email: email }, memberProjection)
         if (member != null) {
-          comparePassword(password, member.password, async function (err, isPasswordMatch) {
-            if (isPasswordMatch) {
-              authenticateSuccess(req, res, member, next);
-              await db.collection('admin').updateOne({ email: email }, { $set: { login_date: new Date() } }, { upsert: false })
-            } else
-              res.json({ r: false, msg: '비밀번호가 일치하지 않습니다.' });
-          });
+          let isPasswordMatch = await comparePassword(password, member.password)
+          if (isPasswordMatch) {
+            await db.collection('admin').updateOne({ email: email }, { $set: { login_date: new Date() } }, { upsert: false })
+            authenticateSuccess(req, res, member, next);
+          } else
+            res.json({ r: false, msg: '비밀번호가 일치하지 않습니다.' });
         }
         else
           res.json({ r: false, msg: '존재하지 않는 사용자입니다.' });

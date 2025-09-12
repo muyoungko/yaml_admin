@@ -19,9 +19,7 @@ const authProvider = {
                 throw new Error(msg);
             localStorage.setItem('token', token);
             axios.defaults.headers.common['x-access-token'] = token;
-        }).catch(e => {
-            console.log('e', e)
-        });
+        })
     },
     checkError: error => {
         return Promise.resolve();

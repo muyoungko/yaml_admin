@@ -3,6 +3,7 @@ const { genEntityIdWithKey } = require('../common/util.js');
 const { v4: uuidv4 } = require('uuid');
 const { ObjectId } = require('mongodb');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const XLSX = require('xlsx');
 const moment = require('moment');
 const { withConfigLocal } = require('../upload/localUpload.js');
@@ -11,6 +12,7 @@ const { withConfigS3 } = require('../upload/s3Upload.js');
 const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) => {
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+    const passwordEncoding = yml.login['password-encoding']
     const api_host = yml["api-host"].uri;
     let isS3 = yml.upload.s3
     let host_image = isS3 ? yml.upload.s3.base_url : yml.upload.local.base_url
@@ -86,11 +88,13 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         return value
     }
 
-    const passwordEncrypt = (value) => {
-        if (options?.password?.encrypt) {
-            return options.password.encrypt(value)
+    const passwordEncrypt = async (value) => {
+        if(passwordEncoding === 'sha512') {
+            return await crypto.createHash('sha512').update(value).digest('hex')
+        } else if(passwordEncoding === 'bycrypt') {
+            return await bcrypt.hash(value, 10)
         } else {
-            return crypto.createHash('sha512').update(value).digest('hex')
+            return await crypto.createHash('sha256').update(value).digest('hex')
         }
     }
 
@@ -208,9 +212,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         entity['update_date'] = new Date()
 
         let passwordFields = yml_entity.fields.filter(f => f.type == 'password').map(f => f.name)
-        passwordFields.forEach(f => {
-            entity[f] = passwordEncrypt(req.body[f])
-        })
+        for(let f of passwordFields) {
+            entity[f] = await passwordEncrypt(req.body[f])
+        }
         //Custom ConstructEntity Start
 
         //Custom ConstructEntity End

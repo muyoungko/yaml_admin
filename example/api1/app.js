@@ -8,7 +8,6 @@ const crypto = require('crypto');
 module.exports = async function createApp() {
   const app = express();
 
-  //const routes = require('./src/route/route.js');
   const mode = process.env.NODE_ENV || "production";
   console.log(`NODE ENV : ${mode}`);
 
@@ -32,13 +31,8 @@ module.exports = async function createApp() {
   app.use(morgan('dev'));
   
   const router = express.Router();
-  await registerRoutes(router, {yamlPath:'../admin.yml', 
-    password : {
-      encrypt : (plainPass) => {
-        return crypto.createHash('sha512').update(plainPass).digest('hex')
-      }
-    }
-  })
+  const options = {}
+  await registerRoutes(router, {yamlPath:'../admin.yml', options})
 
   app.use('/', router)
   
