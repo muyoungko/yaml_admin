@@ -1,4 +1,4 @@
-import { Admin, Resource, ListGuesser, CreateBase, fetchUtils, CustomRoutes } from "react-admin";
+import { Admin, Resource, fetchUtils, CustomRoutes, defaultTheme } from "react-admin";
 import jsonServerProvider from "ra-data-json-server";
 import { Route } from "react-router-dom";
 import YAML from 'yaml';
@@ -23,7 +23,7 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 }
 
-const YMLAdmin = ({ adminYaml, i18nProvider, custom }) => {
+const YMLAdmin = ({ adminYaml, i18nProvider, custom, theme }) => {
   const [yml, setYml] = useState(null);
   const [dataProvider, setDataProvider] = useState(null);
 
@@ -66,6 +66,7 @@ const YMLAdmin = ({ adminYaml, i18nProvider, custom }) => {
     <>
       {dataProvider && <AdminProvider initialYml={yml} width="1250px">
         <Admin
+          theme={{...defaultTheme, ...theme}}
           dashboard={undefined}
           layout={MyLayout}
           authProvider={authProvider}

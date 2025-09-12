@@ -1,8 +1,14 @@
 import React from 'react';
-import { Layout, AppBar } from 'react-admin';
+import { Layout } from 'react-admin';
 import MyAppBar from './MyAppBar'
 import MyMenu from './MyMenu'
 
-const MyLayout = (props) => <Layout {...props} appBar={MyAppBar} menu={MyMenu} />;
+const MyLayout = ({ children }) => (
+    // <>{children}</>
+    <Layout appBar={MyAppBar} menu={MyMenu} >
+        {children}
+    </Layout>
+);
 
 export default MyLayout;
+
