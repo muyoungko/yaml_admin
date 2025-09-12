@@ -48,7 +48,7 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = (field, search = false, defaultValueByFieldName = {}) => {
+export const getFieldEdit = (field, search = false, globalFilter = {}) => {
     if (!field)
         return null;
     const { type, autogenerate } = field
@@ -56,12 +56,13 @@ export const getFieldEdit = (field, search = false, defaultValueByFieldName = {}
     
     if (type == 'reference') {
         return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity} 
-            alwaysOn={defaultValueByFieldName[field.name] ? false : true}
+            alwaysOn={globalFilter[field.name] ? false : true}
+            filter={globalFilter}
         >
             <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })} 
                 validate={field.required && !search && validateRequire}
-                defaultValue={defaultValueByFieldName[field.name]}
+                defaultValue={globalFilter[field.name]}
                 />
         </ReferenceInput>
     } else if (field?.type == 'select')

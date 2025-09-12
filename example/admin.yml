@@ -351,10 +351,19 @@ entity:
         label: "시리얼"
         type: string
         required: true
+      - name: version
+        label: "버전"
+        type: string
+        required: true
+      - name: battery
+        label: "배터리"
+        type: string
+      - name: sync_date
+        label: "동기화"
+        type: date
       - name: place_id
         label: "잠금 위치"
         type: reference
-        required: true
         reference_entity: place
         reference_field: id  
         reference_name: item_id

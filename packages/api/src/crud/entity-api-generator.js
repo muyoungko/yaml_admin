@@ -79,7 +79,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     const parseValueByTypeCore = (value, field) => {
         const { type } = field
         if (type == 'integer')
-            return parseInt(value)
+            if(value)
+                return parseInt(value)
+            else
+                return null
         else if (type == 'string')
             return value
         else if (type == 'objectId')
@@ -386,17 +389,16 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             let header = list[0]
             list.shift();
 
-            let upsert = yml_entity.crud.list.import.upsert || true
-
-            const fields = yml_entity.crud.list.import.fields.map(m => m)
-            fields.map(field => {
+            let upsert = yml_entity.crud.import.upsert || true
+            let fields = yml_entity.crud.import.fields.map(m => m)
+            fields = fields.map(field => {
                 let original = yml_entity.fields.find(f => f.name == field.name)
-                field.type = original.type
+                return original
             })
 
             let key_field = yml_entity.fields.find(f => f.key)
             let bulk = []
-            list.map(m => {
+            for(let m of list) {
                 let f = {}
 
                 let m_obj = {}
@@ -405,17 +407,27 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                 })
 
                 f[key_field.name] = getKeyFromEntity(m_obj)
-                if (!f[key_field.name])
-                    return
+                if (!f[key_field.name]) {
+                    if(key_field.autogenerate) {
+                        f[key_field.name] = await generateKey()
+                    } else {
+                        continue
+                    }
+                }
+
                 let entity = {}
                 fields.forEach(field => {
-                    if (field.type == 'integer')
+                    if (field.type == 'integer') {
                         entity[field.name] = parseInt(m_obj[field.name])
-                    else if (field.type == 'password')
-                        entity[field.name] = passwordEncrypt(m_obj[field.name] + '')
+                    } else if (field.type == 'reference') {
+                        entity[field.name] = parseValueByType(m_obj[field.name], field)
+                    } else if (field.type == 'password')
+                        entity[field.name] = passwordEncrypt((m_obj[field.name] || '') + '')
                     else
-                        entity[field.name] = m_obj[field.name] + ''
+                        entity[field.name] = (m_obj[field.name] || '') + ''
                 })
+
+                delete entity[key_field.name]
 
                 bulk.push({
                     updateOne: {
@@ -424,9 +436,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                         upsert: upsert
                     }
                 })
-            })
+            }
 
-            let result = await db.collection('delivery').bulkWrite(bulk);
+            console.log('bulk', JSON.stringify(bulk, null, 2))
+            let result = await db.collection(entity_name).bulkWrite(bulk);
             res.json({ r: true, msg: 'Import success - ' + result.upsertedCount + ' rows effected' });
         })
     }

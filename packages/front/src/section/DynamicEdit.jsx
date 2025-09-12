@@ -33,7 +33,7 @@ const EditToolbar = props => (
 );
 
 
-export const DynamicEdit = props => {
+export const DynamicEdit = ({custom, ...props}) => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
     const resource = useResourceContext(props); 
@@ -70,7 +70,7 @@ export const DynamicEdit = props => {
             //Custom Create SimpleForm Property End
             >
                 {fields.filter(field =>  crud.edit == true || crud.edit.map(a=>a.name).includes(field.name) ).map(field => {
-                    return getFieldEdit(field)
+                    return getFieldEdit(field, false, custom?.globalFilterDelegate(resource) || {})
                 })}
 
                 {/* Custom Create Start */}

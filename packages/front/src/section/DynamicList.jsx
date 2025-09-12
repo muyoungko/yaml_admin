@@ -39,7 +39,7 @@ const EditToolbar = props => (
     </Toolbar>
 );
 
-const DynamicFilter = ({defaultValueByFieldName, ...props}) => {
+const DynamicFilter = ({custom, ...props}) => {
     const yml = useAdminContext();
     const resource = useResourceContext(props);
     const yml_entity = useMemo(() => {
@@ -51,7 +51,7 @@ const DynamicFilter = ({defaultValueByFieldName, ...props}) => {
             {
                 yml_entity.crud?.search?.map(m => {
                     const field = yml_entity.fields.find(f => f.name == m.name)
-                    return getFieldEdit(field, true, defaultValueByFieldName)
+                    return getFieldEdit(field, true, custom?.globalFilterDelegate(resource) || {})
                 })
             }
             {
@@ -205,7 +205,7 @@ export const DynamicList = ({custom, ...props}) => {
 
     //Custom List Code End
     return (
-        <List {...props} filters={<DynamicFilter defaultValueByFieldName={custom?.globalFilterDelegate(resource)}/>} mutationMode='optimistic'
+        <List {...props} filters={<DynamicFilter custom={custom} />} mutationMode='optimistic'
             exporter={false}
             sort={{ field: 'id', order: 'DESC' }}
             perPage={30}
