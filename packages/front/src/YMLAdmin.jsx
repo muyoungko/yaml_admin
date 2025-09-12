@@ -23,7 +23,7 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 }
 
-const YMLAdmin = ({ adminYaml, i18nProvider, custom, theme }) => {
+const YMLAdmin = ({ adminYaml, i18nProvider, custom, theme, layout }) => {
   const [yml, setYml] = useState(null);
   const [dataProvider, setDataProvider] = useState(null);
 
@@ -68,7 +68,7 @@ const YMLAdmin = ({ adminYaml, i18nProvider, custom, theme }) => {
         <Admin
           theme={{...defaultTheme, ...theme}}
           dashboard={undefined}
-          layout={MyLayout}
+          layout={layout || MyLayout}
           authProvider={authProvider}
           i18nProvider={i18nProvider}
           dataProvider={dataProvider}>

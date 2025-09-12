@@ -328,7 +328,7 @@ entity:
         showtime: true
   admin:
     category: '사용자 관리'
-    icon: 'solar:user-hands-outline'
+    icon: 'solar:shield-user-outline'
     label: '운영자'
     fields:
       - name: id
@@ -360,6 +360,4 @@ front:
       icon: 'solar:lock-keyhole-minimalistic-outline'
     - name: '파일 관리'
       icon: 'solar:file-check-outline'
-    - name: '관리자'
-      icon: 'solar:user-hands-outline'
   
