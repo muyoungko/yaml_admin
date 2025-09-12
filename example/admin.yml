@@ -25,9 +25,6 @@ upload:
   #   path: ./upload
   #   path_private: ./upload_private
   #   base_url: http://localhost:6911
-global:
-  filter:
-    - name: server_id
 entity:
   server:
     category: '공장 관리'
@@ -105,7 +102,10 @@ entity:
         - name: server_id
         - name: parent_id
         - name: name
-      list: true
+      list: 
+        - name: id
+        - name: parent_id
+        - name: name
       create: true
       edit: true
       show: true

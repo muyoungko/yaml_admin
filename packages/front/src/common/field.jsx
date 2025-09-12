@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     TextField, NumberField, ReferenceField, DateField, BooleanField,
     ReferenceInput, AutocompleteInput, TextInput,
@@ -49,19 +48,23 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = (field, search = false) => {
+export const getFieldEdit = (field, search = false, defaultValueByFieldName = {}) => {
     if (!field)
         return null;
     const { type, autogenerate } = field
     if (autogenerate && !search) return null
-    if (type == 'reference')
-        return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity} alwaysOn>
+    
+    if (type == 'reference') {
+        return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity} 
+            alwaysOn={defaultValueByFieldName[field.name] ? false : true}
+        >
             <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })} 
                 validate={field.required && !search && validateRequire}
+                defaultValue={defaultValueByFieldName[field.name]}
                 />
         </ReferenceInput>
-    else if (field?.type == 'select')
+    } else if (field?.type == 'select')
         return <SelectInput key={field.name} label={field?.label} source={field.name} alwaysOn
             choices={field?.select_values}
             optionText="label" optionValue="name"

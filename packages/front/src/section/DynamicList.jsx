@@ -39,7 +39,7 @@ const EditToolbar = props => (
     </Toolbar>
 );
 
-const DynamicFilter = props => {
+const DynamicFilter = ({defaultValueByFieldName, ...props}) => {
     const yml = useAdminContext();
     const resource = useResourceContext(props);
     const yml_entity = useMemo(() => {
@@ -51,7 +51,7 @@ const DynamicFilter = props => {
             {
                 yml_entity.crud?.search?.map(m => {
                     const field = yml_entity.fields.find(f => f.name == m.name)
-                    return getFieldEdit(field, true)
+                    return getFieldEdit(field, true, defaultValueByFieldName)
                 })
             }
             {
@@ -63,7 +63,7 @@ const DynamicFilter = props => {
     )
 };
 
-const ListActions = ({crud, ...props}) => {
+const ListActions = ({crud, custom, ...props}) => {
     const resource = useResourceContext(props);
     const fileInputRef = React.createRef();
     const notify = useNotify();
@@ -124,8 +124,17 @@ const ListActions = ({crud, ...props}) => {
     const handleExportClick = () => {
         //url에서 filter paremeters를 가져와서 export
         const params = new URLSearchParams(location.search); // Query String 파싱
-        const filter = params.get("filter")
-        postFetcher(`/excel/${resource}/export`, {}, { filter: (filter && JSON.parse(filter)) }).then(r => {
+        let filter = params.get("filter")
+        if(filter)
+            filter = JSON.parse(filter)
+        else
+            filter = {}
+        const globalFilter = custom?.globalFilterDelegate(resource)
+        let mergedFilter = {}
+        if(globalFilter) {
+            mergedFilter = { ...filter, ...globalFilter }
+        }
+        postFetcher(`/excel/${resource}/export`, {}, { filter: mergedFilter }).then(r => {
             if (!r.r) {
                 notify(
                     r.msg ? r.msg : 'xlsx 생성에 실패하였습니다.',
@@ -170,7 +179,7 @@ const ListActions = ({crud, ...props}) => {
     );
 };
 
-export const DynamicList = props => {
+export const DynamicList = ({custom, ...props}) => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
@@ -196,11 +205,12 @@ export const DynamicList = props => {
 
     //Custom List Code End
     return (
-        <List {...props} filters={<DynamicFilter />} mutationMode='optimistic'
+        <List {...props} filters={<DynamicFilter defaultValueByFieldName={custom?.globalFilterDelegate(resource)}/>} mutationMode='optimistic'
             exporter={false}
             sort={{ field: 'id', order: 'DESC' }}
             perPage={30}
-            actions={<ListActions crud={crud} />}
+            actions={<ListActions crud={crud} custom={custom} />}
+            filter={custom?.globalFilterDelegate(resource) || {}}
         //Custom List Action Start
 
         //Custom List Action End
@@ -213,7 +223,7 @@ export const DynamicList = props => {
             <Datagrid rowClick="show" bulkActionButtons={true}>
                 {
                     fields.filter(field => crud.list == true || crud.list.map(a=>a.name).includes(field.name) ).map(m => {
-                        return getFieldShow(m, true)
+                        return getFieldShow(m, true, custom?.globalFilterDelegate(resource))
                     })
                 }
                 //Custom List Start

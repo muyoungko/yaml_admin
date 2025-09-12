@@ -32,7 +32,7 @@ const EditToolbar = props => (
     </Toolbar>
 );
 
-export const DynamicCreate = props => {
+export const DynamicCreate = ({custom, ...props}) => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
     const resource = useResourceContext(props); 
@@ -53,10 +53,6 @@ export const DynamicCreate = props => {
         }
     }, [yml, resource])
 
-    //Custom Create Code Start
-    
-    //Custom Create Code End
-
     return (
         <Create title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
         //Custom Create Property Start
@@ -69,7 +65,7 @@ export const DynamicCreate = props => {
             //Custom Create SimpleForm Property End
             >
                 {fields.filter(field => crud.create == true || crud.create.map(a=>a.name).includes(field.name) ).map(field => {
-                    return getFieldEdit(field)
+                    return getFieldEdit(field, false, custom?.globalFilterDelegate(resource))
                 })}
                 
                 {/* Custom Create Start */}
