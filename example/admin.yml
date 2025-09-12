@@ -25,6 +25,9 @@ upload:
   #   path: ./upload
   #   path_private: ./upload_private
   #   base_url: http://localhost:6911
+global:
+  filter:
+    - name: server_id
 entity:
   server:
     category: '공장 관리'
@@ -100,10 +103,8 @@ entity:
     crud:
       search:
         - name: server_id
-        - name: id
-          exact: false
+        - name: parent_id
         - name: name
-          exact: false
       list: true
       create: true
       edit: true
@@ -150,6 +151,35 @@ entity:
     category : '공장 관리'
     label: '개소'
     icon: "solar:download-twice-square-outline"
+    crud:
+      search:
+        - name: server_id
+        - name: region_id
+        - name: id
+        - name: key
+        - name: name
+      list: 
+        - name: region_id
+        - name: id
+        - name: key
+        - name: name
+      create: true
+      edit: true
+      show: true
+      delete: true
+      export:
+        fields:
+          - name: server_id
+          - name: id
+          - name: key
+          - name: name
+      import:
+        fields:
+          - name: server_id
+          - name: id
+          - name: key
+          - name: name
+        upsert: true
     fields:
       - name: server_id
         label: "공장"
@@ -157,6 +187,17 @@ entity:
         reference_entity: server
         reference_field: id
         reference_name: factory
+        required: true
+      - name: region_id
+        label: "개소"
+        type: reference
+        reference_entity: region
+        reference_field: id
+        reference_name: name
+        required: true
+      - name: name
+        label: "이름"
+        type: string
         required: true
       - name: id
         label: "ID"
@@ -166,10 +207,6 @@ entity:
         autogenerate: true
       - name: key
         label: "키"
-        type: string
-        required: true
-      - name: name
-        label: "이름"
         type: string
         required: true
   place:
@@ -273,6 +310,30 @@ entity:
     category : '자원 관리'
     icon: "solar:lock-keyhole-minimalistic-outline"
     label: "ILS"
+    crud:
+      search:
+        - name: id
+        - name: server_id
+        - name: key
+        - name: serial
+      list: true
+      create: true
+      edit: true
+      show: true
+      delete: true
+      export:
+        fields:
+          - name: id
+          - name: server_id
+          - name: key
+          - name: serial
+      import:
+        fields:
+          - name: id
+          - name: server_id
+          - name: key
+          - name: serial
+        upsert: true
     fields:
       - name: server_id
         label: "공장"
@@ -282,12 +343,21 @@ entity:
         reference_name: factory
         required: true
       - name: key
+        label: "태그"
         type: string
         required: true
         key: true
       - name: serial
+        label: "시리얼"
         type: string
         required: true
+      - name: place_id
+        label: "잠금 위치"
+        type: reference
+        required: true
+        reference_entity: place
+        reference_field: id  
+        reference_name: item_id
   file:
     category: '파일 관리'
     icon: "solar:file-check-outline"
@@ -354,10 +424,10 @@ front:
   category:
     - name: '공장 관리'
       icon: 'material-symbols:factory-outline'
-    - name: '사용자 관리'
-      icon: 'solar:user-hands-outline'
     - name: '자원 관리'
       icon: 'solar:lock-keyhole-minimalistic-outline'
+    - name: '사용자 관리'
+      icon: 'solar:user-hands-outline'
     - name: '파일 관리'
       icon: 'solar:file-check-outline'
   
