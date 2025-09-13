@@ -162,12 +162,10 @@ entity:
         - name: server_id
         - name: region_id
         - name: id
-        - name: key
         - name: name
       list: 
         - name: region_id
         - name: id
-        - name: key
         - name: name
         - name: seq
       create: true
@@ -177,15 +175,17 @@ entity:
       export:
         fields:
           - name: server_id
+          - name: region_id
           - name: id
-          - name: key
           - name: name
+          - name: seq
       import:
         fields:
           - name: server_id
+          - name: region_id
           - name: id
-          - name: key
           - name: name
+          - name: seq
         upsert: true
     fields:
       - name: server_id
@@ -212,10 +212,6 @@ entity:
         required: true
         key: true
         autogenerate: true
-      - name: key
-        label: "키"
-        type: string
-        required: true
       - name: seq
         label: "순서"
         type: integer
@@ -269,9 +265,6 @@ entity:
         required: true
         key: true
         autogenerate: true
-      - name: seq
-        label: "순서"
-        type: integer
   member:
     category : '사용자 관리'
     icon: "solar:user-hands-outline"

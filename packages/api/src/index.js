@@ -1,3 +1,3 @@
 const registerRoutes = require('./yml-admin-api.js');
-
-module.exports = { registerRoutes };
+const { genEntityIdWithKey } = require('./common/util.js');
+module.exports = { registerRoutes, genEntityIdWithKey };

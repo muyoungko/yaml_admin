@@ -16,6 +16,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     const api_host = yml["api-host"].uri;
     let isS3 = yml.upload.s3
     let host_image = isS3 ? yml.upload.s3.base_url : yml.upload.local.base_url
+
     const uploader = yml.upload.s3 ? withConfigS3({
         access_key_id: yml.upload.s3.access_key_id,
         secret_access_key: yml.upload.s3.secret_access_key,
@@ -250,7 +251,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         var r = await db.collection(entity_name).insertOne(entity);
         //Custom Create Tail Start
-
+        options?.listener?.entityCreated?.(db, entity_name, entity)
         //Custom Create Tail End
 
         const generatedId = entityId || r.insertedId
@@ -289,7 +290,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         await db.collection(entity_name).updateOne(f, { $set: entity });
 
         //Custom Create Tail Start
-
+        options?.listener?.entityUpdated?.(db, entity_name, entity)
         //Custom Create Tail End
 
         // Ensure React-Admin receives an `id` in the response
@@ -334,6 +335,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             await db.collection(entity_name).updateOne(f, { $set: { remove: true } });
         else
             await db.collection(entity_name).deleteOne(f);
+
+        options?.listener?.entityDeleted?.(db, entity_name, entity)
 
         res.json(entity);
     });
@@ -398,6 +401,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
             let key_field = yml_entity.fields.find(f => f.key)
             let bulk = []
+            let opsMeta = []
             for(let m of list) {
                 let f = {}
 
@@ -429,6 +433,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
                 delete entity[key_field.name]
 
+                const opIndex = bulk.length
+                opsMeta.push({ index: opIndex, key: f[key_field.name], entity })
                 bulk.push({
                     updateOne: {
                         filter: f,
@@ -438,8 +444,52 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                 })
             }
 
-            console.log('bulk', JSON.stringify(bulk, null, 2))
             let result = await db.collection(entity_name).bulkWrite(bulk);
+            //result에서 update entity와 created entity list로 추출 해서 options?.listener?.entityCreated?.(entity_name, createdEntity)와 options?.listener?.entityUpdated?.(entity_name, updateEntity) 호출
+            try {
+                const upsertIndexToId = new Map()
+                if (result && result.upsertedIds) {
+                    Object.keys(result.upsertedIds).forEach(k => {
+                        const idx = parseInt(k)
+                        upsertIndexToId.set(idx, result.upsertedIds[k])
+                    })
+                }
+                if (result && typeof result.getUpsertedIds === 'function') {
+                    const arr = result.getUpsertedIds()
+                    if (Array.isArray(arr)) {
+                        arr.forEach(({ index, _id }) => {
+                            upsertIndexToId.set(index, _id)
+                        })
+                    }
+                }
+
+                const createdList = []
+                const updatedList = []
+                for (let meta of opsMeta) {
+                    if (upsertIndexToId.has(meta.index)) createdList.push(meta)
+                    else updatedList.push(meta)
+                }
+
+                // created
+                for (let { key, entity } of createdList) {
+                    const createdEntity = { ...entity }
+                    createdEntity[key_field.name] = key
+                    createdEntity.id = (key_field.type == 'objectId') ? (key && key.toString ? key.toString() : key) : key
+                    options?.listener?.entityCreated?.(db, entity_name, createdEntity)
+                }
+
+                // updated (include matched-but-not-modified as existing)
+                for (let { key, entity } of updatedList) {
+                    const updateEntity = { ...entity }
+                    updateEntity[key_field.name] = key
+                    updateEntity.id = (key_field.type == 'objectId') ? (key && key.toString ? key.toString() : key) : key
+                    options?.listener?.entityUpdated?.(db, entity_name, updateEntity)
+                }
+            } catch (e) {
+                // ignore listener errors to not break import
+            }
+            
+        
             res.json({ r: true, msg: 'Import success - ' + result.upsertedCount + ' rows effected' });
         })
     }

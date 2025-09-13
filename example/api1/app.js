@@ -2,8 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { registerRoutes } = require('yaml-admin-api');
-const crypto = require('crypto');
+const { registerRoutes, genEntityIdWithKey } = require('yaml-admin-api');
 
 module.exports = async function createApp() {
   const app = express();
@@ -31,8 +30,21 @@ module.exports = async function createApp() {
   app.use(morgan('dev'));
   
   const router = express.Router();
-  const options = {}
-  await registerRoutes(router, {yamlPath:'../admin.yml', options})
+  const options = {
+    listener: {
+      entityCreated: async (db, entity_name, entity) => {
+        console.log('entityCreated', entity_name, entity)
+        if(entity_name == 'item')
+          await syncLocation(db, entity)
+      },
+      entityDeleted: async (db, entity_name, entity) => {
+        console.log('entityDeleted', entity_name, entity)
+        if(entity_name == 'item')
+          await db.collection('place').deleteMany({item_id: entity.id})
+      }
+    }
+  }
+  await registerRoutes(router, {yamlPath:'../admin.yml', ...options})
 
   app.use('/', router)
   
@@ -40,3 +52,19 @@ module.exports = async function createApp() {
 };
 
 
+const syncLocation = async (db, entity) => {
+  const place = await db.collection('place').findOne({item_id: entity.id})
+  console.log('syncLocation', place)
+  if(place)
+    return
+  const newPlace = {
+    id: await genEntityIdWithKey(db, 'place'),
+    item_id: entity.id, 
+    server_id: entity.server_id,
+    create_date: new Date(),
+    update_date: new Date(),
+    create_admin_id: entity.create_admin_id,
+  }
+  console.log('newPlace', newPlace)
+  await db.collection('place').insertOne(newPlace)
+}
