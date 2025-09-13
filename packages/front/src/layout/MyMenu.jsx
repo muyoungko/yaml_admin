@@ -21,7 +21,7 @@ const MyMenu = () => {
                 let r = yml.entity[m]
                 r.name = m
                 return r
-            }).filter(f=>f.category == m.name)
+            }).filter(f=>f.category == m.name && f.hidden !== true)
         })
         return list
     }, [yml]);
@@ -31,7 +31,7 @@ const MyMenu = () => {
             let r = yml.entity[m]
             r.name = m
             return r
-        }).filter(f=>!f.category)
+        }).filter(f=>!f.category && f.hidden !== true)
         return list || [];
     }, [yml]);
 

@@ -95,7 +95,7 @@ entity:
         private: true
   region:
     category : '공장 관리'
-    label: '장소'
+    label: '개소'
     icon: "solar:download-square-outline"
     crud:
       search:
@@ -106,6 +106,7 @@ entity:
         - name: id
         - name: parent_id
         - name: name
+        - name: seq
       create: true
       edit: true
       show: true
@@ -116,12 +117,14 @@ entity:
           - name: parent_id
           - name: id
           - name: name
+          - name: seq
       import:
         fields:
           - name: server_id
           - name: parent_id
           - name: id
           - name: name
+          - name: seq
         upsert: true
     fields:
       - name: server_id
@@ -147,9 +150,12 @@ entity:
         label: "이름"
         type: string
         required: true
+      - name: seq
+        label: "순서"
+        type: integer
   item:
     category : '공장 관리'
-    label: '개소'
+    label: '항목'
     icon: "solar:download-twice-square-outline"
     crud:
       search:
@@ -163,6 +169,7 @@ entity:
         - name: id
         - name: key
         - name: name
+        - name: seq
       create: true
       edit: true
       show: true
@@ -209,11 +216,46 @@ entity:
         label: "키"
         type: string
         required: true
+      - name: seq
+        label: "순서"
+        type: integer
   place:
     category: '공장 관리'
     label: 'Location'
     icon: "solar:download-minimalistic-bold-duotone"
+    # hidden: true
+    crud:
+      search:
+        - name: server_id
+        - name: item_id
+        - name: id
+      list: 
+        - name: server_id
+        - name: item_id
+        - name: id
+      create: true
+      edit: true
+      show: true
+      delete: true
+      export:
+        fields:
+          - name: server_id
+          - name: id
+          - name: seq
+      import:
+        fields:
+          - name: server_id
+          - name: id
+          - name: seq
+        upsert: true
     fields:
+      - name: server_id
+        label: "공장"
+        type: reference
+        reference_entity: server
+        reference_field: id
+        reference_name: factory
+        required: true
       - name: item_id
         label: "항목"
         type: reference
@@ -227,6 +269,9 @@ entity:
         required: true
         key: true
         autogenerate: true
+      - name: seq
+        label: "순서"
+        type: integer
   member:
     category : '사용자 관리'
     icon: "solar:user-hands-outline"
