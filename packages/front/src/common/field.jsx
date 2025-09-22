@@ -2,7 +2,7 @@ import {
     TextField, NumberField, ReferenceField, DateField, BooleanField,
     ReferenceInput, AutocompleteInput, TextInput,
     SelectInput, FunctionField, ImageInput, ImageField, FileInput, FileField,
-    ReferenceArrayField, ArrayField, SingleFieldList
+    ReferenceArrayField, ArrayField, SingleFieldList, Datagrid
 } from 'react-admin';
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
@@ -83,9 +83,17 @@ export const getFieldShow = ({field, isList, crud_field}) => {
                 </SingleFieldList>
             </ArrayField>
         } else {
-            return <FunctionField key={field.name} label={label} render={record => 
-                record?.[field.name]?.length || 0
-            } />
+            if(isList)
+                return <FunctionField key={field.name} label={label} render={record => 
+                    record?.[field.name]?.length || 0
+                } />
+            else {
+                return <ArrayField label={label} source={field.name} >
+                    <Datagrid bulkActionButtons={false}> 
+                        {field.fields.map(m=>getFieldShow({field: m, isList}))}
+                    </Datagrid>
+                </ArrayField>
+            }
         }
     } else if (field.type == 'file') {
         return <FunctionField key={field.name} label={label} render={record => 

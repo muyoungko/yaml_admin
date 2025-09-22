@@ -1,5 +1,4 @@
-
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
     AutocompleteInput,
     ChipField,
@@ -49,17 +48,17 @@ const ShowContent = ({ customFunc }) => {
     )
 };
 
-export const DynamicShow = ({custom, ...props}) => {
+export const DynamicShow = ({ custom, ...props }) => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
-    const resource = useResourceContext(props); 
-    
+    const resource = useResourceContext(props);
+
     const fields = useMemo(() => {
         return yml.entity[resource].fields
     }, [yml, resource])
 
-    const customFunc = useMemo(()=> {
+    const customFunc = useMemo(() => {
         return custom?.entity?.[resource]?.show
     }, [yml, resource])
 
@@ -75,6 +74,22 @@ export const DynamicShow = ({custom, ...props}) => {
         }
     }, [yml, resource])
 
+    const findField = useCallback((name) => {
+        let name_array = name.split('.')[0]
+        let r = fields.find(f => f.name == name_array)
+        return r;
+    }, [fields])
+
+    const shouldShowFields = useCallback((name) => {
+
+        if (fields.map(a => a.name).includes(name))
+            return true
+
+        return findField(name) != null
+
+        return false
+
+    }, [fields])
     // Custom List Code Start
 
     //Custom List Code End
@@ -82,10 +97,17 @@ export const DynamicShow = ({custom, ...props}) => {
         <Show title={<DynamicTitle />} {...props} >
             <SimpleShowLayout>
                 {customFunc && <ShowContent customFunc={customFunc} fields={fields} />}
-                {!customFunc && fields.filter(field => crud.show == true || crud.show.map(a=>a.name).includes(field.name) ).map(m=>{
+                {!customFunc && crud.show == true && fields.map(m => {
                     return getFieldShow({
-                        field:m, 
-                        isList:false
+                        field: m,
+                    })
+                })}
+
+                {!customFunc && crud.show != true && crud.show.filter(f => f.name).filter(f => shouldShowFields(f.name)).map(crud_field => {
+                    let m = findField(crud_field.name)
+                    return getFieldShow({
+                        crud_field,
+                        field: m,
                     })
                 })}
             //Custom Show Start

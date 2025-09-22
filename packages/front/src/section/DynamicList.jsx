@@ -39,7 +39,7 @@ const EditToolbar = props => (
     </Toolbar>
 );
 
-const DynamicFilter = ({custom, ...props}) => {
+const DynamicFilter = ({ custom, ...props }) => {
     const yml = useAdminContext();
     const resource = useResourceContext(props);
     const yml_entity = useMemo(() => {
@@ -63,7 +63,7 @@ const DynamicFilter = ({custom, ...props}) => {
     )
 };
 
-const ListActions = ({crud, custom, ...props}) => {
+const ListActions = ({ crud, custom, ...props }) => {
     const resource = useResourceContext(props);
     const fileInputRef = React.createRef();
     const notify = useNotify();
@@ -71,17 +71,17 @@ const ListActions = ({crud, custom, ...props}) => {
     const location = useLocation()
 
     const convertFileToBase64 = async file => {
-        
-        if(file){
+
+        if (file) {
             const arrayBuffer = await file.arrayBuffer(); // ArrayBuffer 얻기
             const uint8Array = new Uint8Array(arrayBuffer); // Uint8Array로 변환
-        
+
             // Uint8Array를 문자열로 변환
             const binaryString = uint8Array.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-        
+
             // Base64 인코딩
             return btoa(binaryString);
-        } else  {
+        } else {
             return null
         }
     };
@@ -90,7 +90,7 @@ const ListActions = ({crud, custom, ...props}) => {
         const file = files[0];
 
         const base64 = await convertFileToBase64(file)
-        await postFetcher(`/excel/${resource}/import`, {}, {base64}).then(res => {
+        await postFetcher(`/excel/${resource}/import`, {}, { base64 }).then(res => {
             if (res && res.r) {
                 notify(
                     res.msg,
@@ -125,13 +125,13 @@ const ListActions = ({crud, custom, ...props}) => {
         //url에서 filter paremeters를 가져와서 export
         const params = new URLSearchParams(location.search); // Query String 파싱
         let filter = params.get("filter")
-        if(filter)
+        if (filter)
             filter = JSON.parse(filter)
         else
             filter = {}
         const globalFilter = custom?.globalFilterDelegate(resource)
         let mergedFilter = {}
-        if(globalFilter) {
+        if (globalFilter) {
             mergedFilter = { ...filter, ...globalFilter }
         }
         postFetcher(`/excel/${resource}/export`, {}, { filter: mergedFilter }).then(r => {
@@ -172,14 +172,14 @@ const ListActions = ({crud, custom, ...props}) => {
                     style={{ display: 'none' }}
                     onChange={e => handleImportFiles(e.target.files)}
                 />
-                <Button onClick={handleImportClick} startIcon={<UploadIcon />} label='Import'/>
+                <Button onClick={handleImportClick} startIcon={<UploadIcon />} label='Import' />
             </>}
-            {crud?.export && <Button onClick={handleExportClick} startIcon={<DownloadIcon />} label='Export'/>}
+            {crud?.export && <Button onClick={handleExportClick} startIcon={<DownloadIcon />} label='Export' />}
         </TopToolbar>
     );
 };
 
-export const DynamicList = ({custom, ...props}) => {
+export const DynamicList = ({ custom, ...props }) => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
@@ -203,19 +203,19 @@ export const DynamicList = ({custom, ...props}) => {
 
     const findField = useCallback((name) => {
         let name_array = name.split('.')[0]
-        let r =  fields.find(f=>f.name == name_array)
+        let r = fields.find(f => f.name == name_array)
         return r;
     }, [fields])
 
     const shouldShowFields = useCallback((name) => {
 
-        if(fields.map(a=>a.name).includes(name))
+        if (fields.map(a => a.name).includes(name))
             return true
 
         return findField(name) != null
 
         return false
-        
+
     }, [fields])
     //Custom List Code Start
 
@@ -237,23 +237,20 @@ export const DynamicList = ({custom, ...props}) => {
                 //Custom List Body End
             }
             <Datagrid rowClick="show" bulkActionButtons={true}>
-                {
-                    crud.list == true && fields.map(m => {
-                        return getFieldShow({
-                            field:m, 
-                            isList:true
-                        })
+                {crud.list == true && fields.map(m => {
+                    return getFieldShow({
+                        field: m,
+                        isList: true
                     })
-                }
-                {
-                    crud.list != true && crud.list.filter(f=>f.name).filter(f => shouldShowFields(f.name)).map(crud_field => {
-                        let m = findField(crud_field.name)
-                        return getFieldShow({
-                            crud_field,
-                            field:m, 
-                            isList:true})
+                })}
+                {crud.list != true && crud.list.filter(f => f.name).filter(f => shouldShowFields(f.name)).map(crud_field => {
+                    let m = findField(crud_field.name)
+                    return getFieldShow({
+                        crud_field,
+                        field: m,
+                        isList: true
                     })
-                }
+                })}
                 //Custom List Start
 
                 //Custom List End

@@ -368,8 +368,18 @@ entity:
         - action: lock_history_popup
           argument: 
             field: id
-      create: true
-      edit: true
+      create:
+        - name: server_id
+        - name: key
+        - name: serial
+        - name: battery
+        - name: lock_list
+      edit: 
+        - name: server_id
+        - name: key
+        - name: serial
+        - name: battery
+        - name: lock_list
       show: true
       delete: true
       export:
@@ -424,16 +434,19 @@ entity:
         reference_match: id
         reference_name: item_id
       - name: lock_list
-        label: "잠금자"
+        label: "잠금목록"
         type: array
         fields:
           - name: member_no
+            label: "잠금자"
             type: reference
             reference_entity: member
             reference_match: member_no
             reference_name: name
           - name: reg_date
+            label: "잠금일시"
             type: date
+            showtime: true
         
     api_generate:
       lock_list:
