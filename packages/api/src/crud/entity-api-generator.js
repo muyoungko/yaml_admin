@@ -513,25 +513,25 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
     for(let key in apiGenerate) {
         
         const apiGenerateItem = apiGenerate[key]
-        let { entity, fields, match, sort, limit, single } = apiGenerateItem
-        const with_field = apiGenerateItem.with
+        let { entity, fields, match, sort, limit, single, mine } = apiGenerateItem
 
         sort = sort || []
         sort = sort.map(m=>({ [m.name]: m.desc ? 1 : -1 }))
         limit = limit || 1000
         
-        const this_with_fields_list = data_list.map(m=>m[with_field])
-        const f = { [match]: {$in:this_with_fields_list} }
-        const projection = {}
+        const mine_list = data_list.map(m=>m[mine])
+        const f = { [match]: {$in:mine_list} }
+        const projection = {[match]:1}
         fields.map(m=>{
             projection[m.name] = 1
         })
         const result = await db.collection(entity).find(f).project(projection).sort(sort).limit(limit).toArray()
         data_list.map(m=>{
             if(single)
-                m[key] = result.find(m=>m[match] === m[with_field])
-            else
-                m[key] = result.filter(m=>m[match] === m[with_field])
+                m[key] = result.find(f=>f[match] === m[mine])
+            else {
+                m[key] = result.filter(f=>f[match] === m[mine])
+            }
         })
     }
 }

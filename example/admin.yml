@@ -441,15 +441,15 @@ entity:
         fields: 
           - name : member_no
           - name : reg_date
-        match: ils_id
-        with: id
+        match: ils_id 
+        mine: id
       lock_history_list:
         entity: lock_history
         fields:
           - name : member_no
           - name : reg_date
         match: ils_id
-        with: id
+        mine: id
         sort:
           - name: reg_date
             desc: true
