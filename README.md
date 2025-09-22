@@ -17,17 +17,26 @@ Powered by MongoDB and `react-admin`, this project minimizes boilerplate for ope
 
 Prerequisites
 - Node.js 18+
-- MongoDB connection string: `MONGODB_URL`
-- JWT secret: `JWT_SECRET`
+- Your mongodb instance
 
-1) Install and run examples
+
+Install and run examples
 
 ```bash
-npm i
-export MONGODB_URL="mongodb://<user>:<pass>@<host>:<port>/<db>?authSource=admin"
-export JWT_SECRET="your_jwt_secret"
+npm run install
+```
+
+```bash
+export JWT_SECRET='your jwt secret string'
+export MONGODB_URL='mongodb+srv://...'
+```
+
+```bash
 npm run dev
 ```
+
+
+
 
 - API example: defaults to port `6911`
 - Front example: defaults to port `6900`
@@ -40,49 +49,54 @@ Open the frontend in your browser. Entities defined in YAML appear as menu items
 
 Example: `example/admin.yml`
 
-```yaml
-login:
-  jwt-secret: ${JWT_SECRET}
-  id-password:
-    entity: admin
-    id-field: email
-    password-field: pass
-    password-encoding: bcrypt
-    bcrypt-salt: 10
-
-api-host:
-  uri: localhost:6911
-web-host:
-  uri: localhost:6900
-
-database:
-  mongodb:
-    uri: ${MONGODB_URL}
-
+```yaml crud
 entity:
-  member:
-    category: 'User Management'
-    icon: 'solar:user-hands-outline'
-    label: 'User'
-    fields:
-      - { name: name, type: string, required: true }
-      - { name: member_no, type: string, required: true }
-
-  admin:
-    category: 'User Management'
-    icon: 'solar:shield-user-broken'
-    label: 'Admin'
-    fields:
-      - { name: email, type: string, required: true }
-      - { name: pass,  type: string, required: true }
-      - { name: name,  type: string, required: true }
-
-front:
-  useDashboard: true
-  category:
-    - { name: 'Factory',          icon: 'material-symbols:factory-outline' }
-    - { name: 'User Management',  icon: 'solar:user-hands-outline' }
-    - { name: 'Etc',              icon: 'solar:file-broken' }
+  crud:
+    search:
+      - name: server_id
+      - name: email
+        exact: false
+      - name: name
+        exact: false
+    list: 
+      - name: member_no
+      - name: email
+      - name: user_type
+    create: true
+    edit: true
+    show: true
+    delete: true
+  fields:
+    - name: member_no
+      label: "Member No"
+      type: string
+      required: true
+      key: true
+      autogenerate: true
+    - name: email
+      label: "E-Mail"
+      type: string
+      required: true
+    - name: name
+      label: "Name"
+      type: string
+      required: true
+    - name: pass
+      label: "Password"
+      type: password
+      required: true
+    - name: user_type
+      type: select
+      label: "Role"
+      select_values:
+        - name: "manager"
+          label: "Manager"
+        - name: "normal"
+          label: "Normal"
+      required: true
+    - name: phone
+      type: string
+      label: "Phone"
 ```
 
 - **login.jwt-secret**: JWT signing key. Resolved from `JWT_SECRET` at runtime.
@@ -154,21 +168,6 @@ Notes
 - `YMLAdmin` parses `adminYaml` and configures `react-admin` `Admin`/`Resource` automatically.
 - Set the API host via YAML `api-host.uri` or environment `VITE_HOST_API`.
 
----
-
-## Example Scripts
-
-Root scripts
-```bash
-# Run example API + frontend together
-npm run dev
-
-# Run individually
-npm run dev:example-api
-npm run dev:example-front
-```
-
----
 
 ## License
 MIT

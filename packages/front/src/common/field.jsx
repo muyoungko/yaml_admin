@@ -9,10 +9,16 @@ import SafeImageField from '../component/SafeImageField';
 
 export const getFieldShow = (field, isList = false) => {
     if (!field || field.type == 'password') return null;
-    if (field.type == 'string' || field.key){
+    if (field.type == 'string' || field.key)
         return <TextField key={field.name} label={field.label} source={field.name} />
-    } else if (field.type == 'integer')
+    else if (field.type == 'integer')
         return <NumberField key={field.name} label={field.label} source={field.name} />
+    else if (field.type == 'length')
+        return <FunctionField key={field.name} label={field.label} render={record => 
+            <>
+                {record[field.name]?.length}
+            </>
+        } />
     else if (field.type == 'select')
         return <FunctionField key={field.name} label={field.label} source={field.name}
             render={record => field.select_values.find(m => m.name == record[field.name])?.label} />
@@ -48,7 +54,7 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = (field, search = false, globalFilter = {}) => {
+export const getFieldEdit = (field, search = false, globalFilter = {}, isList = false) => {
     if (!field)
         return null;
     const { type, autogenerate } = field
@@ -85,7 +91,8 @@ export const getFieldEdit = (field, search = false, globalFilter = {}) => {
     }
     else {
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn 
-            validate={field.required && !search && validateRequire}
+            required = {!search && field?.type != 'password' && field.required}
+            validate={field.required && field?.type != 'password' && !search && validateRequire}
         />
     }
 }

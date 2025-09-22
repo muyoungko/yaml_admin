@@ -9,6 +9,13 @@ const moment = require('moment');
 const { withConfigLocal } = require('../upload/localUpload.js');
 const { withConfigS3 } = require('../upload/s3Upload.js');
 
+const asyncErrorHandler = (fn) => (req, res, next) => {
+    return Promise.resolve(fn(req, res, next)).catch(async e=>{
+        console.error(e);
+        res.status(400).json({ status: 400, statusText: 'error', message: e.message })
+    });
+}
+
 const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) => {
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
@@ -44,7 +51,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const generateKey = async () => {
         if (key_field.type == 'integer')
-            return await genEntityIdWithKey(db, key_field.name)
+            return await genEntityIdWithKey(db, entity_name)
         else if (key_field.type == 'string')
             return uuidv4()
         return null
@@ -115,6 +122,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                 m[field.name] = await mediaToFront(m[field.name], field.private)
             }
         }
+
+        let apiGenerateFields = await makeApiGenerateFields(db, entity_name, yml_entity, yml, options, list)
     }
 
     const mediaKeyToFullUrl = async (key, private) => {
@@ -146,7 +155,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     
 
     //list
-    app.get(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
+    app.get(`/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         var s = {};
         var _sort = req.query._sort;
         var _order = req.query._order;
@@ -197,9 +206,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         //Custom list End
         await addInfo(db, list)
+
         res.header('X-Total-Count', count);
         res.json(list);
-    });
+    }));
 
 
     const constructEntity = async (req, entityId) => {
@@ -208,7 +218,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if (entityId)
             entity[key_field.name] = entityId
 
-        yml_entity.fields.forEach(field => {
+        yml_entity.fields.filter(f=>['password', 'length'].includes(field.type) ).forEach(field => {
             if (!field.key)
                 entity[field.name] = req.body[field.name]
         })
@@ -216,7 +226,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         let passwordFields = yml_entity.fields.filter(f => f.type == 'password').map(f => f.name)
         for(let f of passwordFields) {
-            entity[f] = await passwordEncrypt(req.body[f])
+            if(req.body[f])
+                entity[f] = await passwordEncrypt(req.body[f])
         }
         //Custom ConstructEntity Start
 
@@ -226,7 +237,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     };
 
     //create
-    app.post(`/${entity_name}`, auth.isAuthenticated, async (req, res) => {
+    app.post(`/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let entityId
         if (key_field.autogenerate)
             entityId = await generateKey()
@@ -238,7 +249,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             f[key_field.name] = entityId
             let already = await db.collection(entity_name).findOne(f)
             if (already)
-                return res.status(400).json({ status: 400, statusText: 'error', message: "duplicate key [" + entityId + "]" });
+                throw new Error("duplicate key of [" + key_field.name + "] - [" + entityId + "]")
         }
 
         const entity = await constructEntity(req, entityId);
@@ -258,7 +269,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         entity.id = (key_field.type == 'objectId') ? generatedId?.toString() : generatedId;
 
         res.json(entity);
-    });
+    }));
 
 
     //edit
@@ -491,6 +502,37 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             
         
             res.json({ r: true, msg: 'Import success - ' + result.upsertedCount + ' rows effected' });
+        })
+    }
+}
+
+const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, data_list) => {
+    const apiGenerate = yml_entity.api_generate
+    if(!apiGenerate)
+        return;
+    for(let key in apiGenerate) {
+        
+        const apiGenerateItem = apiGenerate[key]
+        let { entity, fields, match, sort, limit, single } = apiGenerateItem
+        const with_field = apiGenerateItem.with
+
+        sort = sort || []
+        sort = sort.map(m=>({ [m.name]: m.desc ? 1 : -1 }))
+        limit = limit || 1000
+        
+        const this_with_fields_list = data_list.map(m=>m[with_field])
+        const f = { [match]: {$in:this_with_fields_list} }
+        const projection = {}
+        fields.map(m=>{
+            projection[m.name] = 1
+        })
+        const result = await db.collection(entity).find(f).project(projection).sort(sort).limit(limit).toArray()
+        console.log('result', result, projection)
+        data_list.map(m=>{
+            if(single)
+                m[key] = result.find(m=>m[match] === m[with_field])
+            else
+                m[key] = result.filter(m=>m[match] === m[with_field])
         })
     }
 }

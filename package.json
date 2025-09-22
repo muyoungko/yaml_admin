@@ -12,7 +12,8 @@
     "dev:example-front": "cd example/front1 && npm run dev",
     "publish:front": "npm publish -w yaml-admin-front --access public",
     "publish:api": "npm publish -w yaml-admin-api --access public",
-    "publish": "npm version patch -w yaml-admin-front --no-git-tag-version && npm version patch -w yaml-admin-api --no-git-tag-version && npm publish -w yaml-admin-front --access public && npm publish -w yaml-admin-api --access public"
+    "publish": "npm version patch -w yaml-admin-front --no-git-tag-version && npm version patch -w yaml-admin-api --no-git-tag-version && npm publish -w yaml-admin-front --access public && npm publish -w yaml-admin-api --access public",
+    "install": "npm --prefix example/api1 i && npm --prefix example/front1 i && npm --prefix packages/api i && npm --prefix packages/front i"
   },
   "repository": {
     "type": "git",

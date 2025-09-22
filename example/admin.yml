@@ -344,6 +344,9 @@ entity:
       - name: department
         label: "부서"
         type: string
+      - name: company
+        label: "회사"
+        type: string
   ils:
     category : '자원 관리'
     icon: "solar:lock-keyhole-minimalistic-outline"
@@ -354,7 +357,14 @@ entity:
         - name: server_id
         - name: key
         - name: serial
-      list: true
+      list:
+        - name: id
+        - name: key
+        - name: serial
+        - name: lock_list
+        - action: lock_history_popup
+          argument: 
+            field: id
       create: true
       edit: true
       show: true
@@ -380,11 +390,16 @@ entity:
         reference_field: id
         reference_name: factory
         required: true
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
       - name: key
         label: "태그"
         type: string
         required: true
-        key: true
       - name: serial
         label: "시리얼"
         type: string
@@ -400,11 +415,86 @@ entity:
         label: "동기화"
         type: date
       - name: place_id
-        label: "잠금 위치"
+        label: "위치"
         type: reference
         reference_entity: place
-        reference_field: id  
+        reference_field: id
         reference_name: item_id
+      - name: lock_list
+        label: "잠금자수"
+        type: length
+      # - name: lock_list
+      #   label: "잠금자"
+      #   type: reference_array
+      #   reference_entity: member
+      #   reference_field: member_no
+      #   reference_name: name
+    api_generate:
+      lock_list:
+        entity: lock
+        fields: 
+          - name : member_no
+          - name : reg_date
+        match: ils_id
+        with: id
+      lock_history_list:
+        entity: lock_history
+        fields:
+          - name : member_no
+          - name : reg_date
+        match: ils_id
+        with: id
+        sort:
+          - name: reg_date
+            desc: true
+        limit: 10 # this make this fields array
+  lock:
+    hidden: true
+    crud:
+      search:
+        - name: key
+      list: true
+    fields:
+      - name: ils_id
+        label: "ILS"
+        type: reference
+        reference_entity: ils
+        reference_field: ils_id
+        reference_name: key
+      - name: member_no
+        label: "잠금자"
+        type: reference
+        reference_entity: member
+        reference_field: member_no
+        reference_name: name
+      - name: reg_date
+        label: "잠금일"
+        type: date
+  lock_history:
+    hidden: true
+    crud:
+      search:
+        - name: key
+      list: true
+    fields:
+      - name: ils_id
+        label: "ILS"
+        type: reference
+        reference_entity: ils
+        reference_field: ils_id
+        reference_name: key
+      - name: member_no
+        label: "잠금자"
+        type: reference
+        reference_entity: member
+        reference_field: member_no
+        reference_name: name
+      - name: reg_date
+        label: "잠금일"
+        type: date
+      - name: lock
+        label: "잠금여부"
+        type: string
   file:
     category: '파일 관리'
     icon: "solar:file-check-outline"
@@ -477,4 +567,20 @@ front:
       icon: 'solar:user-hands-outline'
     - name: '파일 관리'
       icon: 'solar:file-check-outline'
+  action: 
+    lock_history_popup:
+      label: '이력 보기'
+      content: 
+        list:
+          entity: lock_history
+          filter : 
+            - name : ils_id
+              value : $arg0
+          sort: 
+            - name : reg_date 
+              desc: true
+      layer:
+        drawer:
+          direction : right
+
   
