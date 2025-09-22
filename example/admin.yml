@@ -76,7 +76,7 @@ entity:
         label: "공장"
         type: reference
         reference_entity: server
-        reference_field: id
+        reference_match: id
         reference_name: factory
         required: true
       - name: id
@@ -131,14 +131,14 @@ entity:
         label: "공장"
         type: reference
         reference_entity: server
-        reference_field: id
+        reference_match: id
         reference_name: factory
         required: true
       - name: parent_id
         label: "부모 장소"
         type: reference
         reference_entity: region
-        reference_field: id
+        reference_match: id
         reference_name: name
       - name: id
         label: "ID"
@@ -192,14 +192,14 @@ entity:
         label: "공장"
         type: reference
         reference_entity: server
-        reference_field: id
+        reference_match: id
         reference_name: factory
         required: true
       - name: region_id
         label: "개소"
         type: reference
         reference_entity: region
-        reference_field: id
+        reference_match: id
         reference_name: name
         required: true
       - name: name
@@ -249,7 +249,7 @@ entity:
         label: "공장"
         type: reference
         reference_entity: server
-        reference_field: id
+        reference_match: id
         reference_name: factory
         required: true
       - name: item_id
@@ -257,7 +257,7 @@ entity:
         type: reference
         required: true
         reference_entity: item
-        reference_field: id
+        reference_match: id
         reference_name: name
       - name: id
         label: "ID"
@@ -307,7 +307,7 @@ entity:
         label: "공장"
         type: reference
         reference_entity: server
-        reference_field: id
+        reference_match: id
         reference_name: factory
         required: true
       - name: member_no
@@ -362,6 +362,9 @@ entity:
         - name: key
         - name: serial
         - name: lock_list
+          label: "잠금자수"
+        - name: lock_list.member_no
+          label: "잠금자"
         - action: lock_history_popup
           argument: 
             field: id
@@ -387,7 +390,7 @@ entity:
         label: "공장"
         type: reference
         reference_entity: server
-        reference_field: id
+        reference_match: id
         reference_name: factory
         required: true
       - name: id
@@ -418,17 +421,20 @@ entity:
         label: "위치"
         type: reference
         reference_entity: place
-        reference_field: id
+        reference_match: id
         reference_name: item_id
       - name: lock_list
-        label: "잠금자수"
-        type: length
-      # - name: lock_list
-      #   label: "잠금자"
-      #   type: reference_array
-      #   reference_entity: member
-      #   reference_field: member_no
-      #   reference_name: name
+        label: "잠금자"
+        type: array
+        fields:
+          - name: member_no
+            type: reference
+            reference_entity: member
+            reference_match: member_no
+            reference_name: name
+          - name: reg_date
+            type: date
+        
     api_generate:
       lock_list:
         entity: lock
@@ -459,13 +465,13 @@ entity:
         label: "ILS"
         type: reference
         reference_entity: ils
-        reference_field: ils_id
+        reference_match: ils_id
         reference_name: key
       - name: member_no
         label: "잠금자"
         type: reference
         reference_entity: member
-        reference_field: member_no
+        reference_match: member_no
         reference_name: name
       - name: reg_date
         label: "잠금일"
@@ -481,13 +487,13 @@ entity:
         label: "ILS"
         type: reference
         reference_entity: ils
-        reference_field: ils_id
+        reference_match: ils_id
         reference_name: key
       - name: member_no
         label: "잠금자"
         type: reference
         reference_entity: member
-        reference_field: member_no
+        reference_match: member_no
         reference_name: name
       - name: reg_date
         label: "잠금일"

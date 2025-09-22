@@ -75,10 +75,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }
 
     const parseValueByType = (value, field) => {
-        const { type, reference_entity, reference_field } = field
+        const { type, reference_entity, reference_match } = field
         if (type == 'reference') {
             const referenceEntity = yml.entity[reference_entity]
-            const referenceField = referenceEntity.fields.find(f => f.name == reference_field)
+            const referenceField = referenceEntity.fields.find(f => f.name == reference_match)
             return parseValueByTypeCore(value, referenceField)
         } else {
             return parseValueByTypeCore(value, field)
@@ -527,7 +527,6 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
             projection[m.name] = 1
         })
         const result = await db.collection(entity).find(f).project(projection).sort(sort).limit(limit).toArray()
-        console.log('result', result, projection)
         data_list.map(m=>{
             if(single)
                 m[key] = result.find(m=>m[match] === m[with_field])

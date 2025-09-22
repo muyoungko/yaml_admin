@@ -83,7 +83,10 @@ export const DynamicShow = ({custom, ...props}) => {
             <SimpleShowLayout>
                 {customFunc && <ShowContent customFunc={customFunc} fields={fields} />}
                 {!customFunc && fields.filter(field => crud.show == true || crud.show.map(a=>a.name).includes(field.name) ).map(m=>{
-                    return getFieldShow(m)
+                    return getFieldShow({
+                        field:m, 
+                        isList:false
+                    })
                 })}
             //Custom Show Start
 

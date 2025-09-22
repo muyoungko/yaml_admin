@@ -2,7 +2,7 @@
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
 import moment from 'moment';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
     Button,
     CreateButton,
@@ -201,6 +201,22 @@ export const DynamicList = ({custom, ...props}) => {
         return yml.entity[resource].fields
     }, [yml, resource])
 
+    const findField = useCallback((name) => {
+        let name_array = name.split('.')[0]
+        let r =  fields.find(f=>f.name == name_array)
+        return r;
+    }, [fields])
+
+    const shouldShowFields = useCallback((name) => {
+
+        if(fields.map(a=>a.name).includes(name))
+            return true
+
+        return findField(name) != null
+
+        return false
+        
+    }, [fields])
     //Custom List Code Start
 
     //Custom List Code End
@@ -222,8 +238,20 @@ export const DynamicList = ({custom, ...props}) => {
             }
             <Datagrid rowClick="show" bulkActionButtons={true}>
                 {
-                    fields.filter(field => crud.list == true || crud.list.map(a=>a.name).includes(field.name) ).map(m => {
-                        return getFieldShow(m, true, custom?.globalFilterDelegate(resource))
+                    crud.list == true && fields.map(m => {
+                        return getFieldShow({
+                            field:m, 
+                            isList:true
+                        })
+                    })
+                }
+                {
+                    crud.list != true && crud.list.filter(f=>f.name).filter(f => shouldShowFields(f.name)).map(crud_field => {
+                        let m = findField(crud_field.name)
+                        return getFieldShow({
+                            crud_field,
+                            field:m, 
+                            isList:true})
                     })
                 }
                 //Custom List Start
