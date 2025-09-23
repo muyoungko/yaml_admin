@@ -22,7 +22,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
 import { postFetcher } from '../common/axios.jsx';
 import { getFieldEdit, getFieldShow } from '../common/field';
-
+import DynamicLayout from './DynamicLayout';
 //Custom Import Start
 
 //Custom Import End
@@ -221,44 +221,46 @@ export const DynamicList = ({ custom, ...props }) => {
 
     //Custom List Code End
     return (
-        <List {...props} filters={<DynamicFilter custom={custom} />} mutationMode='optimistic'
-            exporter={false}
-            sort={{ field: 'id', order: 'DESC' }}
-            perPage={30}
-            actions={<ListActions crud={crud} custom={custom} />}
-            filter={custom?.globalFilterDelegate(resource) || {}}
-        //Custom List Action Start
+        <DynamicLayout entity={yml.entity[resource]} custom={custom}>
+            <List {...props} filters={<DynamicFilter custom={custom} />} mutationMode='optimistic'
+                exporter={false}
+                sort={{ field: 'id', order: 'DESC' }}
+                perPage={30}
+                actions={<ListActions crud={crud} custom={custom} />}
+                filter={custom?.globalFilterDelegate(resource) || {}}
+            //Custom List Action Start
 
-        //Custom List Action End
-        >
-            {
-                //Custom List Body Start
-
-                //Custom List Body End
-            }
-            <Datagrid rowClick={crud.show? "show" : false} 
-                bulkActionButtons={crud.delete? true : false}
+            //Custom List Action End
             >
-                {crud.list == true && fields.map(m => {
-                    return getFieldShow({
-                        field: m,
-                        isList: true
-                    })
-                })}
-                {crud.list != true && crud.list.filter(f => f.name).filter(f => shouldShowFields(f.name)).map(crud_field => {
-                    let m = findField(crud_field.name)
-                    return getFieldShow({
-                        crud_field,
-                        field: m,
-                        isList: true
-                    })
-                })}
+                {
+                    //Custom List Body Start
+
+                    //Custom List Body End
+                }
+                <Datagrid rowClick={crud.show ? "show" : false}
+                    bulkActionButtons={crud.delete ? true : false}
+                >
+                    {crud.list == true && fields.map(m => {
+                        return getFieldShow({
+                            field: m,
+                            isList: true
+                        })
+                    })}
+                    {crud.list != true && crud.list.filter(f => f.name).filter(f => shouldShowFields(f.name)).map(crud_field => {
+                        let m = findField(crud_field.name)
+                        return getFieldShow({
+                            crud_field,
+                            field: m,
+                            isList: true
+                        })
+                    })}
                 //Custom List Start
 
-                //Custom List End
-                {crud.edit && <EditButton />}
-            </Datagrid>
-        </List>
+                    //Custom List End
+                    {crud.edit && <EditButton />}
+                </Datagrid>
+            </List>
+        </DynamicLayout>
     )
 };
 

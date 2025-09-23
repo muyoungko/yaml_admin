@@ -157,6 +157,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     //list
     app.get(`/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+        //검색 파라미터
         var s = {};
         var _sort = req.query._sort;
         var _order = req.query._order;
@@ -176,15 +177,19 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                 if (Array.isArray(q)) {
                     f[field.name] = { $in: q.map(v => parseValueByType(v, field)) };
                 } else {
-                    if (search?.exact != false || field.type == 'integer')
+                    if (search?.exact != false || field.type == 'integer') {
                         f[field.name] = parseValueByType(q, field)
-                    else
+                    } else
                         f[field.name] = { $regex: ".*" + q + ".*" };
                 }
+            } else {
+                //empty query - $exists : false
+                if(req.query[field.name] == '')
+                    f[field.name] = null
             }
         })
 
-        //console.log('f', f)
+        console.log('f', f)
 
         var name = req.query.name;
         if (name == null && req.query.q)

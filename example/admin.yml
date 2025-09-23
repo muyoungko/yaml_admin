@@ -157,6 +157,24 @@ entity:
     category : '공장 관리'
     label: '항목'
     icon: "solar:download-twice-square-outline"
+    layout:
+      left:
+        - component: tree
+          entity: region
+          key: id
+          parent_key: parent_id
+          label: name
+          peer_click:
+            action:
+              body:
+                list:
+                  entity: item
+                  filter:
+                    - name: region_id
+                      value: $arg0
+                  sort:
+                    - name: seq
+                      desc: true
     crud:
       search:
         - name: server_id
@@ -588,20 +606,5 @@ front:
       icon: 'solar:user-hands-outline'
     - name: '파일 관리'
       icon: 'solar:file-check-outline'
-  action: 
-    lock_history_popup:
-      label: '이력 보기'
-      content: 
-        list:
-          entity: lock_history
-          filter : 
-            - name : ils_id
-              value : $arg0
-          sort: 
-            - name : reg_date 
-              desc: true
-      layer:
-        drawer:
-          direction : right
 
   
