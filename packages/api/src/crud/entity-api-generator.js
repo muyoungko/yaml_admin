@@ -141,7 +141,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const mediaToFront = async (media, private) => {
         if (media && typeof media == 'string') {
-            media= { src: url }
+            const url = media
+            media = { src: url }
             media.image_preview = await mediaKeyToFullUrl(url, private)
         } else if (media && typeof media == 'object') {
             let { image, video, src } = media
@@ -218,7 +219,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if (entityId)
             entity[key_field.name] = entityId
 
-        yml_entity.fields.filter(f=>['password', 'length'].includes(field.type) ).forEach(field => {
+        yml_entity.fields.filter(f => !['password', 'length'].includes(f.type)).forEach(field => {
             if (!field.key)
                 entity[field.name] = req.body[field.name]
         })
@@ -290,11 +291,13 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         let f = {}
         f[key_field.name] = entityId
 
-        for(let field of yml_entity.fields) {
-            if(['mp4', 'image', 'file'].includes(field.type)) {
+        for (let field of yml_entity.fields) {
+            if (['mp4', 'image', 'file'].includes(field.type)) {
                 let a = entity[field.name]
-                delete a.image_preview
-                delete a.video_preview
+                if (a) {
+                    delete a.image_preview
+                    delete a.video_preview
+                }
             }
         }
 

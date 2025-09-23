@@ -2,7 +2,8 @@ import {
     TextField, NumberField, ReferenceField, DateField, BooleanField,
     ReferenceInput, AutocompleteInput, TextInput,
     SelectInput, FunctionField, ImageInput, ImageField, FileInput, FileField,
-    ReferenceArrayField, ArrayField, SingleFieldList, Datagrid
+    ArrayInput, ArrayField, SingleFieldList, Datagrid, SimpleFormIterator, BooleanInput,
+    DateInput,
 } from 'react-admin';
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
@@ -39,16 +40,16 @@ import SafeImageField from '../component/SafeImageField';
  */
 const findChildField = (field, field_path) => {
     let field_path_array = field_path.split('.')
-    if(field_path_array.length == 1)
+    if (field_path_array.length == 1)
         return field
     else {
         let child_field_name = field_path_array[1]
         let field_path_rest = field_path_array.slice(1).join('.')
-        return findChildField(field.fields.find(f=>f.name == child_field_name), field_path_rest)
+        return findChildField(field.fields.find(f => f.name == child_field_name), field_path_rest)
     }
 }
 
-export const getFieldShow = ({field, isList, crud_field}) => {
+export const getFieldShow = ({ field, isList, crud_field }) => {
     let label = crud_field?.label || field.label
     if (!field || field.type == 'password') return null;
     if (field.type == 'string' || field.key)
@@ -56,7 +57,7 @@ export const getFieldShow = ({field, isList, crud_field}) => {
     else if (field.type == 'integer')
         return <NumberField key={field.name} label={label} source={field.name} />
     else if (field.type == 'length')
-        return <FunctionField key={field.name} label={label} render={record => 
+        return <FunctionField key={field.name} label={label} render={record =>
             <>
                 {record[field.name]?.length}
             </>
@@ -79,36 +80,36 @@ export const getFieldShow = ({field, isList, crud_field}) => {
             let child_field = findChildField(field, crud_field.name)
             return <ArrayField key={field.name} source={field.name} label={label}>
                 <SingleFieldList linkType={false}>
-                    {getFieldShow({field: child_field, isList})}
+                    {getFieldShow({ field: child_field, isList })}
                 </SingleFieldList>
             </ArrayField>
         } else {
-            if(isList)
-                return <FunctionField key={field.name} label={label} render={record => 
+            if (isList)
+                return <FunctionField key={field.name} label={label} render={record =>
                     record?.[field.name]?.length || 0
                 } />
             else {
                 return <ArrayField label={label} source={field.name} >
-                    <Datagrid bulkActionButtons={false}> 
-                        {field.fields.map(m=>getFieldShow({field: m, isList}))}
+                    <Datagrid bulkActionButtons={false}>
+                        {field.fields.map(m => getFieldShow({ field: m, isList }))}
                     </Datagrid>
                 </ArrayField>
             }
         }
     } else if (field.type == 'file') {
-        return <FunctionField key={field.name} label={label} render={record => 
+        return <FunctionField key={field.name} label={label} render={record =>
             <a href={record?.[field.name]?.image_preview} target="_blank">{record?.[field.name]?.title || 'Download'}</a>
         } />
     } else if (field.type == 'image') {
-        if(field.avatar)
+        if (field.avatar)
             return <FunctionField label={label} render={record =>
-                <Avatar alt="Natacha" src={record[field.name].image_preview} 
-                        sx={isList ? {width: 100, height: 100} : {width: 256, height: 256}}/>
+                <Avatar alt="Natacha" src={record[field.name].image_preview}
+                    sx={isList ? { width: 100, height: 100 } : { width: 256, height: 256 }} />
             } />
-        else 
-            return <ClickableImageField key={field.name} label={label} source={field.name} 
-                width={isList ? "100px" : "200px"} height={isList ? "100px" : "200px"}/>
-    } 
+        else
+            return <ClickableImageField key={field.name} label={label} source={field.name}
+                width={isList ? "100px" : "200px"} height={isList ? "100px" : "200px"} />
+    }
     else
         return <TextField key={field.name} label={label} source={field.name} />
 }
@@ -122,17 +123,17 @@ export const getFieldEdit = (field, search = false, globalFilter = {}, label = n
         return null;
     const { type, autogenerate } = field
     if (autogenerate && !search) return null
-    
+
     if (type == 'reference') {
-        return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity} 
+        return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity}
             alwaysOn={globalFilter[field.name] ? false : true}
             filter={globalFilter}
         >
             <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name}
-                filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })} 
+                filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
                 validate={field.required && !search && validateRequire}
                 defaultValue={globalFilter[field.name]}
-                />
+            />
         </ReferenceInput>
     } else if (field?.type == 'select')
         return <SelectInput key={field.name} label={field?.label} source={field.name} alwaysOn
@@ -141,22 +142,41 @@ export const getFieldEdit = (field, search = false, globalFilter = {}, label = n
             validate={field.required && !search && validateRequire}
         />
     else if (field?.type == 'image') {
-        return <ImageInput key={field.name} source={field.name} label={label || field.label} accept="image/*" placeholder={<p>{field.label}</p>} 
+        return <ImageInput key={field.name} source={field.name} label={label || field.label} accept="image/*" placeholder={<p>{field.label}</p>}
             validate={field.required && !search && validateRequire}>
             <SafeImageField source={'src'} title={'title'} />
         </ImageInput>
     }
     else if (field?.type == 'file') {
-        return <FileInput key={field.name} source={field.name} placeholder={<p>{field.label}</p>} 
-        validate={field.required && !search && validateRequire}>
-            <FileField source="src" title="title"/>
+        return <FileInput key={field.name} source={field.name} placeholder={<p>{field.label}</p>}
+            validate={field.required && !search && validateRequire}>
+            <FileField source="src" title="title" />
         </FileInput>
     }
-    else if (field?.type == 'length') {
-        return null
+    else if (field?.type == 'boolean') {
+        return <BooleanInput key={field.name} label={field?.label} source={field.name} alwaysOn
+            validate={field.required && !search && validateRequire}
+        />
+    }
+    else if (field?.type == 'date') {
+        return <DateInput key={field.name} label={field?.label} source={field.name} alwaysOn
+            showTime={field.showtime}
+            validate={field.required && !search && validateRequire}
+        />
+    }
+    else if (field.type == 'array') {
+        return (<ArrayInput key={field.name} source={field.name} label={field.label} alwaysOn>
+            <SimpleFormIterator>
+                {field.fields && field.fields.map(subField => {
+                    // 재귀적으로 getFieldEdit을 호출하여 하위 필드 렌더링
+                    return getFieldEdit(subField, search, globalFilter, subField.label)
+                })}
+            </SimpleFormIterator>
+        </ArrayInput>
+        );
     } else {
-        return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn 
-            required = {!search && field?.type != 'password' && field.required}
+        return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn
+            required={!search && field?.type != 'password' && field.required}
             validate={field.required && field?.type != 'password' && !search && validateRequire}
         />
     }
