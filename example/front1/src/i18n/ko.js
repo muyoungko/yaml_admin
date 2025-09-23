@@ -85,6 +85,7 @@ const koreanMessages = {
       not_found: 'URL이 잘못되었거나 링크가 깨졌습니다.',
       yes: '예',
       unsaved_changes: '변경 사항이 저장되지 않았습니다. 정말 나가시겠습니까?',
+      clear_array_input: '전체 삭제',
     },
     navigation: {
       no_results: '검색 결과가 없습니다',

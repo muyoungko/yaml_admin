@@ -67,7 +67,28 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
             render={record => field.select_values.find(m => m.name == record[field.name])?.label} />
     else if (field.type == 'reference')
         return <ReferenceField key={field.name} link="show" label={label} source={field.name} reference={field.reference_entity}>
-            <TextField source={field.reference_name} />
+            {field.reference_name && <TextField source={field.reference_name} />}
+            {field.reference_name_format && (() => {
+                    // Extract field names from the format string
+                    // e.g. "${name}(${phone})(${user_type})" => ['name', 'phone', 'user_type']
+                    const matches = [...field.reference_name_format.matchAll(/\$\{(\w+)\}/g)];
+                    const fieldNames = matches.map(m => m[1]);
+                    // Build a label string for TextField
+                    // e.g. "${name}(${phone})(${user_type})" => "{name}({phone})({user_type})"
+                    // We'll use FunctionField to render the formatted string
+                    return (
+                        <FunctionField
+                            render={record => {
+                                let str = field.reference_name_format;
+                                fieldNames.forEach(fn => {
+                                    str = str.replace(`\$\{${fn}\}`, record?.[fn] ?? '');
+                                });
+                                return str;
+                            }}
+                        />
+                    );
+                })()
+            }
         </ReferenceField>
     else if (field.type == 'date')
         return <DateField key={field.name} label={label} source={field.name} showTime={field.showtime} />
@@ -90,7 +111,7 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
                 } />
             else {
                 return <ArrayField label={label} source={field.name} >
-                    <Datagrid bulkActionButtons={false}>
+                    <Datagrid bulkActionButtons={false} rowClick={false}>
                         {field.fields.map(m => getFieldShow({ field: m, isList }))}
                     </Datagrid>
                 </ArrayField>

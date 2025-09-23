@@ -442,12 +442,11 @@ entity:
             type: reference
             reference_entity: member
             reference_match: member_no
-            reference_name: name
+            reference_name_format: ${name}(${phone}) - ${user_type}
           - name: reg_date
             label: "잠금일시"
             type: date
             showtime: true
-        
     api_generate:
       lock_list:
         entity: lock
@@ -466,7 +465,7 @@ entity:
         sort:
           - name: reg_date
             desc: true
-        limit: 10 # this make this fields array
+        limit: 10
   lock:
     hidden: true
     crud:
