@@ -236,7 +236,9 @@ export const DynamicList = ({ custom, ...props }) => {
 
                 //Custom List Body End
             }
-            <Datagrid rowClick="show" bulkActionButtons={true}>
+            <Datagrid rowClick={crud.show? "show" : false} 
+                bulkActionButtons={crud.delete? true : false}
+            >
                 {crud.list == true && fields.map(m => {
                     return getFieldShow({
                         field: m,
@@ -254,7 +256,7 @@ export const DynamicList = ({ custom, ...props }) => {
                 //Custom List Start
 
                 //Custom List End
-                <EditButton />
+                {crud.edit && <EditButton />}
             </Datagrid>
         </List>
     )

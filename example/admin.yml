@@ -380,7 +380,16 @@ entity:
         - name: serial
         - name: battery
         - name: lock_list
-      show: true
+      show: 
+        - name: server_id
+        - name: id
+        - name: key
+        - name: serial
+        - name: version
+        - name: battery
+        - name: sync_date
+        - name: place_id
+        - name: lock_list
       delete: true
       export:
         fields:
@@ -442,7 +451,8 @@ entity:
             type: reference
             reference_entity: member
             reference_match: member_no
-            reference_name_format: ${name}(${phone}) - ${user_type}
+            reference_name: name
+            reference_format: ${name}(${user_type})
           - name: reg_date
             label: "잠금일시"
             type: date
@@ -455,17 +465,6 @@ entity:
           - name : reg_date
         match: ils_id 
         mine: id
-      lock_history_list:
-        entity: lock_history
-        fields:
-          - name : member_no
-          - name : reg_date
-        match: ils_id
-        mine: id
-        sort:
-          - name: reg_date
-            desc: true
-        limit: 10
   lock:
     hidden: true
     crud:
@@ -489,7 +488,10 @@ entity:
         label: "잠금일"
         type: date
   lock_history:
-    hidden: true
+    category: '자원 관리'
+    label: "잠금이력"
+    icon: "solar:lock-keyhole-minimalistic-outline"
+    # hidden: true
     crud:
       search:
         - name: key
@@ -510,9 +512,10 @@ entity:
       - name: reg_date
         label: "잠금일"
         type: date
+        showtime: true
       - name: lock
-        label: "잠금여부"
-        type: string
+        label: "잠금/해제"
+        type: boolean
   file:
     category: '파일 관리'
     icon: "solar:file-check-outline"

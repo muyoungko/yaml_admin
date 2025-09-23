@@ -42,6 +42,10 @@ export const DynamicEdit = ({custom, ...props}) => {
         return yml.entity[resource].fields
     }, [yml, resource])
 
+    const api_generate = useMemo(() => {
+        return yml.entity[resource].api_generate || {}
+    }, [yml, resource])
+
     const crud = useMemo(() => {
         return yml.entity[resource].crud || {
             show: true,
@@ -69,7 +73,10 @@ export const DynamicEdit = ({custom, ...props}) => {
 
             //Custom Create SimpleForm Property End
             >
-                {fields.filter(field =>  crud.edit == true || crud.edit.map(a=>a.name).includes(field.name) ).map(field => {
+                {fields.filter(field =>  crud.edit == true || crud.edit.map(a=>a.name).includes(field.name))
+                    //exclude field by api_generate 
+                    .filter(field => !api_generate[field.name])
+                    .map(field => {
                     return getFieldEdit(field, false, custom?.globalFilterDelegate(resource) || {})
                 })}
 

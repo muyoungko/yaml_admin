@@ -52,9 +52,9 @@ const findChildField = (field, field_path) => {
 export const getFieldShow = ({ field, isList, crud_field }) => {
     let label = crud_field?.label || field.label
     if (!field || field.type == 'password') return null;
-    if (field.type == 'string' || field.key)
+    if (field.type == 'string' || field.key) {
         return <TextField key={field.name} label={label} source={field.name} />
-    else if (field.type == 'integer')
+    } else if (field.type == 'integer')
         return <NumberField key={field.name} label={label} source={field.name} />
     else if (field.type == 'length')
         return <FunctionField key={field.name} label={label} render={record =>
@@ -67,11 +67,11 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
             render={record => field.select_values.find(m => m.name == record[field.name])?.label} />
     else if (field.type == 'reference')
         return <ReferenceField key={field.name} link="show" label={label} source={field.name} reference={field.reference_entity}>
-            {field.reference_name && <TextField source={field.reference_name} />}
-            {field.reference_name_format && (() => {
+            {!field.reference_format && <TextField source={field.reference_name} />}
+            {field.reference_format && (() => {
                     // Extract field names from the format string
                     // e.g. "${name}(${phone})(${user_type})" => ['name', 'phone', 'user_type']
-                    const matches = [...field.reference_name_format.matchAll(/\$\{(\w+)\}/g)];
+                    const matches = [...field.reference_format.matchAll(/\$\{(\w+)\}/g)];
                     const fieldNames = matches.map(m => m[1]);
                     // Build a label string for TextField
                     // e.g. "${name}(${phone})(${user_type})" => "{name}({phone})({user_type})"
@@ -79,7 +79,7 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
                     return (
                         <FunctionField
                             render={record => {
-                                let str = field.reference_name_format;
+                                let str = field.reference_format;
                                 fieldNames.forEach(fn => {
                                     str = str.replace(`\$\{${fn}\}`, record?.[fn] ?? '');
                                 });
