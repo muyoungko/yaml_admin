@@ -189,7 +189,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         })
 
-        console.log('f', f)
+        //console.log('f', f)
+        //console.log('s', s)
 
         var name = req.query.name;
         if (name == null && req.query.q)
@@ -227,7 +228,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         yml_entity.fields
         .filter(f => !['password', 'length'].includes(f.type))
         //exclude field by api_generate
-        .filter(f => !api_generate || !api_generate[f.name])
+        .filter(f => !entity.api_generate || !entity.api_generate[f.name])
         .forEach(field => {
             if (!field.key)
                 entity[field.name] = req.body[field.name]

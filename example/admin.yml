@@ -163,6 +163,9 @@ entity:
           entity: region
           key: id
           parent_key: parent_id
+          sort:
+            - name: seq
+              desc: false
           label: name
           peer_click:
             action:

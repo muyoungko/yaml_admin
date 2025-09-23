@@ -3,7 +3,7 @@ import {
     ReferenceInput, AutocompleteInput, TextInput,
     SelectInput, FunctionField, ImageInput, ImageField, FileInput, FileField,
     ArrayInput, ArrayField, SingleFieldList, Datagrid, SimpleFormIterator, BooleanInput,
-    DateInput,
+    DateInput, NumberInput,
 } from 'react-admin';
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
@@ -162,6 +162,11 @@ export const getFieldEdit = (field, search = false, globalFilter = {}, label = n
             optionText="label" optionValue="name"
             validate={field.required && !search && validateRequire}
         />
+    else if (field?.type == 'integer') {
+        return <NumberInput key={field.name} label={field?.label} source={field.name} alwaysOn
+            validate={field.required && !search && validateRequire}
+        />
+    }
     else if (field?.type == 'image') {
         return <ImageInput key={field.name} source={field.name} label={label || field.label} accept="image/*" placeholder={<p>{field.label}</p>}
             validate={field.required && !search && validateRequire}>
