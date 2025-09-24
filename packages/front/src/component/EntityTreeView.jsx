@@ -118,10 +118,11 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
                     args.push(theNode[arg.name])
                 })
                 for(let action of component.peer_click.action) {  
-                    act(action, args)
+                    act(action, args, {
+                        navigate
+                    })
                 }
             }
-            //navigate(`/${component.entity}?${component.parent_key}=${theNode[component.key]}`)
         }
         
     }, [component, custom, list, findNode])
