@@ -163,21 +163,23 @@ entity:
           entity: region
           key: id
           parent_key: parent_id
+          argment:
+            - name: id
           sort:
             - name: seq
               desc: false
           label: name
           peer_click:
             action:
-              body:
-                list:
-                  entity: item
-                  filter:
-                    - name: region_id
-                      value: $arg0
-                  sort:
-                    - name: seq
-                      desc: true
+              - type: body
+                crud : list
+                entity: item
+                filter:
+                  - name: region_id
+                    value: $arg0
+                sort:
+                  - name: seq
+                    desc: false
     crud:
       search:
         - name: server_id

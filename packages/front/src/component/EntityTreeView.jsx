@@ -8,7 +8,7 @@ import { postFetcher, fetcher } from '../common/axios.jsx';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Paper } from '@mui/material';
-
+import { act } from '../common/actionParser';
 
 /**
  * @param {object} component
@@ -52,6 +52,22 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
         })
     }, [component, custom])
 
+    const findNode = useCallback((node, targetKeyValue) => {
+        if(node[component.key] == targetKeyValue) {
+            return node
+        }
+        if(Array.isArray(node.list)) {
+            for(let n of node.list) {
+                let r = findNode(n, targetKeyValue)
+                if(r) {
+                    return r
+                }
+            }
+        }
+        return null
+    }, [component])
+
+    
     const updateNodeChildren = useCallback((nodes, targetKeyValue, children) => {
         if(!Array.isArray(nodes)) return nodes
         return nodes.map(node => {
@@ -92,13 +108,31 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
         })
     }, [component, custom, updateNodeChildren])
 
+    const itemClick = useCallback((event, nodeId) => {
+        let theNode = findNode({list}, nodeId)
+        let isPeer = !theNode.list || theNode.list.length == 0
+        if(isPeer) {
+            if(component.peer_click?.action) {
+                let args = []
+                component.argment.forEach(arg => {
+                    args.push(theNode[arg.name])
+                })
+                for(let action of component.peer_click.action) {  
+                    act(action, args)
+                }
+            }
+            //navigate(`/${component.entity}?${component.parent_key}=${theNode[component.key]}`)
+        }
+        
+    }, [component, custom, list, findNode])
+
     const renderTree = (item, visited) => {
         const id = item[component.key]
         if(visited?.has(id)) return null
         const nextVisited = visited ? new Set(visited) : new Set()
         nextVisited.add(id)
         return (
-            <TreeItem key={id} itemId={`${id}`} label={item[component.label]} >
+            <TreeItem key={id} itemId={`${id}`} label={<span >{item[component.label]}</span>} >
                 {item.list?.map(child => renderTree(child, nextVisited))}
             </TreeItem>
         )
@@ -106,27 +140,12 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
     
     return (
         <Box sx={{ minHeight: 352, minWidth: 250 }}>
-            <SimpleTreeView>
+            <SimpleTreeView onItemClick={itemClick}>
                 {list.map(item => {
                     return (
                         renderTree(item)
                     )
                 })}
-                {/* <TreeItem itemId="grid" label="Data Grid">
-                    <TreeItem itemId="grid-community" label="@mui/x-data-grid" />
-                    <TreeItem itemId="grid-pro" label="@mui/x-data-grid-pro" />
-                    <TreeItem itemId="grid-premium" label="@mui/x-data-grid-premium" />
-                </TreeItem>
-                <TreeItem itemId="pickers" label="Date and Time Pickers">
-                    <TreeItem itemId="pickers-community" label="@mui/x-date-pickers" />
-                    <TreeItem itemId="pickers-pro" label="@mui/x-date-pickers-pro" />
-                </TreeItem>
-                <TreeItem itemId="charts" label="Charts">
-                    <TreeItem itemId="charts-community" label="@mui/x-charts" />
-                </TreeItem>
-                <TreeItem itemId="tree-view" label="Tree View">
-                    <TreeItem itemId="tree-view-community" label="@mui/x-tree-view" />
-                </TreeItem> */}
             </SimpleTreeView>
         </Box>
     )
