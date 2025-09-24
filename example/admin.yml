@@ -308,7 +308,7 @@ entity:
           - name: user_type
           - name: pass
           - name: phone
-          - name: department
+          - name: department_id
       import:
         fields:
           - name: server_id
@@ -318,7 +318,7 @@ entity:
           - name: user_type
           - name: pass
           - name: phone
-          - name: department
+          - name: department_id
         upsert: true
       list: true
       create: true
@@ -364,12 +364,49 @@ entity:
         type: string
         label: "전화번호"
         required: true
-      - name: department
+      - name: department_id
         label: "부서"
-        type: string
+        type: reference
+        reference_entity: department
+        reference_match: id
+        reference_name: name
+        required: true
       - name: company
         label: "회사"
         type: string
+  department:
+    category : '사용자 관리'
+    icon: "solar:city-outline"
+    label: "부서"
+    crud:
+      search:
+          - name: server_id
+          - name: name
+            exact: false
+      list: true
+      create: true
+      edit: true
+      show: true
+      delete: true
+    fields:
+      - name: server_id
+        label: "공장"
+        type: reference
+        reference_entity: server
+        reference_match: id
+        reference_name: factory
+        required: true
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
+              
   ils:
     category : '자원 관리'
     icon: "solar:lock-keyhole-minimalistic-outline"
@@ -513,18 +550,18 @@ entity:
   lock_history:
     category: '자원 관리'
     label: "잠금이력"
-    icon: "solar:lock-keyhole-minimalistic-outline"
+    icon: "solar:history-outline"
     # hidden: true
     crud:
       search:
-        - name: key
+        - name: ils_id
       list: true
     fields:
       - name: ils_id
         label: "ILS"
         type: reference
         reference_entity: ils
-        reference_match: ils_id
+        reference_match: id
         reference_name: key
       - name: member_no
         label: "잠금자"

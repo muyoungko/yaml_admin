@@ -79,6 +79,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if (type == 'reference') {
             const referenceEntity = yml.entity[reference_entity]
             const referenceField = referenceEntity.fields.find(f => f.name == reference_match)
+            if(!referenceField)
+                throw new Error(`Reference field ${reference_match} not found in ${reference_entity}`)
             return parseValueByTypeCore(value, referenceField)
         } else {
             return parseValueByTypeCore(value, field)
