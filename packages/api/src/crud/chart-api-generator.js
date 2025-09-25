@@ -125,7 +125,7 @@ const generateChartApi = async (app, db, yml) => {
                         r.series.push({ name: label, data: list.map(m => m.count) });
                     }
                 } else if (x.type == 'field') {
-
+                    
                 }
 
                 res.json(r);

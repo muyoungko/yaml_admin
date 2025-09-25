@@ -641,8 +641,8 @@ front:
   dashboard:
     - component: chart
       id: lock_history1
-      label: '잠금 현황'
-      type: line
+      label: '잠금/해제 카운트'
+      type: bar
       x:
         label: '날짜'
         type: date
@@ -659,13 +659,13 @@ front:
         series:
           - label: '잠금'
             if: lock==true
-            color: '#ff0000' #red
+            color: '#8B0000' #red
           - label: '해제'
             if: lock!=true
-            color: '#00ff00' #green
+            color: '#228B22' #green
     - component: chart
       id: lock_by_region
-      label: '지역별 잠금'
+      label: '개소별 잠금 현황'
       type: bar
       reltation: 
         - entity: region, item
@@ -685,9 +685,9 @@ front:
       y:
         series:
           - label: '잠금'
-            color: '#ff0000' #red
+            color: '#8B0000' #red
           - label: '해제'
-            color: '#00ff00' #green
+            color: '#228B22' #green
   category:
     - name: '공장 관리'
       icon: 'material-symbols:factory-outline'

@@ -5,7 +5,7 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
-import { Box, Grid, Card, CardContent } from '@mui/material';
+import { Box, Grid, Card, CardContent, CardHeader } from '@mui/material';
 import Component from './Component';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -28,6 +28,7 @@ export const ComponentLayout = ({ components, custom, ...props }) => {
                 {components?.map((component, index) => {
                     return <Grid item key={index} xs={12} md={3}>
                         <Card>
+                            <CardHeader title={component.label} />
                             <CardContent>
                                 <Component component={component} />
                             </CardContent>
