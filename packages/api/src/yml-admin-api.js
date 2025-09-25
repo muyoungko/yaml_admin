@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const yaml = require('yaml');
 const { generateEntityApi } = require('./crud/entity-api-generator');
 const { generateLoginApi } = require('./crud/login-api-generator');
+const { generateChartApi } = require('./crud/chart-api-generator');
 const { withConfig } = require('./login/auth.js');
 const { generateUploadApi } = require('./upload/upload-api-generator');
 
@@ -47,6 +48,8 @@ async function registerRoutes(app, options = {}) {
   }
 
   await generateLoginApi(app, db, yml)
+  await generateChartApi(app, db, yml)
+  
   entity && Object.keys(entity).forEach(async (entity_name) => {
     await generateEntityApi({
       app, db, 

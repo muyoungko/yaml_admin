@@ -37,7 +37,7 @@ const MyMenu = () => {
 
     return (
         <Menu>
-            {/* <Menu.DashboardItem /> */}
+            {yml?.front?.dashboard && <Menu.DashboardItem />}
 
             {noCartegoryList.map(m => <Menu.ResourceItem key={m.name} name={m.name} />)}
             {categoryList.map(c => {

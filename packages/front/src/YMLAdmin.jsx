@@ -13,6 +13,7 @@ import { AdminProvider } from './AdminContext';
 import authProvider from './login/authProvider';
 import { setApiHost } from './common/axios';
 import fileUploader from './common/fileUploader';
+import DashboardLayout from './section/DashboardLayout';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -67,7 +68,7 @@ const YMLAdmin = ({ adminYaml, i18nProvider, custom, theme, layout }) => {
       {dataProvider && <AdminProvider initialYml={yml} width="1250px">
         <Admin
           theme={{...defaultTheme, ...theme}}
-          dashboard={undefined}
+          dashboard={yml?.front?.dashboard ? DashboardLayout : undefined}
           layout={layout || MyLayout}
           authProvider={authProvider}
           i18nProvider={i18nProvider}
