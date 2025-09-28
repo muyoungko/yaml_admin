@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import {
     AutocompleteInput,
     Edit,
@@ -58,6 +58,17 @@ export const DynamicEdit = ({custom, ...props}) => {
         }
     }, [yml, resource])
 
+    const checkApiGenerateContain = useCallback((name) => {
+        if(!api_generate)
+            return true;
+        if(api_generate[name])
+            return false;
+        if(name.includes('.') && api_generate[name.split('.')[0]]) {
+            return false;
+        }
+        return true;
+    }, [api_generate])
+    
     //Custom Create Code Start
     
     //Custom Create Code End
@@ -73,9 +84,9 @@ export const DynamicEdit = ({custom, ...props}) => {
 
             //Custom Create SimpleForm Property End
             >
-                {fields.filter(field =>  crud.edit == true || crud.edit.map(a=>a.name).includes(field.name))
-                    //exclude field by api_generate 
-                    .filter(field => !api_generate[field.name])
+                {fields.filter(field => crud.edit == true || crud.edit.map(a=>a.name).includes(field.name))
+                    //exclude field by api_generate
+                    .filter(field => checkApiGenerateContain(field.name))
                     .map(field => {
                     return getFieldEdit({
                         field, 

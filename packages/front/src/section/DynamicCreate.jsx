@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import {
     AutocompleteInput,
     Create,
@@ -45,6 +45,17 @@ export const DynamicCreate = ({custom, ...props}) => {
         return yml.entity[resource].api_generate || {}
     }, [yml, resource])
 
+    const checkApiGenerateContain = useCallback((name) => {
+        if(!api_generate)
+            return true;
+        if(api_generate[name])
+            return false;
+        if(name.includes('.') && api_generate[name.split('.')[0]]) {
+            return false;
+        }
+        return true;
+    }, [api_generate])
+
     const crud = useMemo(() => {
         return yml.entity[resource].crud || {
             show: true,
@@ -70,7 +81,7 @@ export const DynamicCreate = ({custom, ...props}) => {
             >
                 {fields.filter(field => crud.create == true || crud.create.map(a=>a.name).includes(field.name) )
                     //exclude field by api_generate
-                    .filter(field => !api_generate[field.name])
+                    .filter(field => checkApiGenerateContain(field.name))
                     .map(field => {
                     return getFieldEdit({field, 
                         search:false, 
