@@ -23,10 +23,10 @@ export const ComponentLayout = ({ components, custom, ...props }) => {
     const theme = useTheme();
     const mdUp = useMediaQuery(theme.breakpoints.up('md'));
     return (
-        <Box padding={2}>
-            <Grid container spacing={2}>
+        <Box padding={2} sx={{width:1200}}>
+            <Grid container spacing={2} sx={{backgroundColor:'#f0f0f0'}}>
                 {components?.map((component, index) => {
-                    return <Grid item key={index} xs={12} md={3}>
+                    return <Grid item key={index} size={component.size || 4} >
                         <Card>
                             <CardHeader title={component.label} />
                             <CardContent>

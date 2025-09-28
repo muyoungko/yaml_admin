@@ -26,7 +26,6 @@ export const ComponentLayout = ({ component, custom, ...props }) => {
                 options={data.options}
                 series={data.series}
                 type={component?.type}
-                width="500"
             />}
         </div>
     )

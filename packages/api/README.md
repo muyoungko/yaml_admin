@@ -209,7 +209,7 @@ Export response
 ```
 Import response
 ```json
-{ "r": true, "msg": "Import success - <n> rows effected" }
+{ "r": true, "msg": "Import success - <n> new rows inserted" }
 ```
 
 ---

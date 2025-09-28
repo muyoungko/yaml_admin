@@ -209,6 +209,8 @@ export const DynamicList = ({ custom, ...props }) => {
     const findField = useCallback((name) => {
         let name_array = name.split('.')[0]
         let r = fields.find(f => f.name == name_array)
+        if(!r)
+            r = fields.find(f => f.name == name)
         return r;
     }, [fields])
 

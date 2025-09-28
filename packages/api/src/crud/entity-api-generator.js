@@ -230,7 +230,16 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         yml_entity.fields
         .filter(f => !['password', 'length'].includes(f.type))
         //exclude field by api_generate
-        .filter(f => !entity.api_generate || !entity.api_generate[f.name])
+        .filter(f => {
+            if(!yml_entity.api_generate)
+                return true;
+            if(yml_entity.api_generate[f.name])
+                return false;
+            if(f.name.includes('.') && yml_entity.api_generate[f.name.split('.')[0]]) {
+                return false;
+            }
+            return true;
+        })
         .forEach(field => {
             if (!field.key)
                 entity[field.name] = req.body[field.name]
@@ -516,9 +525,37 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
             
         
-            res.json({ r: true, msg: 'Import success - ' + result.upsertedCount + ' rows effected' });
+            res.json({ r: true, msg: 'Import success - ' + result.upsertedCount + ' new rows inserted' });
         })
     }
+}
+
+/**
+ * ex)
+ * data_list
+ *  place: [{
+ *   id:1
+ *  }]
+ * 
+ * path = "place.id"
+ * @param {*} obj 
+ * @param {*} path 
+ * @returns 
+ */
+const matchPathInObject = (obj, path) => {
+    let r = obj[path]
+    if(!r && path.includes('.')) {
+        const parts = path.split('.')
+        let c = obj
+        for(let part of parts) {
+            c = c[part]
+            if(!c)
+                break;
+        }
+        r = c
+    }
+        
+    return r
 }
 
 const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, data_list) => {
@@ -534,18 +571,22 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
         sort = sort.map(m=>({ [m.name]: m.desc ? 1 : -1 }))
         limit = limit || 1000
         
-        const match_from_list = data_list.map(m=>m[match_from])
+        let match_from_list = data_list.map(m=>matchPathInObject(m, match_from))
+
+        match_from_list = match_from_list.filter(m=>m)
         const f = { [match]: {$in:match_from_list} }
         const projection = {[match]:1}
         fields.map(m=>{
             projection[m.name] = 1
         })
         const result = await db.collection(entity).find(f).project(projection).sort(sort).limit(limit).toArray()
+
         data_list.map(m=>{
+            let found = result.filter(f=>matchPathInObject(f, match) === matchPathInObject(m, match_from))
             if(single)
-                m[key] = result.find(f=>f[match] === m[match_from])
+                m[key] = found.length > 0 ? found[0] : null
             else {
-                m[key] = result.filter(f=>f[match] === m[match_from])
+                m[key] = found
             }
         })
     }

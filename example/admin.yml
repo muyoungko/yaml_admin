@@ -238,6 +238,28 @@ entity:
       - name: seq
         label: "순서"
         type: integer
+      - name: ils.id
+        label: "잠금"
+        type: reference
+        reference_entity: ils
+        reference_match: id
+        reference_name: key
+    api_generate:
+      place:
+        match_from: id
+        entity: place
+        match: item_id
+        fields:
+          - name: id
+        single: true
+      ils:
+        match_from: place.id
+        entity: ils
+        match: place_id
+        fields:
+          - name: id
+          - name: key
+        single: true
   place:
     category: '공장 관리'
     label: 'Location'
@@ -422,6 +444,7 @@ entity:
         - name: key
         - name: version
         - name: serial
+        - name: item.item_id
         - name: lock_list
           label: "잠금자수"
         - name: lock_list.member_no
@@ -450,7 +473,7 @@ entity:
         - name: version
         - name: battery
         - name: sync_date
-        - name: place_id
+        - name: item_id
         - name: lock_list
       delete: true
       export:
@@ -459,12 +482,14 @@ entity:
           - name: server_id
           - name: key
           - name: serial
+          - name: version
       import:
         fields:
           - name: id
           - name: server_id
           - name: key
           - name: serial
+          - name: version
         upsert: true
     fields:
       - name: server_id
@@ -498,12 +523,12 @@ entity:
       - name: sync_date
         label: "동기화"
         type: date
-      - name: place_id
-        label: "위치"
+      - name: item.item_id
+        label: "잠금 위치"
         type: reference
-        reference_entity: place
+        reference_entity: item
         reference_match: id
-        reference_name: item_id
+        reference_name: name
       - name: lock_list
         label: "잠금목록"
         type: array
@@ -520,6 +545,13 @@ entity:
             type: date
             showtime: true
     api_generate:
+      item:
+        match_from: place_id
+        entity: place
+        match: id
+        fields: 
+          - name : item_id
+        single: true
       lock_list:
         match_from: id
         entity: lock
@@ -654,6 +686,7 @@ front:
     #   id: lock_history1
     #   label: '잠금/해제 카운트'
     #   type: bar
+    #   size: 4
     #   x:
     #     label: '날짜'
     #     type: date
@@ -665,7 +698,6 @@ front:
     #     timezone: Asia/Seoul
     #     desc: false
     #   y:
-    #     entity: lock_history
     #     series:
     #       - label: '잠금'
     #         if: lock==true
@@ -675,8 +707,9 @@ front:
     #         color: '#228B22' #green
     - component: chart
       id: lock_by_region
-      label: '개소별 잠금 현황'
+      label: '상위 개소별 잠금 현황'
       type: bar
+      size: 12
       relation: 
         - entity_from: lock
           match_from: member_no
@@ -704,11 +737,10 @@ front:
         entity: region
         field: name
       y:
-        entity: lock
         series:
-          # - label: '작업자 잠금'
-          #   color: '#1a66cc' #blue
-          #   if: member.user_type==작업자
+          - label: '작업자 잠금'
+            color: '#1a66cc' #blue
+            if: member.user_type==작업자
           - label: '관리자 잠금'
             color: '#228B22' #green
             if: member.user_type==관리자
