@@ -420,6 +420,7 @@ entity:
       list:
         - name: id
         - name: key
+        - name: version
         - name: serial
         - name: lock_list
           label: "잠금자수"
@@ -432,14 +433,15 @@ entity:
         - name: server_id
         - name: key
         - name: serial
+        - name: version
+          default: 2
         - name: battery
-        - name: lock_list
       edit: 
         - name: server_id
         - name: key
         - name: serial
+        - name: version
         - name: battery
-        - name: lock_list
       show: 
         - name: server_id
         - name: id
@@ -519,12 +521,12 @@ entity:
             showtime: true
     api_generate:
       lock_list:
+        match_from: id
         entity: lock
+        match: ils_id
         fields: 
           - name : member_no
           - name : reg_date
-        match: ils_id 
-        mine: id
   lock:
     hidden: true
     crud:
@@ -618,6 +620,15 @@ entity:
     category: '사용자 관리'
     icon: 'solar:shield-user-outline'
     label: '운영자'
+    crud:
+      search:
+        - name: email
+        - name: name
+      list: true
+      create: true
+      edit: true
+      show: true
+      delete: true
     fields:
       - name: id
         label: "ID"
@@ -639,55 +650,68 @@ entity:
         required: true
 front:
   dashboard:
-    - component: chart
-      id: lock_history1
-      label: '잠금/해제 카운트'
-      type: bar
-      x:
-        label: '날짜'
-        type: date
-        entity: lock_history
-        field: reg_date
-        format: 'MM/DD'
-        gap: day
-        limit: 7
-        timezone: Asia/Seoul
-        desc: false
-      y:
-        entity: lock_history
-        field: reg_date
-        series:
-          - label: '잠금'
-            if: lock==true
-            color: '#8B0000' #red
-          - label: '해제'
-            if: lock!=true
-            color: '#228B22' #green
+    # - component: chart
+    #   id: lock_history1
+    #   label: '잠금/해제 카운트'
+    #   type: bar
+    #   x:
+    #     label: '날짜'
+    #     type: date
+    #     entity: lock_history
+    #     field: reg_date
+    #     format: 'MM/DD'
+    #     gap: day
+    #     limit: 7
+    #     timezone: Asia/Seoul
+    #     desc: false
+    #   y:
+    #     entity: lock_history
+    #     series:
+    #       - label: '잠금'
+    #         if: lock==true
+    #         color: '#8B0000' #red
+    #       - label: '해제'
+    #         if: lock!=true
+    #         color: '#228B22' #green
     - component: chart
       id: lock_by_region
       label: '개소별 잠금 현황'
       type: bar
-      reltation: 
-        - entity: region, item
-          field: id, region_id
-        - entity: item, place
-          field: id, item_id
-        - entity: ils, place
-          field: place_id, id
-        - entity: ils, lock
-          field: id, ils_id
+      relation: 
+        - entity_from: lock
+          match_from: member_no
+          entity: member
+          match: member_no
+        - entity_from: lock
+          match_from: ils_id
+          entity: ils
+          match: id
+        - entity_from: ils
+          match_from: ils.place_id
+          entity: place
+          match: id
+        - entity_from: place
+          match_from: place.item_id
+          entity: item
+          match: id
+        - entity_from: item
+          match_from: item.region_id
+          entity: region
+          match: id
       x:
         label: '지역'
         type: field
         entity: region
-        field: region_id
-        format: ${name}
+        field: name
       y:
+        entity: lock
         series:
-          - label: '잠금'
-            color: '#8B0000' #red
-          - label: '해제'
+          # - label: '작업자 잠금'
+          #   color: '#1a66cc' #blue
+          #   if: member.user_type==작업자
+          - label: '관리자 잠금'
             color: '#228B22' #green
+            if: member.user_type==관리자
   category:
     - name: '공장 관리'
       icon: 'material-symbols:factory-outline'

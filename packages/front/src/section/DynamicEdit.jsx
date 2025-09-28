@@ -77,7 +77,12 @@ export const DynamicEdit = ({custom, ...props}) => {
                     //exclude field by api_generate 
                     .filter(field => !api_generate[field.name])
                     .map(field => {
-                    return getFieldEdit(field, false, custom?.globalFilterDelegate(resource) || {})
+                    return getFieldEdit({
+                        field, 
+                        search:false, 
+                        globalFilter:custom?.globalFilterDelegate(resource) || {},
+                        crud_field:crud.edit == true ? null : crud.edit.find(a=>a.name == field.name)
+                    })
                 })}
 
                 {/* Custom Create Start */}

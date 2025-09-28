@@ -139,7 +139,7 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = (field, search = false, globalFilter = {}, label = null) => {
+export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, crud_field}) => {
     if (!field)
         return null;
     const { type, autogenerate } = field
@@ -149,6 +149,7 @@ export const getFieldEdit = (field, search = false, globalFilter = {}, label = n
         return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity}
             alwaysOn={globalFilter[field.name] ? false : true}
             filter={globalFilter}
+            defaultValue={crud_field?.default}
         >
             <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
@@ -161,10 +162,12 @@ export const getFieldEdit = (field, search = false, globalFilter = {}, label = n
             choices={field?.select_values}
             optionText="label" optionValue="name"
             validate={field.required && !search && validateRequire}
+            defaultValue={crud_field?.default}
         />
     else if (field?.type == 'integer') {
         return <NumberInput key={field.name} label={field?.label} source={field.name} alwaysOn
             validate={field.required && !search && validateRequire}
+            defaultValue={crud_field?.default}
         />
     }
     else if (field?.type == 'image') {
@@ -182,20 +185,28 @@ export const getFieldEdit = (field, search = false, globalFilter = {}, label = n
     else if (field?.type == 'boolean') {
         return <BooleanInput key={field.name} label={field?.label} source={field.name} alwaysOn
             validate={field.required && !search && validateRequire}
+            defaultValue={crud_field?.default}
         />
     }
     else if (field?.type == 'date') {
         return <DateInput key={field.name} label={field?.label} source={field.name} alwaysOn
             showTime={field.showtime}
             validate={field.required && !search && validateRequire}
+            defaultValue={crud_field?.default}
         />
     }
     else if (field.type == 'array') {
         return (<ArrayInput key={field.name} source={field.name} label={field.label} alwaysOn>
             <SimpleFormIterator>
                 {field.fields && field.fields.map(subField => {
-                    // 재귀적으로 getFieldEdit을 호출하여 하위 필드 렌더링
-                    return getFieldEdit(subField, search, globalFilter, subField.label)
+                    // recursively call getFieldEdit to render the sub fields
+                    return getFieldEdit({
+                        field:subField, 
+                        search, 
+                        globalFilter, 
+                        label:subField.label,
+                        crud_field  //TODO : crud_field should be child of the field
+                    })
                 })}
             </SimpleFormIterator>
         </ArrayInput>
@@ -204,6 +215,7 @@ export const getFieldEdit = (field, search = false, globalFilter = {}, label = n
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn
             required={!search && field?.type != 'password' && field.required}
             validate={field.required && field?.type != 'password' && !search && validateRequire}
+            defaultValue={crud_field?.default}
         />
     }
 }

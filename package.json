@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "export NODE_ENV=development && node_modules/.bin/concurrently \"npm run dev:example-api\" \"npm run dev:example-front\"",
+    "dev": "export NODE_ENV=development && node_modules/.bin/concurrently --prefix none \"npm run dev:example-api\" \"npm run dev:example-front\"",
     "dev:example-api": "cd example/api1 && npm run dev",
     "dev:example-front": "cd example/front1 && npm run dev",
     "publish:front": "npm publish -w yaml-admin-front --access public",
