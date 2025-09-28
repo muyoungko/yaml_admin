@@ -23,6 +23,7 @@ export const ComponentLayout = ({ component, custom, ...props }) => {
     return (
         <div>
             {data && <Chart
+                height={component.height || 300}
                 options={data.options}
                 series={data.series}
                 type={component?.type}

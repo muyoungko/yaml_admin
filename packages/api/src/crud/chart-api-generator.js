@@ -51,7 +51,7 @@ const generateChartApi = async (app, db, yml) => {
                         chart: { id: chart.id },
                         xaxis: { categories: [] }
                     },
-                    colors: ['#F44336', '#E91E63', '#9C27B0'],
+                    colors: [],
                     series: []
                 }
                 const { x, y, relation } = chart;
@@ -65,7 +65,6 @@ const generateChartApi = async (app, db, yml) => {
                 }
 
                 const { field, entity : entity_x, format, gap, limit, desc, timezone } = x;
-                const { entity : entity_y } = y;
                 for (const s of y.series) {
                     const { label } = s;
                     const match = evaluateIfToMatch(s['if']);
@@ -123,23 +122,38 @@ const generateChartApi = async (app, db, yml) => {
                     if(limit)
                         a.push({ $limit: limit })
 
-                    console.log('a', JSON.stringify(a, null, 2))
+                    //console.log('a', JSON.stringify(a, null, 2))
 
-                    const list = await db.collection(entity_y).aggregate(a).toArray();
-                    console.log('list', entity_y, list)
+                    const list = await db.collection(entity_x).aggregate(a).toArray();
+                    // console.log('list', entity_x, list)
 
-                    if (!desc)
-                        list.reverse();
-                    r.options.xaxis.categories = list.map(m => {
-                        if (format)
-                            return moment.tz(m._id, timezone).format(format);
-                        else
-                            return m._id;
-                    });
-                    
-                    r.series.push({ name: label, data: list.map(m => m.count) });
+                    if(x.type == 'date') {
+                        list.map(m => {
+                            if (format)
+                                return moment.tz(m._id, timezone).format(format);
+                            else
+                                return m._id;
+                        });
+
+                        let {from_date} = req.query //YYYYMMDD
+                        if(!from_date)
+                            from_date = moment().tz(timezone).format('YYYYMMDD');
+                        
+                        r.options.xaxis.categories = []
+                        let cmoment = moment.tz(from_date, timezone);
+                        for(let i=0; i<limit; i++) {
+                            r.options.xaxis.categories.push(cmoment.format(format));
+                            cmoment.add(-1, gap)
+                        }
+                        if(!desc)
+                            r.options.xaxis.categories.reverse();
+                        r.series.push({ name: label, data: r.options.xaxis.categories.map(m=>{
+                            return list.find(l=>moment.tz(l._id, timezone).format(format) === m)?.count || 0;
+                        })});
+                    } else {
+                        r.series.push({ name: label, data: list.map(m => m.count) });
+                    }
                 }
-
 
                 res.json(r);
             } catch (e) {

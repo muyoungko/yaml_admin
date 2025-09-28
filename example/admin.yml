@@ -191,6 +191,7 @@ entity:
         - name: id
         - name: name
         - name: seq
+        - name: ils.id
       create: true
       edit: true
       show: true
@@ -686,7 +687,8 @@ front:
     #   id: lock_history1
     #   label: '잠금/해제 카운트'
     #   type: bar
-    #   size: 4
+    #   size: 12
+    #   height: 300
     #   x:
     #     label: '날짜'
     #     type: date
