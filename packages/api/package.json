@@ -1,6 +1,6 @@
 {
   "name": "yaml-admin-api",
-  "version": "0.0.19",
+  "version": "0.0.21",
   "license": "MIT",
   "description": "YAML Admin API package",
   "type": "commonjs",
@@ -9,7 +9,7 @@
     "src"
   ],
   "scripts": {
-    "pub": "npm publish -w yaml-admin-api --access public"
+    
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.596.0",
