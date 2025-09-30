@@ -8,7 +8,7 @@ import { useAdminContext } from '../AdminContext';
 import Chart from "react-apexcharts";
 import { fetcher } from '../common/axios';
 
-export const ComponentLayout = ({ component, custom, ...props }) => {
+export const YAMLComponent = ({ component, custom, ...props }) => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
@@ -33,4 +33,4 @@ export const ComponentLayout = ({ component, custom, ...props }) => {
 };
 
 
-export default ComponentLayout;
+export default YAMLComponent;

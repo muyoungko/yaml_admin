@@ -6,7 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
 import { Box, Grid, Card, CardContent, CardHeader } from '@mui/material';
-import Component from './Component';
+import YAMLComponent from './YAMLComponent';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -16,7 +16,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 //Custom Import End
 
-export const ComponentLayout = ({ components, custom, ...props }) => {
+export const YAMLComponentLayout = ({ components, custom, ...props }) => {
     const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
@@ -30,7 +30,7 @@ export const ComponentLayout = ({ components, custom, ...props }) => {
                         <Card>
                             <CardHeader title={component.label} />
                             <CardContent>
-                                <Component component={component} />
+                                <YAMLComponent component={component} />
                             </CardContent>
                         </Card>
                     </Grid>
@@ -41,4 +41,4 @@ export const ComponentLayout = ({ components, custom, ...props }) => {
 };
 
 
-export default ComponentLayout;
+export default YAMLComponentLayout;

@@ -27,7 +27,7 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
-import ComponentLayout from "./ComponentLayout";
+import YAMLComponentLayout from "./YAMLComponentLayout";
 //Custom Import Start
 
 //Custom Import End
@@ -41,7 +41,7 @@ export const DashboardLayout = ({ custom, ...props }) => {
 
     //Custom List Code End
     return (
-        <ComponentLayout components={yml?.front?.dashboard} />
+        <YAMLComponentLayout components={yml?.front?.dashboard} />
     )
 };
 
