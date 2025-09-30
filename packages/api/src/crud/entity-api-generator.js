@@ -8,6 +8,7 @@ const XLSX = require('xlsx');
 const moment = require('moment');
 const { withConfigLocal } = require('../upload/localUpload.js');
 const { withConfigS3 } = require('../upload/s3Upload.js');
+const { makeMongoSortFromYml } = require('./crud-common.js');
 
 const asyncErrorHandler = (fn) => (req, res, next) => {
     return Promise.resolve(fn(req, res, next)).catch(async e=>{
@@ -565,10 +566,10 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
     for(let key in apiGenerate) {
         
         const apiGenerateItem = apiGenerate[key]
-        let { entity, fields, match, sort, limit, single, match_from } = apiGenerateItem
+        let { entity, field, fields, match, sort, limit, single, match_from } = apiGenerateItem
 
         sort = sort || []
-        sort = sort.map(m=>({ [m.name]: m.desc ? 1 : -1 }))
+        sort = makeMongoSortFromYml(sort)
         limit = limit || 1000
         
         let match_from_list = data_list.map(m=>matchPathInObject(m, match_from))
@@ -576,17 +577,27 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
         match_from_list = match_from_list.filter(m=>m)
         const f = { [match]: {$in:match_from_list} }
         const projection = {[match]:1}
-        fields.map(m=>{
-            projection[m.name] = 1
-        })
-        const result = await db.collection(entity).find(f).project(projection).sort(sort).limit(limit).toArray()
 
+        if(field)
+            projection[field] = 1
+        else
+            fields.map(m=>{
+                projection[m.name] = 1
+            })
+
+        const result = await db.collection(entity).find(f).project(projection).sort(sort).limit(limit).toArray()
         data_list.map(m=>{
             let found = result.filter(f=>matchPathInObject(f, match) === matchPathInObject(m, match_from))
-            if(single)
-                m[key] = found.length > 0 ? found[0] : null
-            else {
-                m[key] = found
+            if(single) {
+                if(field)
+                    m[key] = found.length > 0 ? found[0][field] : null
+                else 
+                    m[key] = found.length > 0 ? found[0] : null
+            } else {
+                if(field)
+                    m[key] = found.map(f=>f[field])
+                else
+                    m[key] = found
             }
         })
     }

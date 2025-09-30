@@ -1,5 +1,6 @@
 const { withConfig } = require('../login/auth.js');
 const moment = require('moment-timezone');
+const { makeMongoSortFromYml } = require('./crud-common.js');
 
 /**
 
@@ -18,6 +19,239 @@ const generateChartApi = async (app, db, yml) => {
         return;
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+
+    const createChartDataTypeDate = async (chart, {from_date}) => {
+        const r = {
+            options: {
+                chart: { id: chart.id },
+                xaxis: { categories: [] }
+            },
+            colors: [],
+            series: []
+        }
+        const { x, y, relation } = chart;
+        if (y && Array.isArray(y.series)) {
+            const definedColors = y.series.map(s => s && s.color).filter(Boolean);
+            if (definedColors.length > 0) {
+                r.options.colors = definedColors;
+            }
+        }
+
+        const { field, entity : entity_x, format, gap, limit, desc, timezone } = x;
+        const { entity : entity_y } = y;
+
+        for (const s of y.series) {
+            const { label } = s;
+            const match = evaluateIfToMatch(s['if']);
+
+            let lookup_list = []
+            if (relation) {
+                let x_chain = relation_chain_y_to_x.find(f=>f.entity === entity_x)
+                let lookup = {
+                    from: entity_y,
+                    let: { root_x_key: `$${x_chain.match_from}` },
+                    pipeline: [],
+                      as: entity_y,
+                }
+
+                for(let i=0;i<relation_chain_y_to_x.length;i++) {
+                    const m = relation_chain_y_to_x[i]
+                    lookup.pipeline.push({
+                        $lookup: {
+                            from: m.entity,
+                            localField: m.match_from,
+                            foreignField: m.match,
+                            as: m.entity
+                        },
+                    })
+                    lookup.pipeline.push({ $unwind: `$${m.entity}` })
+                }
+
+                lookup.pipeline.push({ $match: { $expr: { $eq: [`$${x_chain.match}`, `$$root_x_key`] } } },)
+                lookup.pipeline.push({ $count: 'n' })
+                lookup_list.push({$lookup:lookup})
+                lookup_list.push({
+                    $unwind: {
+                        path: `$${entity_y}`,
+                        preserveNullAndEmptyArrays:true,
+                    },
+                })
+            }
+
+            let group_list = []
+            group_list.push({
+                $group: {
+                    _id: {
+                        $dateTrunc: {
+                            date: `$${field}`,
+                            unit: gap,
+                            timezone: timezone
+                        }
+                    },
+                    "count": { "$sum": 1 }
+                }
+            })
+
+            let a = [
+                { $match: {server_id:148, parent_id:null}},
+                ...lookup_list,
+                { $match: match},
+                ...group_list,
+                { $sort: { _id: -1 } },
+            ]
+
+            if(limit)
+                a.push({ $limit: limit })
+
+            const list = await db.collection(entity_x).aggregate(a).toArray();
+            
+            list.map(m => {
+                if (format)
+                    return moment.tz(m._id, timezone).format(format);
+                else
+                    return m._id;
+            });
+
+            if(!from_date)
+                from_date = moment().tz(timezone).format('YYYYMMDD');
+            
+            r.options.xaxis.categories = []
+            let cmoment = moment.tz(from_date, timezone);
+            for(let i=0; i<limit; i++) {
+                r.options.xaxis.categories.push(cmoment.format(format));
+                cmoment.add(-1, gap)
+            }
+            if(!desc)
+                r.options.xaxis.categories.reverse();
+            r.series.push({ name: label, data: r.options.xaxis.categories.map(m=>{
+                return list.find(l=>moment.tz(l._id, timezone).format(format) === m)?.count || 0;
+            })});
+        }
+
+        return r
+    }
+
+    const createChartDataTypeField = async (chart) => {
+        const r = {
+            options: {
+                chart: { id: chart.id },
+                xaxis: { categories: [] }
+            },
+            colors: [],
+            series: []
+        }
+        const { x, y, relation } = chart;
+        if (y && Array.isArray(y.series)) {
+            const definedColors = y.series.map(s => s && s.color).filter(Boolean);
+            if (definedColors.length > 0) {
+                r.options.colors = definedColors;
+            }
+        }
+
+        const { field, entity : entity_x, format, gap, limit, desc, sort } = x;
+        const { entity : entity_y } = y;
+
+        for (const s of y.series) {
+            const { label } = s;
+            
+            let match_list = []
+            if(s['if'] && !relation)
+                match_list.push({ $match: evaluateIfToMatch(s['if'])})
+
+            let lookup_list = []
+            if (relation) {
+                if(!relation.chain)
+                    throw new Error('relation.chain is required');
+                if(!relation.match)
+                    throw new Error('relation.match is required');
+
+                let lookup = {
+                    from: entity_y,
+                    let: { root_x_key: `$${relation.match.x}` },
+                    pipeline: [],
+                      as: entity_y,
+                }
+
+                for(let i=0;i<relation.chain.length;i++) {
+                    const m = relation.chain[i]
+                    lookup.pipeline.push({
+                        $lookup: {
+                            from: m.entity,
+                            localField: m.match_from,
+                            foreignField: m.match,
+                            as: m.entity
+                        },
+                    })
+                    lookup.pipeline.push({ $unwind: `$${m.entity}` })
+                }
+
+                
+                if(s['if'])
+                    lookup.pipeline.push({ $match: evaluateIfToMatch(s['if'])})
+
+                lookup.pipeline.push({ $match: { $expr: { $eq: [`$${relation.match.with}`, `$$root_x_key`] } } },)
+                lookup.pipeline.push({ $count: 'n' })
+                lookup_list.push({$lookup:lookup})
+                lookup_list.push({
+                    $unwind: {
+                        path: `$${entity_y}`,
+                        preserveNullAndEmptyArrays:true,
+                    },
+                })
+            }
+
+            let group_sort_field = {}
+            sort && sort.map(m=>{
+                group_sort_field[m.name] = {
+                    $max: `$${m.name}`
+                  }
+            })
+
+            let group_list = []
+            if(relation) {
+                group_list.push({
+                    $group: {
+                        _id: `$${field}`,
+                        "count": { "$sum": `$${entity_y}.n` },
+                        ...group_sort_field
+                    }
+                })
+            } else {
+                group_list.push({
+                    $group: {
+                        _id: `$${field}`,
+                        "count": { "$sum": 1 },
+                        ...group_sort_field
+                    }
+                })
+            }
+
+            let a = [
+                { $match: {server_id:148, parent_id:null}},
+                ...lookup_list,
+            ]
+
+            a.push(...group_list)
+            
+            if(sort)
+                a.push({ $sort: makeMongoSortFromYml(sort) })
+
+            if(limit)
+                a.push({ $limit: limit })
+
+            //debug
+            if(chart.debug)
+                console.log('a', entity_x, JSON.stringify(a, null, 2))
+
+            const list = await db.collection(entity_x).aggregate(a).toArray();
+
+            r.options.xaxis.categories = list.map(m => m._id);
+            r.series.push({ name: label, data: list.map(m => m.count) });
+        }
+
+        return r
+    }
+
     for (const chart of chartComponents) {
         const { id } = chart;
         console.log('generateChartApi', chart.id)
@@ -46,113 +280,15 @@ const generateChartApi = async (app, db, yml) => {
         */
         app.get(`/api/chart/${id}`, auth.isAuthenticated, async (req, res) => {
             try {
-                const r = {
-                    options: {
-                        chart: { id: chart.id },
-                        xaxis: { categories: [] }
-                    },
-                    colors: [],
-                    series: []
-                }
-                const { x, y, relation } = chart;
-
-                // apply series colors from yml if provided
-                if (y && Array.isArray(y.series)) {
-                    const definedColors = y.series.map(s => s && s.color).filter(Boolean);
-                    if (definedColors.length > 0) {
-                        r.options.colors = definedColors;
-                    }
-                }
-
-                const { field, entity : entity_x, format, gap, limit, desc, timezone } = x;
-                for (const s of y.series) {
-                    const { label } = s;
-                    const match = evaluateIfToMatch(s['if']);
-
-                    let lookup_list = []
-                    if (relation) {
-                        for (const r of relation) {
-                            lookup_list.push({
-                                $lookup: {
-                                    from: r.entity,
-                                    localField: r.match_from,
-                                    foreignField: r.match,
-                                    as: r.entity
-                                },
-                            })
-                            lookup_list.push({
-                                $unwind: `$${r.entity}`
-                            })
-                        }
-                    }
-
-                    let group_list = []
-                    if (x.type == 'date') {
-                        group_list.push({
-                            $group: {
-                                _id: {
-                                    $dateTrunc: {
-                                        date: `$${field}`,
-                                        unit: gap,
-                                        timezone: timezone
-                                    }
-                                },
-                                "count": { "$sum": 1 }
-                            }
-                        })
-                    } else if (x.type == 'field') {
-                        group_list.push({
-                            $group: {
-                                _id: `$${entity_x}.${field}`,
-                                //_id: `$member.user_type`,
-                                // _id: `$member_no`,
-                                "count": { "$sum": 1 }
-                            }
-                        })
-                    }
-
-                    let a = [
-                        { $match: {server_id:148}},
-                        ...lookup_list,
-                        { $match: match},
-                        ...group_list,
-                        { $sort: { _id: -1 } },
-                    ]
-
-                    if(limit)
-                        a.push({ $limit: limit })
-
-                    //console.log('a', JSON.stringify(a, null, 2))
-
-                    const list = await db.collection(entity_x).aggregate(a).toArray();
-                    // console.log('list', entity_x, list)
-
-                    if(x.type == 'date') {
-                        list.map(m => {
-                            if (format)
-                                return moment.tz(m._id, timezone).format(format);
-                            else
-                                return m._id;
-                        });
-
-                        let {from_date} = req.query //YYYYMMDD
-                        if(!from_date)
-                            from_date = moment().tz(timezone).format('YYYYMMDD');
-                        
-                        r.options.xaxis.categories = []
-                        let cmoment = moment.tz(from_date, timezone);
-                        for(let i=0; i<limit; i++) {
-                            r.options.xaxis.categories.push(cmoment.format(format));
-                            cmoment.add(-1, gap)
-                        }
-                        if(!desc)
-                            r.options.xaxis.categories.reverse();
-                        r.series.push({ name: label, data: r.options.xaxis.categories.map(m=>{
-                            return list.find(l=>moment.tz(l._id, timezone).format(format) === m)?.count || 0;
-                        })});
-                    } else {
-                        r.series.push({ name: label, data: list.map(m => m.count) });
-                    }
+                const { x } = chart;
+                let r
+                if (x.type == 'date') {
+                    let {from_date} = req.query //YYYYMMDD
+                    r = await createChartDataTypeDate(chart, {from_date});
+                } else if(x.type == 'field') {
+                    r = await createChartDataTypeField(chart);
+                } else {
+                    throw new Error('x.type is not date or field');
                 }
 
                 res.json(r);

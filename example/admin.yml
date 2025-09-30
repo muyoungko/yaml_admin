@@ -191,6 +191,7 @@ entity:
         - name: id
         - name: name
         - name: seq
+        - name: place_id
         - name: ils.id
       create: true
       edit: true
@@ -239,6 +240,12 @@ entity:
       - name: seq
         label: "순서"
         type: integer
+      - name: place_id
+        label: "Location"
+        type: reference
+        reference_entity: place
+        reference_match: id
+        reference_name: id
       - name: ils.id
         label: "잠금"
         type: reference
@@ -246,15 +253,14 @@ entity:
         reference_match: id
         reference_name: key
     api_generate:
-      place:
+      place_id:
         match_from: id
         entity: place
         match: item_id
-        fields:
-          - name: id
+        field: id
         single: true
       ils:
-        match_from: place.id
+        match_from: place_id
         entity: ils
         match: place_id
         fields:
@@ -683,62 +689,69 @@ entity:
         required: true
 front:
   dashboard:
-    # - component: chart
-    #   id: lock_history1
-    #   label: '잠금/해제 카운트'
-    #   type: bar
-    #   size: 12
-    #   height: 300
-    #   x:
-    #     label: '날짜'
-    #     type: date
-    #     entity: lock_history
-    #     field: reg_date
-    #     format: 'MM/DD'
-    #     gap: day
-    #     limit: 7
-    #     timezone: Asia/Seoul
-    #     desc: false
-    #   y:
-    #     series:
-    #       - label: '잠금'
-    #         if: lock==true
-    #         color: '#8B0000' #red
-    #       - label: '해제'
-    #         if: lock!=true
-    #         color: '#228B22' #green
+    - component: chart
+      id: lock_history1
+      label: '잠금/해제 이용횟수'
+      type: line
+      size: 12
+      height: 300
+      x:
+        label: '날짜'
+        type: date
+        entity: lock_history
+        field: reg_date
+        format: 'MM/DD'
+        gap: day
+        limit: 7
+        timezone: Asia/Seoul
+        desc: false
+      y:
+        series:
+          - label: '잠금'
+            if: lock==true
+            color: '#8B0000' #red
+          - label: '해제'
+            if: lock!=true
+            color: '#228B22' #green
+
     - component: chart
       id: lock_by_region
       label: '상위 개소별 잠금 현황'
       type: bar
       size: 12
-      relation: 
-        - entity_from: lock
-          match_from: member_no
-          entity: member
-          match: member_no
-        - entity_from: lock
-          match_from: ils_id
-          entity: ils
-          match: id
-        - entity_from: ils
-          match_from: ils.place_id
-          entity: place
-          match: id
-        - entity_from: place
-          match_from: place.item_id
-          entity: item
-          match: id
-        - entity_from: item
-          match_from: item.region_id
-          entity: region
-          match: id
+      debug: true
+      relation:
+        chain:
+          - match_from: ils_id
+            entity: ils
+            match: id
+          - match_from: ils.place_id
+            entity: place
+            match: id
+          - match_from: place.item_id
+            entity: item
+            match: id
+          - match_from: item.region_id
+            entity: region
+            match: id
+          - match_from: member_no
+            entity: member
+            match: member_no
+        match:
+            x: id
+            with: region.parent_id
+
       x:
         label: '지역'
         type: field
         entity: region
         field: name
+        if: parent_id==null
+        sort:
+          - name: seq
+            desc: false
       y:
+        entity: lock
         series:
           - label: '작업자 잠금'
             color: '#1a66cc' #blue
@@ -746,6 +759,41 @@ front:
           - label: '관리자 잠금'
             color: '#228B22' #green
             if: member.user_type==관리자
+
+    - component: chart
+      id: lock_by_member
+      label: '사용자 타입 별 잠금 현황'
+      type: bar
+      size: 6
+      relation_chain_y_to_x:
+        - match_from: member_no
+          entity: member
+          match: member_no
+      x:
+        label: '사용자 타입'
+        type: field
+        entity: member
+        field: user_type
+      y:
+        entity: lock
+        series:
+          - label: '잠금'
+    
+    - component: chart
+      id: member_type
+      label: '사용자 타입'
+      type: bar
+      size: 6
+      x:
+        label: '사용자 타입'
+        type: field
+        entity: member
+        field: user_type
+      y:
+        entity: member
+        series:
+          - label: '사용자'
+            color: '#1a66cc'
   category:
     - name: '공장 관리'
       icon: 'material-symbols:factory-outline'
