@@ -1,6 +1,6 @@
 {
   "name": "yaml-admin-api",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "license": "MIT",
   "description": "YAML Admin API package",
   "type": "commonjs",
@@ -8,9 +8,7 @@
   "files": [
     "src"
   ],
-  "scripts": {
-    
-  },
+  "scripts": {},
   "dependencies": {
     "@aws-sdk/client-s3": "^3.596.0",
     "@aws-sdk/client-ses": "^3.855.0",

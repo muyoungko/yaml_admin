@@ -6,7 +6,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
 import Chart from "react-apexcharts";
+import { Box } from '@mui/material';
 import { fetcher } from '../common/axios';
+
+const Chart2 = typeof Chart === 'object' ? Chart.default : Chart;
 
 export const YAMLComponent = ({ component, custom, ...props }) => {
     const navigate = useNavigate()
@@ -21,14 +24,14 @@ export const YAMLComponent = ({ component, custom, ...props }) => {
     }, [component.id]);
 
     return (
-        <div>
-            {data && <Chart
+        <Box>
+            {data && component && <Chart2
                 height={component.height || 300}
                 options={data.options}
                 series={data.series}
                 type={component?.type}
             />}
-        </div>
+        </Box>
     )
 };
 

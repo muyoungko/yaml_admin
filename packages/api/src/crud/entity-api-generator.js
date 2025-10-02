@@ -158,6 +158,22 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }
     
 
+    /**
+     * check entity max key and update counter to max+1
+     * @param {*} db 
+     * @param {*} entity_name 
+     */
+    const recalcurateAutoGenerateIndex = async (db, entity_name) => {
+        const list = await db.collection(entity_name).find({}).sort({ [key_field.name]: -1 }).limit(1).toArray()
+        const counter = await db.collection('counters').findOne({ _id: key_field.name })
+        if(list.length > 0) {
+            let seq = counter?.seq || 0
+            let maxKey = list[0][key_field.name]
+            if(maxKey <= seq)
+                await db.collection('counters').updateOne({ _id: key_field.name }, { $set: { seq: maxKey + 1 } })
+        }
+    }
+
     //list
     app.get(`/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         //검색 파라미터
@@ -261,6 +277,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     //create
     app.post(`/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+        
+        await recalcurateAutoGenerateIndex(db, entity_name)
+        
         let entityId
         if (key_field.autogenerate)
             entityId = await generateKey()
@@ -428,6 +447,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             let header = list[0]
             list.shift();
 
+            await recalcurateAutoGenerateIndex(db, entity_name)
+            
             let upsert = yml_entity.crud.import.upsert || true
             let fields = yml_entity.crud.import.fields.map(m => m)
             fields = fields.map(field => {
