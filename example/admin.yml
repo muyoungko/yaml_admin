@@ -85,9 +85,12 @@ entity:
         required: true
         key: true
         autogenerate: true
-      - name: name
-        label: "도면이름"
-        type: name
+      - name: region_id
+        label: "개소"
+        type: reference
+        reference_entity: region
+        reference_match: id
+        reference_format: ${name}(${id})
         required: true
       - name: image
         label: "도면"
