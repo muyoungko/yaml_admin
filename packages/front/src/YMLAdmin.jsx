@@ -24,14 +24,14 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 }
 
-const YMLAdmin = ({ adminYaml, i18nProvider, custom, theme, layout }) => {
+const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout }) => {
   const [yml, setYml] = useState(null);
   const [dataProvider, setDataProvider] = useState(null);
 
   useEffect(() => {
     const loadYamlFile = async () => {
       try {
-        const json = YAML.parse(adminYaml);
+        const json = (adminYaml && YAML.parse(adminYaml)) || adminJson;
         setYml(json);
         const api_host = json['api-host'].uri;
         const privateEntityMap = {}

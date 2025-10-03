@@ -31,7 +31,7 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
 
     useEffect(() => {
         let {entity, key, parent_key, label, sort} = component
-        const custon_filter = custom?.globalFilterDelegate(entity) || {}
+        const custon_filter = (custom?.globalFilterDelegate && custom?.globalFilterDelegate(entity)) || {}
         let url = `/${entity}?${parent_key}=`
         if(custon_filter) {
             url += `&${Object.keys(custon_filter).map(key => `${key}=${custon_filter[key]}`).join('&')}`
@@ -86,7 +86,7 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
 
     const fetchChild = useCallback((item) => {
         let {entity, key, parent_key, label, sort} = component
-        const custon_filter = custom?.globalFilterDelegate(entity) || {}
+        const custon_filter = (custom?.globalFilterDelegate && custom?.globalFilterDelegate(entity)) || {}
         let key_value = item[component.key]
         if(fetchedKeysRef.current.has(key_value)) return
         let url = `/${entity}?${parent_key}=${key_value}`
@@ -123,6 +123,10 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
                     })
                 }
             }
+        }
+
+        if(custom?.itemClick && typeof custom?.itemClick == 'function') {
+            custom.itemClick(theNode)
         }
         
     }, [component, custom, list, findNode])

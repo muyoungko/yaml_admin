@@ -10,7 +10,7 @@
     "dev": "export NODE_ENV=development && node_modules/.bin/concurrently --prefix none \"npm run dev:example-api\" \"npm run dev:example-front\"",
     "dev:example-api": "cd example/api1 && npm run dev",
     "dev:example-front": "cd example/front1 && npm run dev",
-    "publish:front": "npm version patch -w yaml-admin-front --no-git-tag-version && npm publish -w yaml-admin-front --access public",
+    "publish:front": "cd packages/front && vite build --mode production && npm version patch --no-git-tag-version && npm publish --access public",
     "publish:api": "npm version patch -w yaml-admin-api --no-git-tag-version && npm publish -w yaml-admin-api --access public",
     "publish": "npm run publish:api && npm run publish:front",
     "install": "npm --prefix example/api1 i && npm --prefix example/front1 i && npm --prefix packages/api i && npm --prefix packages/front i"
