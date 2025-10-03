@@ -7,7 +7,10 @@ const DynamicLayout = ({ entity, custom, children }) => {
         <Stack direction={'row'} spacing={1}>
             {entity.layout?.left && <Box padding={1}>
                 {entity.layout.left.map((component, index) => {
-                    return <EntityTreeView key={index} component={component} custom={custom} />
+                    if(component.component == 'tree')
+                        return <EntityTreeView key={index} component={component} custom={custom} />
+                    else
+                        return <>Unknown component: {component.component}</>
                 })}
             </Box>}
             <Box width={'100%'}>
