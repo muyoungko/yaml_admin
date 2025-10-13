@@ -156,6 +156,13 @@ entity:
       - name: seq
         label: "순서"
         type: integer
+    api_generate:
+      floor_id:
+        match_from: id
+        entity: floor
+        match: region_id
+        field: id
+        single: true
   item:
     category : '공장 관리'
     label: '항목'
@@ -270,6 +277,13 @@ entity:
           - name: id
           - name: key
         single: true
+      lock_list:
+        match_from: ils.id
+        entity: lock
+        match: ils_id
+        fields:
+          - name: member_no
+          - name: reg_date
   place:
     category: '공장 관리'
     label: 'Location'
@@ -722,7 +736,7 @@ front:
       label: '상위 개소별 잠금 현황'
       type: bar
       size: 12
-      debug: true
+      debug: false
       relation:
         chain:
           - match_from: ils_id

@@ -42,7 +42,6 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
         }
         
         fetcher(url).then(res => {
-            
             if(Array.isArray(res)) {
                 setList(res)
                 res.map(m=>{
@@ -103,14 +102,17 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
             children = children.filter(c => c?.[component.key] !== key_value)
             setList(prev => updateNodeChildren(prev, key_value, children))
             fetchedKeysRef.current.add(key_value)
-            // recursively prefetch deeper children
-            children.forEach(child => fetchChild(child))
         })
     }, [component, custom, updateNodeChildren])
 
     const itemClick = useCallback((event, nodeId) => {
         let theNode = findNode({list}, nodeId)
         let isPeer = !theNode.list || theNode.list.length == 0
+        
+        theNode.list.map(m=>{
+            fetchChild(m)
+        })
+
         if(isPeer) {
             if(component.peer_click?.action) {
                 let args = []

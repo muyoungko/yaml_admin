@@ -8,7 +8,7 @@ export const updateToken = async (query) => {
   if (query && query.token) {
     sessionStorage.setItem('token', query.token);
     localStorage.setItem('token', query.token);
-    axios.defaults.headers.common['x-access-token'] = `${query.token}`;
+    axiosInstance.defaults.headers.common['x-access-token'] = `${query.token}`;
   }
 };
 

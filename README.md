@@ -172,3 +172,15 @@ Notes
 ## License
 MIT
 
+# Development Setting
+
+## Front Instant Change
+
+packages/front/package.json
+-  "type": "module",
+-  "description": "React components for yaml-admin front (library)",
+-  "main": "./dist/index.cjs.js",
+-  "module": "./dist/index.es.js",
++  "type": "commonjs",
++  "main": "src/index.js",
+
