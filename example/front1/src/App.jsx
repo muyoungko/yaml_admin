@@ -1,9 +1,19 @@
+import { useMemo, useEffect } from 'react';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import { YMLAdmin, EntityTreeView } from 'yaml-admin-front';
 import adminYamlText from '../../admin.yml?raw';
 import koreanMessages from './i18n/ko';
 import YAML from 'yaml';
 
+
+const globalFilterDelegate = (entity) => {
+  if (entity != 'server') {
+    let s = localStorage.getItem('server_id')
+    if (s)
+      return { server_id: parseInt(s) }
+  }
+  return {}
+}
 
 export default function App() {
   return (
@@ -15,29 +25,15 @@ export default function App() {
         entity: {
           floor: {
             show: (record) => {
-              return <div>{record.id} - custom</div>
+              return <div> <CustomTreeView/></div>
             }
           }
         },
-        customRoutes: [
-          {
-            path: '/custom',
-            element: <CustomTreeView />
-          }
-        ],
+        customRoutes:[],
         globalFilterDelegate
       }}
     />
   );
-}
-
-const globalFilterDelegate = (entity) => {
-  if (entity != 'server') {
-    let s = localStorage.getItem('server_id')
-    if (s)
-      return { server_id: parseInt(s) }
-  }
-  return {}
 }
 
 const CustomTreeView = () => {

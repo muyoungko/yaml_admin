@@ -79,7 +79,7 @@ const withConfig = (config) => {
         next);
     }
     else {
-      var memberProjection = { projection: { _id: false, name: true, email: true, password: true, super: true, id: true } };
+      const memberProjection = { projection: { _id: false, name: true, email: true, password: true, super: true, id: true } };
       if (type === 'email') {
         memberProjection['password'] = true;
         let member = await db.collection('admin').findOne({ email: email }, memberProjection)

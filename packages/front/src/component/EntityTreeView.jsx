@@ -27,7 +27,6 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
     const refresh = useRefresh();
     const yml = useAdminContext();
     const [list, setList] = useState([])
-    const fetchedKeysRef = useRef(new Set())
 
     useEffect(() => {
         let {entity, key, parent_key, label, sort} = component
@@ -49,7 +48,7 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
                 })
             }
         })
-    }, [component, custom])
+    }, [])
 
     const findNode = useCallback((node, targetKeyValue) => {
         if(node[component.key] == targetKeyValue) {
@@ -87,7 +86,6 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
         let {entity, key, parent_key, label, sort} = component
         const custon_filter = (custom?.globalFilterDelegate && custom?.globalFilterDelegate(entity)) || {}
         let key_value = item[component.key]
-        if(fetchedKeysRef.current.has(key_value)) return
         let url = `/${entity}?${parent_key}=${key_value}`
         if(custon_filter) {
             url += `&${Object.keys(custon_filter).map(key => `${key}=${custon_filter[key]}`).join('&')}`
@@ -101,7 +99,6 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
             // remove self references and duplicates
             children = children.filter(c => c?.[component.key] !== key_value)
             setList(prev => updateNodeChildren(prev, key_value, children))
-            fetchedKeysRef.current.add(key_value)
         })
     }, [component, custom, updateNodeChildren])
 

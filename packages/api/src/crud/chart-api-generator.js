@@ -278,6 +278,9 @@ const generateChartApi = async (app, db, yml) => {
             ]
         }
         */
+       /**
+        * TODO : globalFilterDelegate not implemented
+        */
         app.get(`/api/chart/${id}`, auth.isAuthenticated, async (req, res) => {
             try {
                 const { x } = chart;
