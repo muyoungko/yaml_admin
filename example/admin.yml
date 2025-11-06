@@ -284,6 +284,17 @@ entity:
         fields:
           - name: member_no
           - name: reg_date
+          - name: member
+            type: reference
+            reference_entity: member
+            reference_from: member_no
+            reference_match: member_no
+            single: true
+            fields:
+              - name: name
+              - name: user_type
+              - name: phone
+        
   place:
     category: '공장 관리'
     label: 'Location'
@@ -581,8 +592,8 @@ entity:
         entity: lock
         match: ils_id
         fields: 
-          - name : member_no
-          - name : reg_date
+          - name: member_no
+          - name: reg_date
   lock:
     hidden: true
     crud:

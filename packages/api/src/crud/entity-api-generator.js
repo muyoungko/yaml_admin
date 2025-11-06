@@ -594,19 +594,47 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
         limit = limit || 1000
         
         let match_from_list = data_list.map(m=>matchPathInObject(m, match_from))
-
         match_from_list = match_from_list.filter(m=>m)
         const f = { [match]: {$in:match_from_list} }
         const projection = {[match]:1}
 
+        const aggregate = [
+            { $match: { [match]: {$in:match_from_list} } },
+        ]
+
         if(field)
             projection[field] = 1
-        else
+        else {
             fields.map(m=>{
                 projection[m.name] = 1
             })
 
-        const result = await db.collection(entity).find(f).project(projection).sort(sort).limit(limit).toArray()
+            fields.map(m=>{
+                if(m.type == 'reference') {
+                    let project = { _id: 0 }
+                    m.fields.map(f=>{
+                        project[f.name] = 1
+                    })
+
+                    aggregate.push({ $lookup: {
+                        from: m.reference_entity,
+                        let: { local_key: '$'+m.reference_from },
+                        pipeline: [
+                            { $match: { $expr: { $eq: ["$"+m.reference_match, "$$local_key"] } } },
+                            { $project: project }
+                        ],
+                        as: m.name
+                    } })
+                    if(m.single)
+                        aggregate.push({ $unwind: `$${m.name}` })
+                }
+            })
+        }
+
+        const result = await db.collection(entity)
+            .aggregate(aggregate)
+            .project(projection)
+            .toArray()
         data_list.map(m=>{
             let found = result.filter(f=>matchPathInObject(f, match) === matchPathInObject(m, match_from))
             if(single) {
