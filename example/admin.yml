@@ -90,7 +90,7 @@ entity:
         type: reference
         reference_entity: region
         reference_match: id
-        reference_format: ${name}(${id})
+        reference_format: ${name}(id-${id})
         required: true
       - name: image
         label: "도면"

@@ -8,6 +8,7 @@ import {
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
 import SafeImageField from '../component/SafeImageField';
+import { format } from '../common/format';
 
 /**
  * 
@@ -69,22 +70,9 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
         return <ReferenceField key={field.name} link="show" label={label} source={field.name} reference={field.reference_entity}>
             {!field.reference_format && <TextField source={field.reference_name} />}
             {field.reference_format && (() => {
-                    // Extract field names from the format string
-                    // e.g. "${name}(${phone})(${user_type})" => ['name', 'phone', 'user_type']
-                    const matches = [...field.reference_format.matchAll(/\$\{(\w+)\}/g)];
-                    const fieldNames = matches.map(m => m[1]);
-                    // Build a label string for TextField
-                    // e.g. "${name}(${phone})(${user_type})" => "{name}({phone})({user_type})"
-                    // We'll use FunctionField to render the formatted string
                     return (
                         <FunctionField
-                            render={record => {
-                                let str = field.reference_format;
-                                fieldNames.forEach(fn => {
-                                    str = str.replace(`\$\{${fn}\}`, record?.[fn] ?? '');
-                                });
-                                return str;
-                            }}
+                            render={record => format(field.reference_format, record)}
                         />
                     );
                 })()

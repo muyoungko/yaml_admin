@@ -1,10 +1,11 @@
-import { useMemo, useEffect } from 'react';
+import { defaultTheme } from 'react-admin';
+import { deepmerge } from '@mui/utils';
+import {indigo, pink, red} from '@mui/material/colors';
+
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import { YMLAdmin, EntityTreeView } from 'yaml-admin-front';
 import adminYamlText from '../../admin.yml?raw';
 import koreanMessages from './i18n/ko';
-import YAML from 'yaml';
-
 
 const globalFilterDelegate = (entity) => {
   if (entity != 'server') {
@@ -15,11 +16,24 @@ const globalFilterDelegate = (entity) => {
   return {}
 }
 
+const myTheme = deepmerge(defaultTheme, {
+  palette: {
+      primary: indigo,
+      secondary: pink,
+      error: red,
+      contrastThreshold: 3,
+      tonalOffset: 0.2,
+  },
+  typography: {
+      fontFamily: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Arial', 'sans-serif'].join(','),
+  },
+});
+
 export default function App() {
   return (
     <YMLAdmin
-      //adminYaml={adminYamlText}
-      adminJson={YAML.parse(adminYamlText)}
+      adminYaml={adminYamlText}
+      theme={myTheme}
       i18nProvider={polyglotI18nProvider(() => koreanMessages, 'ko')}
       custom={{
         entity: {
@@ -54,6 +68,7 @@ const CustomTreeView = () => {
       }
     ],
     "label": "name",
+    "label_format": "${name} ${floor_id?'':'(도면 없음)'}"
   }} custom={{
     itemClick: (node) => {
       console.log('node', node)

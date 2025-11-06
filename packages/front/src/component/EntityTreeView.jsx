@@ -9,6 +9,7 @@ import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Paper } from '@mui/material';
 import { act } from '../common/actionParser';
+import { format } from '../common/format';
 
 /**
  * @param {object} component
@@ -135,8 +136,14 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
         if(visited?.has(id)) return null
         const nextVisited = visited ? new Set(visited) : new Set()
         nextVisited.add(id)
+        let label
+        if(component.label_format) {
+            label = format(component.label_format, item)
+        } else {
+            label =item[component.label]
+        }
         return (
-            <TreeItem key={id} itemId={`${id}`} label={<span >{item[component.label]}</span>} >
+            <TreeItem key={id} itemId={`${id}`} label={<span >{label}</span>} >
                 {item.list?.map(child => renderTree(child, nextVisited))}
             </TreeItem>
         )
