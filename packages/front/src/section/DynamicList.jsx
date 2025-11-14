@@ -127,8 +127,7 @@ const ListActions = ({ crud, custom, ...props }) => {
     };
 
     const handleExportClick = () => {
-        //url에서 filter paremeters를 가져와서 export
-        const params = new URLSearchParams(location.search); // Query String 파싱
+        const params = new URLSearchParams(location.search);
         let filter = params.get("filter")
         if (filter)
             filter = JSON.parse(filter)
@@ -166,9 +165,36 @@ const ListActions = ({ crud, custom, ...props }) => {
         });
     }
 
+    const createSearch = useMemo(() => {
+        let search = ''
+        if(Array.isArray(crud.create)) {
+            const params = new URLSearchParams(location.search);
+            let filter = params.get("filter")
+            if(filter)
+                filter = JSON.parse(filter)
+            else
+                filter = null
+            
+            if(filter) {
+                crud.create.forEach(f => {
+                    if(f.default) {
+                        let q = f.default
+                        if(q.startsWith('$')) {
+                            q = q.replace('$', '')
+                            if(search !== '')
+                                search += '&'
+                            search += `${q}=${filter[q]}`
+                        }
+                    }
+                })
+            }
+        }
+        return search
+    }, [crud.create, location])
+
     return (
         <TopToolbar>
-            {crud?.create && <CreateButton />}
+			{crud?.create && <CreateButton to={{ pathname: `/${resource}/create`, search: createSearch }} />}
             {crud?.import && <>
                 <input
                     type="file"

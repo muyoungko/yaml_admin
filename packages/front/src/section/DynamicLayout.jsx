@@ -8,7 +8,7 @@ const DynamicLayout = ({ entity, custom, children }) => {
             {entity.layout?.left && <Box padding={1}>
                 {entity.layout.left.map((component, index) => {
                     if (component.component == 'tree')
-                        return <Paper sx={{margin: 1, padding: 1}}>
+                        return <Paper sx={{marginTop: 1, padding: 1}}>
                                 <EntityTreeView key={index} component={component} custom={custom} />
                             </Paper>
                     else

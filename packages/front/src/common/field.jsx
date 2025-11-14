@@ -127,7 +127,7 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, crud_field}) => {
+export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, crud_field, defaultValue = null}) => {
     if (!field)
         return null;
     const { type, autogenerate } = field
@@ -137,12 +137,11 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
         return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity}
             alwaysOn={globalFilter[field.name] ? false : true}
             filter={globalFilter}
-            defaultValue={crud_field?.default}
         >
             <AutocompleteInput label={field?.label} optionText={field?.reference_name}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
                 validate={field.required && !search && validateRequire}
-                defaultValue={crud_field?.default || globalFilter[field.name] }
+                defaultValue={defaultValue ||crud_field?.default || globalFilter[field.name] }
             />
         </ReferenceInput>
     } else if (field?.type == 'select')
@@ -150,12 +149,12 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
             choices={field?.select_values}
             optionText="label" optionValue="name"
             validate={field.required && !search && validateRequire}
-            defaultValue={crud_field?.default}
+            defaultValue={defaultValue || crud_field?.default}
         />
     else if (field?.type == 'integer') {
         return <NumberInput key={field.name} label={field?.label} source={field.name} alwaysOn
             validate={field.required && !search && validateRequire}
-            defaultValue={crud_field?.default}
+            defaultValue={defaultValue || crud_field?.default}
         />
     }
     else if (field?.type == 'image') {
@@ -164,7 +163,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
                 maxWidth: theme?.components?.MuiFormControl?.styleOverrides?.root?.maxWidth
             })}
             validate={field.required && !search && validateRequire}>
-            <SafeImageField source={'src'} title={'title'} />
+            <SafeImageField source={'src'} title={'title'}/>
         </ImageInput>
     }
     else if (field?.type == 'file') {
@@ -179,14 +178,14 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
     else if (field?.type == 'boolean') {
         return <BooleanInput key={field.name} label={field?.label} source={field.name} alwaysOn
             validate={field.required && !search && validateRequire}
-            defaultValue={crud_field?.default}
+            defaultValue={defaultValue || crud_field?.default}
         />
     }
     else if (field?.type == 'date') {
         return <DateInput key={field.name} label={field?.label} source={field.name} alwaysOn
             showTime={field.showtime}
             validate={field.required && !search && validateRequire}
-            defaultValue={crud_field?.default}
+            defaultValue={defaultValue || crud_field?.default}
         />
     }
     else if (field.type == 'array') {
@@ -210,7 +209,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn
             required={!search && field?.type != 'password' && field.required}
             validate={field.required && field?.type != 'password' && !search && validateRequire}
-            defaultValue={crud_field?.default}
+            defaultValue={defaultValue || crud_field?.default}
         />
     }
 }

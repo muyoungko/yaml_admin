@@ -1,3 +1,4 @@
+debug: true
 login:
   jwt-secret: ${JWT_SECRET}
   password-encoding: sha512 # bcrypt, sha512, sha256

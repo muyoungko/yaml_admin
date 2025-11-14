@@ -14,9 +14,9 @@ import {
     SaveButton,
     useResourceContext,
 } from 'react-admin';
-import { getQueryStringValue } from '../common/format';
 import { getFieldEdit } from '../common/field';
 import { useAdminContext } from '../AdminContext';
+import { useLocation } from 'react-router-dom';
 //Custom Import Start
 
 //Custom Import End
@@ -37,6 +37,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
     const resource = useResourceContext(props);
+    const location = useLocation()
 
     const fields = useMemo(() => {
         return yml.entity[resource].fields
@@ -69,6 +70,20 @@ export const DynamicCreate = ({ custom, ...props }) => {
         }
     }, [yml, resource])
 
+    const getDefaultValue = useCallback((crud_field) => {
+        if(crud_field?.default) {
+            const params = new URLSearchParams(location.search);
+            let q = crud_field?.default
+            if(q.startsWith('$')) {
+                q = q.replace('$', '')
+                let value = params.get(q)
+                return value
+            }
+        }
+
+        return null
+    }, [location])
+    
     return (
         <Create title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
         //Custom Create Property Start
@@ -84,21 +99,12 @@ export const DynamicCreate = ({ custom, ...props }) => {
                     //exclude field by api_generate
                     .filter(field => checkApiGenerateContain(field.name))
                     .map(field => {
-                        let crud_field = crud.create == true ? null : crud.create.find(a => a.name == field.name) 
-                        if(crud_field?.default) {
-                            let q = crud_field?.default
-                            if(q.startsWith('$')) {
-                                q = q.replace('$', '')
-                                let value = getQueryStringValue(q)
-                                if(value) {
-                                    crud_field.default = value
-                                }
-                            }
-                        }
+                        let crud_field = crud.create == true ? null : crud.create.find(a => a.name == field.name)
                         return getFieldEdit({
                             field,
                             search: false,
                             globalFilter: custom?.globalFilterDelegate(resource),
+                            defaultValue: getDefaultValue(crud_field),
                             crud_field,
                         })
                     })}
