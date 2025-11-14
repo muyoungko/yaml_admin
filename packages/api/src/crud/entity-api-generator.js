@@ -164,13 +164,15 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
      * @param {*} entity_name 
      */
     const recalcurateAutoGenerateIndex = async (db, entity_name) => {
-        const list = await db.collection(entity_name).find({}).sort({ [key_field.name]: -1 }).limit(1).toArray()
-        const counter = await db.collection('counters').findOne({ _id: key_field.name })
-        if(list.length > 0) {
+        const list = await db.collection(entity_name).find({})
+            .project({ [key_field.name]: 1, _id: 0 })
+            .sort({ [key_field.name]: -1 }).limit(1).toArray()
+        const counter = await db.collection('counters').findOne({ _id: entity_name })
+        if(list.length > 0 && counter) {
             let seq = counter?.seq || 0
             let maxKey = list[0][key_field.name]
-            if(maxKey <= seq)
-                await db.collection('counters').updateOne({ _id: key_field.name }, { $set: { seq: maxKey + 1 } })
+            if(maxKey >= seq)
+                await db.collection('counters').updateOne({ _id: entity_name }, { $set: { seq: maxKey + 1 } })
         }
     }
 
