@@ -74,15 +74,34 @@ export const DynamicCreate = ({ custom, ...props }) => {
         if(crud_field?.default) {
             const params = new URLSearchParams(location.search);
             let q = crud_field?.default
+            let name = crud_field.name
+            //check default is integer by watching fields
+            let field = fields.find(f=>f.name==name)
+            let type = 'string'
+            if(field.type == 'integer')
+                type = 'integer'
+            else if(field.type == 'reference') {
+                let {reference_match, reference_entity} = field
+                let reference_entity_yml = yml.entity[reference_entity]
+                let reference_match_field = reference_entity_yml.fields.find(f=>f.name==reference_match)
+                let reference_type = reference_match_field.type
+                if(reference_type == 'integer')
+                    type = 'integer'
+                else
+                    type = 'string'
+            }
+            
             if(q.startsWith('$')) {
                 q = q.replace('$', '')
                 let value = params.get(q)
+                if(type == 'integer')
+                    value = parseInt(value)
                 return value
             }
         }
 
         return null
-    }, [location])
+    }, [location, yml, fields])
     
     return (
         <Create title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"

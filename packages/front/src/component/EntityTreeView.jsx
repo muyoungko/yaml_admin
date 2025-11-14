@@ -103,6 +103,18 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
         })
     }, [component, custom, updateNodeChildren])
 
+    const callAction = useCallback((action_list, theNode) => {
+        let args = []
+        component.argment.forEach(arg => {
+            args.push(theNode[arg.name])
+        })
+        for(let action of action_list) {  
+            act(action, args, {
+                navigate
+            })
+        }
+    }, [component, custom, navigate])
+
     const itemClick = useCallback((event, nodeId) => {
         let theNode = findNode({list}, nodeId)
         let isPeer = !theNode.list || theNode.list.length == 0
@@ -111,18 +123,16 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
             fetchChild(m)
         })
 
-        if(isPeer) {
-            if(component.peer_click?.action) {
-                let args = []
-                component.argment.forEach(arg => {
-                    args.push(theNode[arg.name])
-                })
-                for(let action of component.peer_click.action) {  
-                    act(action, args, {
-                        navigate
-                    })
-                }
-            }
+        if(component.peer_click && isPeer) {
+            callAction(component.peer_click.action, theNode)
+        }
+
+        if(component.parent_click && !isPeer) {
+            callAction(component.parent_click.action, theNode)
+        }
+
+        if(component.item_click) {
+            callAction(component.item_click.action, theNode)
         }
 
         if(custom?.itemClick && typeof custom?.itemClick == 'function') {

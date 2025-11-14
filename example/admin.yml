@@ -101,6 +101,29 @@ entity:
     category : '공장 관리'
     label: '개소'
     icon: "solar:download-square-outline"
+    layout:
+      left:
+        - component: tree
+          entity: region
+          key: id
+          parent_key: parent_id
+          argment:
+            - name: id
+          sort:
+            - name: seq
+              desc: false
+          label: name
+          item_click:
+            action:
+              - type: body
+                crud : list
+                entity: region
+                filter:
+                  - name: parent_id
+                    value: $arg0
+                sort:
+                  - name: seq
+                    desc: false
     crud:
       search:
         - name: server_id
@@ -111,7 +134,12 @@ entity:
         - name: parent_id
         - name: name
         - name: seq
-      create: true
+      create: 
+        - name: server_id
+        - name: parent_id
+          default: $parent_id
+        - name: name
+        - name: seq
       edit: true
       show: true
       delete: true

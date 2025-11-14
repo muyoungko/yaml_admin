@@ -8,8 +8,8 @@ const DynamicLayout = ({ entity, custom, children }) => {
             {entity.layout?.left && <Box padding={1}>
                 {entity.layout.left.map((component, index) => {
                     if (component.component == 'tree')
-                        return <Paper sx={{marginTop: 1, padding: 1}}>
-                                <EntityTreeView key={index} component={component} custom={custom} />
+                        return <Paper key={index} sx={{marginTop: 1, padding: 1}}>
+                                <EntityTreeView component={component} custom={custom} />
                             </Paper>
                     else
                         return <>Unknown component: {component.component}</>
