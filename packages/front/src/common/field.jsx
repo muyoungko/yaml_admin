@@ -142,7 +142,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
             <AutocompleteInput label={field?.label} optionText={field?.reference_name}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
                 validate={field.required && !search && validateRequire}
-                defaultValue={globalFilter[field.name]}
+                defaultValue={crud_field?.default || globalFilter[field.name] }
             />
         </ReferenceInput>
     } else if (field?.type == 'select')

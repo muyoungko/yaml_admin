@@ -203,7 +203,12 @@ entity:
         - name: seq
         - name: place_id
         - name: ils.id
-      create: true
+      create: 
+        - name: server_id
+        - name: region_id
+          default: $region_id
+        - name: name
+        - name: seq
       edit: true
       show: true
       delete: true

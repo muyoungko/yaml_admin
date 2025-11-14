@@ -1,5 +1,5 @@
 
-import { Box, Stack, Grid } from '@mui/material';
+import { Box, Stack, Paper } from '@mui/material';
 import EntityTreeView from '../component/EntityTreeView';
 
 const DynamicLayout = ({ entity, custom, children }) => {
@@ -7,8 +7,10 @@ const DynamicLayout = ({ entity, custom, children }) => {
         <Stack direction={'row'} spacing={1}>
             {entity.layout?.left && <Box padding={1}>
                 {entity.layout.left.map((component, index) => {
-                    if(component.component == 'tree')
-                        return <EntityTreeView key={index} component={component} custom={custom} />
+                    if (component.component == 'tree')
+                        return <Paper sx={{margin: 1, padding: 1}}>
+                                <EntityTreeView key={index} component={component} custom={custom} />
+                            </Paper>
                     else
                         return <>Unknown component: {component.component}</>
                 })}
@@ -17,7 +19,7 @@ const DynamicLayout = ({ entity, custom, children }) => {
                 {children}
             </Box>
         </Stack>
-        
+
     )
 }
 

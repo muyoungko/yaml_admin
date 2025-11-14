@@ -37,4 +37,20 @@ const format = (format_string, record) => {
     }
 }
 
-export { format }
+const getQueryStringValue = (q) => {
+    let paramsString = ''
+    if (window.location.search && window.location.search.length > 1) {
+        paramsString = window.location.search.substring(1)
+    } else {
+        const hash = window.location.hash || ''
+        const qIndex = hash.indexOf('?')
+        if (qIndex !== -1) {
+            paramsString = hash.substring(qIndex + 1)
+        }
+    }
+    let params = new URLSearchParams(paramsString)
+    let value = params.get(q)
+    return value
+    
+}
+export { format, getQueryStringValue }

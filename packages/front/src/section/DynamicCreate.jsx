@@ -14,6 +14,7 @@ import {
     SaveButton,
     useResourceContext,
 } from 'react-admin';
+import { getQueryStringValue } from '../common/format';
 import { getFieldEdit } from '../common/field';
 import { useAdminContext } from '../AdminContext';
 //Custom Import Start
@@ -32,11 +33,11 @@ const EditToolbar = props => (
     </Toolbar>
 );
 
-export const DynamicCreate = ({custom, ...props}) => {
+export const DynamicCreate = ({ custom, ...props }) => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
-    const resource = useResourceContext(props); 
-    
+    const resource = useResourceContext(props);
+
     const fields = useMemo(() => {
         return yml.entity[resource].fields
     }, [yml, resource])
@@ -46,11 +47,11 @@ export const DynamicCreate = ({custom, ...props}) => {
     }, [yml, resource])
 
     const checkApiGenerateContain = useCallback((name) => {
-        if(!api_generate)
+        if (!api_generate)
             return true;
-        if(api_generate[name])
+        if (api_generate[name])
             return false;
-        if(name.includes('.') && api_generate[name.split('.')[0]]) {
+        if (name.includes('.') && api_generate[name.split('.')[0]]) {
             return false;
         }
         return true;
@@ -79,17 +80,29 @@ export const DynamicCreate = ({custom, ...props}) => {
 
             //Custom Create SimpleForm Property End
             >
-                {fields.filter(field => crud.create == true || crud.create.map(a=>a.name).includes(field.name) )
+                {fields.filter(field => crud.create == true || crud.create.map(a => a.name).includes(field.name))
                     //exclude field by api_generate
                     .filter(field => checkApiGenerateContain(field.name))
                     .map(field => {
-                    return getFieldEdit({field, 
-                        search:false, 
-                        globalFilter:custom?.globalFilterDelegate(resource), 
-                        crud_field:crud.create == true ? null : crud.create.find(a=>a.name == field.name)
-                    })
-                })}
-                
+                        let crud_field = crud.create == true ? null : crud.create.find(a => a.name == field.name) 
+                        if(crud_field?.default) {
+                            let q = crud_field?.default
+                            if(q.startsWith('$')) {
+                                q = q.replace('$', '')
+                                let value = getQueryStringValue(q)
+                                if(value) {
+                                    crud_field.default = value
+                                }
+                            }
+                        }
+                        return getFieldEdit({
+                            field,
+                            search: false,
+                            globalFilter: custom?.globalFilterDelegate(resource),
+                            crud_field,
+                        })
+                    })}
+
                 {/* Custom Create Start */}
 
                 {/* Custom Create End */}
