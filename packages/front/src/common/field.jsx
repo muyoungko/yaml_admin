@@ -139,7 +139,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
             filter={globalFilter}
             defaultValue={crud_field?.default}
         >
-            <AutocompleteInput sx={{ width: '300px' }} label={field?.label} optionText={field?.reference_name}
+            <AutocompleteInput label={field?.label} optionText={field?.reference_name}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
                 validate={field.required && !search && validateRequire}
                 defaultValue={globalFilter[field.name]}
@@ -160,12 +160,18 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
     }
     else if (field?.type == 'image') {
         return <ImageInput key={field.name} source={field.name} label={label || field.label} accept="image/*" placeholder={<p>{field.label}</p>}
+            sx={(theme) => ({
+                maxWidth: theme?.components?.MuiFormControl?.styleOverrides?.root?.maxWidth
+            })}
             validate={field.required && !search && validateRequire}>
             <SafeImageField source={'src'} title={'title'} />
         </ImageInput>
     }
     else if (field?.type == 'file') {
         return <FileInput key={field.name} source={field.name} placeholder={<p>{field.label}</p>}
+            sx={(theme) => ({
+                maxWidth: theme?.components?.MuiFormControl?.styleOverrides?.root?.maxWidth
+            })}
             validate={field.required && !search && validateRequire}>
             <FileField source="src" title="title" />
         </FileInput>
@@ -184,7 +190,8 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
         />
     }
     else if (field.type == 'array') {
-        return (<ArrayInput key={field.name} source={field.name} label={field.label} alwaysOn>
+        return (<ArrayInput key={field.name} source={field.name} label={field.label} alwaysOn
+        >
             <SimpleFormIterator>
                 {field.fields && field.fields.map(subField => {
                     // recursively call getFieldEdit to render the sub fields

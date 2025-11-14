@@ -1,11 +1,9 @@
 {
   "name": "yaml-admin-front",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "license": "MIT",
-  "type": "module",
-  "description": "React components for yaml-admin front (library)",
-  "main": "./dist/index.cjs.js",
-  "module": "./dist/index.es.js",
+  "type": "commonjs",
+  "main": "src/index.js",
   "files": [
     "dist",
     "README.md",
