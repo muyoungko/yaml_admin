@@ -225,14 +225,17 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         //Custom f list End
 
         const projection = (key_field.name == '_id' ? {} : { _id: false })
+        if(yml.debug)
+            console.log('list', entity_name, f)
         var count = await db.collection(entity_name).find(f).project(projection).sort(s).count();
         let list = await db.collection(entity_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
         list.map(m => {
             m.id = getKeyFromEntity(m)
         })
-        //Custom list Start
-
-        //Custom list End
+        
+        if(yml.debug)
+            console.log('list', entity_name, 'found', count)
+        
         await addInfo(db, list)
 
         res.header('X-Total-Count', count);
