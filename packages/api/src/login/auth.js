@@ -87,6 +87,7 @@ const withConfig = (config) => {
           let isPasswordMatch = await comparePassword(password, member.password)
           if (isPasswordMatch) {
             await db.collection('admin').updateOne({ email: email }, { $set: { login_date: new Date() } }, { upsert: false })
+            delete member.password;
             authenticateSuccess(req, res, member, next);
           } else
             res.json({ r: false, msg: '비밀번호가 일치하지 않습니다.' });
