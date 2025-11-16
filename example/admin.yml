@@ -223,8 +223,6 @@ entity:
           entity: region
           key: id
           parent_key: parent_id
-          argment:
-            - name: id
           sort:
             - name: seq
               desc: false
@@ -236,7 +234,7 @@ entity:
                 entity: item
                 filter:
                   - name: region_id
-                    value: $arg0
+                    value: ${id}
                 sort:
                   - name: seq
                     desc: false
