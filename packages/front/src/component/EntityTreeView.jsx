@@ -104,12 +104,8 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
     }, [component, custom, updateNodeChildren])
 
     const callAction = useCallback((action_list, theNode) => {
-        let args = []
-        component.argment.forEach(arg => {
-            args.push(theNode[arg.name])
-        })
         for(let action of action_list) {  
-            act(action, args, {
+            act(action, theNode, {
                 navigate
             })
         }

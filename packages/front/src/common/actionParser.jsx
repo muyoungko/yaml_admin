@@ -1,3 +1,5 @@
+import { format, ifChecker } from './format';
+
 /**
   - type: body
     crud : list
@@ -13,7 +15,7 @@
  * @returns 
  */
 
-const act = (action, args, {navigate}) => {
+const act = (action, record, {navigate}) => {
     if (!action || !action.type) return action
     if (action.type === 'body') {
         let { crud, entity, filter, sort } = action
@@ -23,12 +25,7 @@ const act = (action, args, {navigate}) => {
         if (Array.isArray(filter)) {
             filter.forEach((f) => {
                 if (!f || !f.name) return
-                let value = f.value
-                if (typeof value === 'string' && value.startsWith('$arg')) {
-                    const index = parseInt(value.replace('$arg', ''), 10)
-                    if (Array.isArray(args)) value = args[index]
-                    else if (args && typeof args === 'object') value = args[index]
-                }
+                let value = format(f.value, record)
                 filterObject[f.name] = value
             })
         }
@@ -46,14 +43,17 @@ const act = (action, args, {navigate}) => {
 
         const qs = params.toString()
         const fullUrl = qs ? `${url}?${qs}` : url
-
-        if (typeof navigate === 'function') {
-            navigate(fullUrl)
-            return null
+        navigate(fullUrl)
+    } else if (action.type === 'navigate') {
+        let url = format(action.url, record)
+        if(action.if) {
+            if(ifChecker(action.if, record)) {
+                navigate(url)
+            }
+        } else {
+            navigate(url)
         }
-        return fullUrl
     }
-    return action
 }
 
 export { act }

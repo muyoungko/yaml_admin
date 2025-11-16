@@ -23,6 +23,8 @@ import { useAdminContext } from '../AdminContext';
 import { postFetcher } from '../common/axios.jsx';
 import { getFieldEdit, getFieldShow } from '../common/field';
 import DynamicLayout from './DynamicLayout';
+import { ifChecker } from '../common/format';
+import { act } from '../common/actionParser';
 //Custom Import Start
 
 //Custom Import End
@@ -52,10 +54,10 @@ const DynamicFilter = ({ custom, ...props }) => {
                 yml_entity.crud?.search?.map(m => {
                     const field = yml_entity.fields.find(f => f.name == m.name)
                     return getFieldEdit({
-                        field, 
-                        search:true, 
-                        globalFilter:custom?.globalFilterDelegate(resource) || {},
-                        crud_field:m
+                        field,
+                        search: true,
+                        globalFilter: custom?.globalFilterDelegate(resource) || {},
+                        crud_field: m
                     })
                 })
             }
@@ -167,21 +169,21 @@ const ListActions = ({ crud, custom, ...props }) => {
 
     const createSearch = useMemo(() => {
         let search = ''
-        if(Array.isArray(crud.create)) {
+        if (Array.isArray(crud.create)) {
             const params = new URLSearchParams(location.search);
             let filter = params.get("filter")
-            if(filter)
+            if (filter)
                 filter = JSON.parse(filter)
             else
                 filter = null
-            
-            if(filter) {
+
+            if (filter) {
                 crud.create.forEach(f => {
-                    if(f.default) {
+                    if (f.default) {
                         let q = f.default
-                        if(q.startsWith('$')) {
+                        if (q.startsWith('$')) {
                             q = q.replace('$', '')
-                            if(search !== '')
+                            if (search !== '')
                                 search += '&'
                             search += `${q}=${filter[q]}`
                         }
@@ -194,7 +196,7 @@ const ListActions = ({ crud, custom, ...props }) => {
 
     return (
         <TopToolbar>
-			{crud?.create && <CreateButton to={{ pathname: `/${resource}/create`, search: createSearch }} />}
+            {crud?.create && <CreateButton to={{ pathname: `/${resource}/create`, search: createSearch }} />}
             {crud?.import && <>
                 <input
                     type="file"
@@ -209,6 +211,21 @@ const ListActions = ({ crud, custom, ...props }) => {
         </TopToolbar>
     );
 };
+
+
+const RowButton = ({ crud_field }) => {
+    const navigate = useNavigate()
+    const record = useRecordContext()
+    return <Button label={crud_field.label} onClick={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        crud_field.action.forEach(a => {
+            act(a, record, {
+                navigate
+            })
+        })
+    }} />
+}
 
 export const DynamicList = ({ custom, ...props }) => {
     const navigate = useNavigate()
@@ -235,14 +252,17 @@ export const DynamicList = ({ custom, ...props }) => {
     const findField = useCallback((name) => {
         let name_array = name.split('.')[0]
         let r = fields.find(f => f.name == name_array)
-        if(!r)
+        if (!r)
             r = fields.find(f => f.name == name)
         return r;
     }, [fields])
 
-    const shouldShowFields = useCallback((name) => {
+    const shouldShowFields = useCallback(( crud_field ) => {
 
-        if (fields.map(a => a.name).includes(name))
+        if (
+            fields.map(a => a.name).includes(crud_field.name)
+            || crud_field.type == 'button'
+        )
             return true
 
         return findField(name) != null
@@ -279,17 +299,22 @@ export const DynamicList = ({ custom, ...props }) => {
                             isList: true
                         })
                     })}
-                    {crud.list != true && crud.list.filter(f => f.name).filter(f => shouldShowFields(f.name)).map(crud_field => {
-                        let m = findField(crud_field.name)
-                        return getFieldShow({
-                            crud_field,
-                            field: m,
-                            isList: true
-                        })
-                    })}
-                //Custom List Start
+                    {crud.list != true && crud.list
+                        .filter(f => f.name)
+                        .filter(f => shouldShowFields(f))
+                        .map((crud_field, index) => {
+                            if(crud_field.type == 'button') {
+                                return <RowButton key={index} crud_field={crud_field} />
+                            } else {
+                                let m = findField(crud_field.name)
+                                return getFieldShow({
+                                    crud_field,
+                                    field: m,
+                                    isList: true
+                                })
+                            }
+                        })}
 
-                    //Custom List End
                     {crud.edit && <EditButton />}
                 </Datagrid>
             </List>

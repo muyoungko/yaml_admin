@@ -37,8 +37,41 @@ const format = (format_string, record) => {
     }
 }
 
-const getFieldType = (yml, entity, field_name) => {
-    
-}
+/**
+ * 
+ * if_expression example: 
+ * floor_id==null
+ * floor_id!=null
+ * 
+ * @param {string} if_expression 
+ * @param {object} record 
+ * @returns {boolean}
+ */
+const ifChecker = (if_expression, record = {}) => {
+    if (!if_expression) return false;
+    try {
+      // 안전하게 record의 키를 함수 인자로 전달
+      const argNames = Object.keys(record);
+      const argValues = Object.values(record);
+  
+      // 백틱(`)이나 따옴표 문제 방지
+      const template = String(if_expression).replace(/`/g, '\\`');
+  
+      // 동적으로 조건 평가
+      const fn = new Function(...argNames, `
+        try {
+          return (${template});
+        } catch (e) {
+          return false;
+        }
+      `);
+  
+      const result = fn(...argValues);
+      return !!result;
+    } catch (e) {
+      console.error('ifChecker error:', e);
+      return false;
+    }
+  };
 
-export { format }
+export { format, ifChecker }
