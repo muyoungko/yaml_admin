@@ -1,9 +1,11 @@
 {
   "name": "yaml-admin-front",
-  "version": "0.0.32",
+  "version": "0.0.39",
   "license": "MIT",
+
   "type": "commonjs",
   "main": "src/index.js",
+
   "files": [
     "dist",
     "README.md",

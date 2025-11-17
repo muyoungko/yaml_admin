@@ -168,7 +168,7 @@ const ListActions = ({ crud, custom, ...props }) => {
         });
     }
 
-    const createSearch = useMemo(() => {
+    const createDefault = useMemo(() => {
         let search = ''
         if (Array.isArray(crud.create)) {
             const params = new URLSearchParams(location.search);
@@ -182,7 +182,11 @@ const ListActions = ({ crud, custom, ...props }) => {
                 crud.create.forEach(f => {
                     if (f.default) {
                         let q = f.default
-                        if (q.startsWith('$')) {
+                        // ex) default: 2 q is integer, do nothing 
+                        if(typeof q == 'number') { 
+                            
+                        }
+                        else if (q.startsWith('$')) {
                             q = q.replace('$', '')
                             if (search !== '')
                                 search += '&'
@@ -197,7 +201,7 @@ const ListActions = ({ crud, custom, ...props }) => {
 
     return (
         <TopToolbar>
-            {crud?.create && <CreateButton to={{ pathname: `/${resource}/create`, search: createSearch }} />}
+            {crud?.create && <CreateButton to={{ pathname: `/${resource}/create`, search: createDefault }} />}
             {crud?.import && <>
                 <input
                     type="file"
