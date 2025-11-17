@@ -7,6 +7,7 @@ import {
     Button,
     CreateButton,
     Datagrid,
+    Pagination,
     EditButton,
     Filter,
     List,
@@ -279,6 +280,7 @@ export const DynamicList = ({ custom, ...props }) => {
                 exporter={false}
                 sort={{ field: 'id', order: 'DESC' }}
                 perPage={30}
+                pagination={<Pagination rowsPerPageOptions={[]} />}
                 actions={<ListActions crud={crud} custom={custom} />}
                 filter={custom?.globalFilterDelegate(resource) || {}}
             //Custom List Action Start

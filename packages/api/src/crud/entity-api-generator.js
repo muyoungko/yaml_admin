@@ -320,7 +320,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
 
     //edit
-    app.put(`/${entity_name}/:id`, auth.isAuthenticated, async (req, res) => {
+    app.put(`/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let entityId = parseKey(req.params.id)
 
         const entity = await constructEntity(req, entityId);
@@ -357,10 +357,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         entity.id = (key_field.type == 'objectId') ? entityId?.toString() : entityId
 
         res.json(entity);
-    });
+    }));
 
     //view
-    app.get(`/${entity_name}/:id`, auth.isAuthenticated, async (req, res) => {
+    app.get(`/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
         const m = await db.collection(entity_name).findOne(f);
@@ -371,10 +371,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         await addInfo(db, [m])
 
         res.json(m);
-    })
+    }))
 
     //delete
-    app.delete(`/${entity_name}/:id`, auth.isAuthenticated, async function (req, res) {
+    app.delete(`/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) =>{
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
         const entity = await db.collection(entity_name).findOne(f);
@@ -399,10 +399,11 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         options?.listener?.entityDeleted?.(db, entity_name, entity)
 
         res.json(entity);
-    });
+    }));
+
 
     if (yml_entity.crud?.export) {
-        app.post(`/excel/${entity_name}/export`, auth.isAuthenticated, async (req, res) => {
+        app.post(`/excel/${entity_name}/export`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
             const filename = `${entity_name}_`
             const fields = yml_entity.crud.export.fields.map(field => ({
                 label: field.name,
@@ -434,15 +435,15 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
 
             const currentTime = moment().format('YYYYMMDD_HHmmss');
-            const key = `/excel/${filename}${currentTime}.xlsx`;
+            const key = `excel/${filename}${currentTime}.xlsx`;
             await uploader.uploadSecure(key, excelBuffer);
             let url = await uploader.getUrlSecure(key, auth);
             return res.json({ r: true, url });
-        })
+        }))
     }
 
     if (yml_entity.crud?.import) {
-        app.post(`/excel/${entity_name}/import`, auth.isAuthenticated, async (req, res) => {
+        app.post(`/excel/${entity_name}/import`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
             const { base64 } = req.body
             const buf = Buffer.from(base64, 'base64');
             const workbook = XLSX.read(buf, { type: 'buffer' });
@@ -553,7 +554,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             
         
             res.json({ r: true, msg: 'Import success - ' + result.upsertedCount + ' new rows inserted' });
-        })
+        }))
     }
 }
 
