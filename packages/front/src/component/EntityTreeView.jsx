@@ -1,13 +1,12 @@
 import React, { useEffect, useCallback, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetcher } from '../common/axios.jsx';
+import axios, { fetcher } from '../common/axios.jsx';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box } from '@mui/material';
 import { act } from '../common/actionParser';
 import { format } from '../common/format';
-import { useAuthProvider } from 'react-admin';
-
+import { useAdminContext } from '../AdminContext';
 /**
  * @param {object} component
  * {
@@ -23,10 +22,9 @@ import { useAuthProvider } from 'react-admin';
 export const EntityTreeView = ({ component, custom, ...props }) => {
     const navigate = useNavigate()
     const [list, setList] = useState([])
-    const authProvider = useAuthProvider()
+    const { admin } = useAdminContext()
     
     useEffect(() => {
-        console.log('EntityTreeView', 'authProvider', authProvider.getIdentity())
         let {entity, key, parent_key, label, sort} = component
         const custon_filter = (custom?.globalFilterDelegate && custom?.globalFilterDelegate(entity)) || {}
         let url = `/${entity}?${parent_key}=`
@@ -46,7 +44,7 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
                 })
             }
         })
-    }, [authProvider])
+    }, [admin])
 
     const findNode = useCallback((node, targetKeyValue) => {
         if(node[component.key] == targetKeyValue) {

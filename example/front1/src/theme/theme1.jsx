@@ -1,19 +1,38 @@
 import { defaultTheme } from 'react-admin';
 import { deepmerge } from '@mui/utils';
-import { indigo, pink, red, blue, lightBlue, blueGrey } from '@mui/material/colors';
+import { red, blue } from '@mui/material/colors';
 
 const theme1 = deepmerge(defaultTheme, {
   palette: {
-    primary: blue,
-    secondary: pink,
+    primary: {
+      main: blue['A700'],
+      light: blue['A700'],
+      dark: blue['A700'],
+      contrastText: '#ffffff',
+    },
+    secondary: red,
     error: red,
-    contrastThreshold: 1,
     tonalOffset: 0.2,
+    background: {
+      default: '#ffffff',
+      paper: '#ffffff',
+    },
   },
   typography: {
     fontFamily: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Arial', 'sans-serif'].join(','),
   },
   components: {
+    MuiPaper: {
+      defaultProps: {
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: {
+          boxShadow: 'none',
+          border: '1px solid rgba(0,0,0,0.08)',
+        },
+      },
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {

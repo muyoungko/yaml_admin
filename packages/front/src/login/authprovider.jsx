@@ -1,5 +1,6 @@
 import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_ERROR, AUTH_CHECK, PreviousLocationStorageKey } from 'react-admin';
 import axios, { postFetcher, fetcher } from '../common/axios'
+import { setAdminInContext } from '../AdminContext';
 
 function getUrlParams(url) {
     var params = {};
@@ -19,6 +20,7 @@ const authProvider = {
                 throw new Error(msg);
             localStorage.setItem('token', token);
             axios.defaults.headers.common['x-access-token'] = token;
+            setAdminInContext({ token });
         })
     },
     checkError: error => {
@@ -39,7 +41,7 @@ const authProvider = {
             return fetcher(`/member/islogin?token=${encodeURIComponent(token)}`)
                 .then(res => {
                     if (res.r) {
-                        localStorage.setItem('token', token);
+                        setAdminInContext({ token, ...res?.member });
                         return Promise.resolve();
                     } else {
                         return Promise.reject();
@@ -52,6 +54,7 @@ const authProvider = {
     logout: () => {
         localStorage.removeItem('token');
         document.cookie = ''
+        setAdminInContext({ token: null });
         return Promise.resolve();
     },
     getIdentity: () =>

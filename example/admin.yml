@@ -409,6 +409,9 @@ entity:
             exact: false
           - name: name
             exact: false
+          - name: phone
+            exact: false
+          - name: user_type
       export:
         fields:
           - name: server_id
