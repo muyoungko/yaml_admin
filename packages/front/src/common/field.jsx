@@ -4,6 +4,7 @@ import {
     SelectInput, FunctionField, ImageInput, ImageField, FileInput, FileField,
     ArrayInput, ArrayField, SingleFieldList, Datagrid, SimpleFormIterator, BooleanInput,
     DateInput, NumberInput,
+    useRecordContext,
 } from 'react-admin';
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
@@ -138,7 +139,8 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
             alwaysOn={globalFilter[field.name] ? false : true}
             filter={globalFilter}
         >
-            <AutocompleteInput label={field?.label} optionText={field?.reference_name}
+            <AutocompleteInput label={field?.label} 
+                optionText={(record) => format(field?.reference_format, record) || record[field?.reference_name]}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
                 validate={field.required && !search && validateRequire}
                 defaultValue={defaultValue ||crud_field?.default || globalFilter[field.name] }
