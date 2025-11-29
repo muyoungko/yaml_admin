@@ -65,8 +65,8 @@ entity:
     crud:
       search:
         - name: server_id
+        - name: region_id
         - name: id
-        - name: name
       list: true
       create: 
         - name: server_id
@@ -392,6 +392,7 @@ entity:
         reference_entity: item
         reference_match: id
         reference_name: name
+        reference_format: ${name}(${id})
       - name: id
         label: "ID"
         type: integer

@@ -143,7 +143,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
                 optionText={(record) => format(field?.reference_format, record) || record[field?.reference_name]}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
                 validate={field.required && !search && validateRequire}
-                defaultValue={defaultValue ||crud_field?.default || globalFilter[field.name] }
+                defaultValue={defaultValue || globalFilter[field.name] }
             />
         </ReferenceInput>
     } else if (field?.type == 'select')
@@ -151,12 +151,12 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
             choices={field?.select_values}
             optionText="label" optionValue="name"
             validate={field.required && !search && validateRequire}
-            defaultValue={defaultValue || crud_field?.default}
+            defaultValue={defaultValue}
         />
     else if (field?.type == 'integer') {
         return <NumberInput key={field.name} label={field?.label} source={field.name} alwaysOn
             validate={field.required && !search && validateRequire}
-            defaultValue={defaultValue || crud_field?.default}
+            defaultValue={defaultValue}
         />
     }
     else if (field?.type == 'image') {
@@ -180,14 +180,14 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
     else if (field?.type == 'boolean') {
         return <BooleanInput key={field.name} label={field?.label} source={field.name} alwaysOn
             validate={field.required && !search && validateRequire}
-            defaultValue={defaultValue || crud_field?.default}
+            defaultValue={defaultValue}
         />
     }
     else if (field?.type == 'date') {
         return <DateInput key={field.name} label={field?.label} source={field.name} alwaysOn
             showTime={field.showtime}
             validate={field.required && !search && validateRequire}
-            defaultValue={defaultValue || crud_field?.default}
+            defaultValue={defaultValue}
         />
     }
     else if (field.type == 'array') {
@@ -211,7 +211,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn
             required={!search && field?.type != 'password' && field.required}
             validate={field.required && field?.type != 'password' && !search && validateRequire}
-            defaultValue={defaultValue || crud_field?.default}
+            defaultValue={defaultValue}
         />
     }
 }
