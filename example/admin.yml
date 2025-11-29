@@ -116,7 +116,7 @@ entity:
             - name: seq
               desc: false
           label: name
-          item_click:
+          parent_click:
             action:
               - type: body
                 crud : list
@@ -347,7 +347,6 @@ entity:
               - name: name
               - name: user_type
               - name: phone
-        
   place:
     category: '공장 관리'
     label: 'Location'
@@ -632,6 +631,12 @@ entity:
             reference_match: member_no
             reference_name: name
             reference_format: ${name}(${user_type})
+          - name: department_id
+            label: "부서"
+            type: reference
+            reference_entity: department
+            reference_match: id
+            reference_name: name
           - name: reg_date
             label: "잠금일시"
             type: date
@@ -651,6 +656,13 @@ entity:
         fields: 
           - name: member_no
           - name: reg_date
+          - name: department_id
+            type: reference
+            reference_entity: member
+            reference_from: member_no
+            reference_match: member_no
+            single: true
+            field: department_id
   lock:
     hidden: true
     crud:

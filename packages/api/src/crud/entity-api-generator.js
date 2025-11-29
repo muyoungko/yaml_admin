@@ -243,7 +243,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             console.log('list', entity_name, 'found', count)
         
         await addInfo(db, list)
-        options?.listener?.entityListed?.(db, entity_name, list)
+        if(options?.listener?.entityListed)
+            await options.listener.entityListed(db, entity_name, list)
 
         res.header('X-Total-Count', count);
         res.json(list);
@@ -316,7 +317,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         var r = await db.collection(entity_name).insertOne(entity);
         //Custom Create Tail Start
-        options?.listener?.entityCreated?.(db, entity_name, entity)
+        if(options?.listener?.entityCreated)
+            await options.listener.entityCreated(db, entity_name, entity)
         //Custom Create Tail End
 
         const generatedId = entityId || r.insertedId
@@ -357,7 +359,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         await db.collection(entity_name).updateOne(f, { $set: entity });
 
         //Custom Create Tail Start
-        options?.listener?.entityUpdated?.(db, entity_name, entity)
+        if(options?.listener?.entityUpdated)
+            await options.listener.entityUpdated(db, entity_name, entity)
         //Custom Create Tail End
 
         // Ensure React-Admin receives an `id` in the response
@@ -406,7 +409,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         else
             await db.collection(entity_name).deleteOne(f);
 
-        options?.listener?.entityDeleted?.(db, entity_name, entity)
+        if(options?.listener?.entityDeleted)
+            await options.listener.entityDeleted(db, entity_name, entity)
 
         res.json(entity);
     }));

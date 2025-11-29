@@ -32,6 +32,11 @@ module.exports = async function createApp() {
   const router = express.Router();
   const options = {
     listener: {
+      entityListed: async (db, entity_name, list) => {
+        console.log('entityListed', entity_name, list.length)
+        if(entity_name == 'region')
+          await regionAddInfoLockList(db, list)
+      },
       entityCreated: async (db, entity_name, entity) => {
         console.log('entityCreated', entity_name, entity)
         if(entity_name == 'item')
@@ -67,4 +72,80 @@ const syncLocation = async (db, entity) => {
   }
   console.log('newPlace', newPlace)
   await db.collection('place').insertOne(newPlace)
+}
+
+const regionAddInfoLockList = async (db, list) => {
+  const region_ids = list.map(item => item.id);
+  const regions = await db.collection('region').find({ parent_id: { $in: region_ids } }).toArray();
+  const region_map = {};
+  for(const region of regions) {
+    if(!region_map[region.parent_id]) {
+      region_map[region.parent_id] = [];
+    }
+    region_map[region.parent_id].push(region);
+  }
+
+  const sub_region_ids = regions.map(item => item.id);
+  const target_region_ids = [...new Set([...region_ids, ...sub_region_ids])];
+  const items = await db.collection('item').find({ region_id: { $in: target_region_ids } }).toArray();
+  const item_map = {};
+  for(const item of items) {
+    if(!item_map[item.region_id]) {
+      item_map[item.region_id] = [];
+    }
+    item_map[item.region_id].push(item);
+  }
+
+  const item_ids = items.map(item => item.id);
+  const places = await db.collection('place').find({ item_id: { $in: item_ids } }).toArray();
+  const place_map = {};
+  for(const place of places) {
+    if(!place_map[place.item_id]) {
+      place_map[place.item_id] = [];
+    }
+    place_map[place.item_id].push(place);
+  }
+
+  const place_ids = places.map(item => item.id);
+  const ilss = await db.collection('ils').find({ place_id: { $in: place_ids } }).toArray();
+  const ils_map = {};
+  for(const ils of ilss) {
+    if(!ils_map[ils.place_id]) {
+      ils_map[ils.place_id] = [];
+    }
+    ils_map[ils.place_id].push(ils);
+  }
+
+  const ils_ids = ilss.map(item => item.id);
+  const locks = await db.collection('lock').find({ ils_id: { $in: ils_ids } }).project({_id:0, server_id:0}).toArray();
+  const lock_map = {};
+  for(const lock of locks) {
+    if(!lock_map[lock.ils_id]) {
+      lock_map[lock.ils_id] = [];
+    }
+    lock_map[lock.ils_id].push(lock);
+  }
+
+  for(const region of list) {
+    const sub_regions = region_map[region.id] || [];
+    region.lock_list = [];
+
+    const target_regions = [region, ...sub_regions];
+    for(const target of target_regions) {
+      const sub_items = item_map[target.id] || [];
+      for(const item of sub_items) {
+        const sub_places = place_map[item.id] || [];
+        for(const place of sub_places) {
+          const sub_ilss = ils_map[place.id] || [];
+          for(const ils of sub_ilss) {
+            const sub_locks = lock_map[ils.id] || [];
+            region.lock_list.push(...sub_locks);
+          }
+        }
+      }
+    }
+
+    if(region.lock_list.length > 0)
+      console.log('region_lock_list', region.id, region.name, region.lock_list.length)
+  }
 }
