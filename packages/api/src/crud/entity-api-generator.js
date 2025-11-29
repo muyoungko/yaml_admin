@@ -611,7 +611,6 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
         
         let match_from_list = data_list.map(m=>matchPathInObject(m, match_from))
         match_from_list = match_from_list.filter(m=>m)
-        const f = { [match]: {$in:match_from_list} }
         const projection = {[match]:1}
 
         const aggregate = [
@@ -620,7 +619,7 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
 
         if(field)
             projection[field] = 1
-        else {
+        else if(fields){
             fields.map(m=>{
                 projection[m.name] = 1
             })
@@ -628,9 +627,13 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
             fields.map(m=>{
                 if(m.type == 'reference') {
                     let project = { _id: 0 }
-                    m.fields.map(f=>{
-                        project[f.name] = 1
-                    })
+
+                    if(m.field)
+                        project[m.field] = 1
+                    else
+                        m.fields.map(f=>{
+                            project[f.name] = 1
+                        })
 
                     aggregate.push({ $lookup: {
                         from: m.reference_entity,
@@ -643,6 +646,9 @@ const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, 
                     } })
                     if(m.single)
                         aggregate.push({ $unwind: `$${m.name}` })
+                
+                    if(m.field)
+                        aggregate.push({ $addFields: { [m.field]: `$${m.name}.${m.field}` } })
                 }
             })
         }
