@@ -210,8 +210,14 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         })
 
-        //console.log('f', f)
-        //console.log('s', s)
+        if(req.query['id']) {
+            let array = req.query['id']
+            if(Array.isArray(array)) {
+                f[key_field.name] = { $in: array.map(v => parseKey(v)) }
+            } else {
+                f[key_field.name] = parseKey(array)
+            }
+        }
 
         var name = req.query.name;
         if (name == null && req.query.q)
@@ -237,6 +243,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             console.log('list', entity_name, 'found', count)
         
         await addInfo(db, list)
+        options?.listener?.entityListed?.(db, entity_name, list)
 
         res.header('X-Total-Count', count);
         res.json(list);
@@ -370,6 +377,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         m.id = getKeyFromEntity(m)
         await addInfo(db, [m])
 
+        if(yml.debug)
+            console.log('show', entity_name, m)
+        
         res.json(m);
     }))
 
