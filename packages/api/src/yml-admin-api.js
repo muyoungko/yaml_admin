@@ -18,10 +18,9 @@ const changeEnv = (yamlString, env = {}) => {
 }
 
 async function registerRoutes(app, options = {}) {
-  const { yamlPath, yamlString, env, yamlJson, api_prefix } = options;
-  if(!api_prefix)
-    api_prefix = ''
-  
+  const { yamlPath, yamlString, env, yamlJson } = options;
+  const api_prefix = options?.api_prefix || ''
+
   let yml;
 
   if(yamlJson) {

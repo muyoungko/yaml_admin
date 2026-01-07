@@ -31,7 +31,6 @@ module.exports = async function createApp() {
   
   const router = express.Router();
   const options = {
-    api_prefix: '/api1',
     listener: {
       entityListed: async (db, entity_name, list) => {
         console.log('entityListed', entity_name, list.length)

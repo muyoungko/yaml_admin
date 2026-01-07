@@ -1,6 +1,6 @@
 {
   "name": "yaml-admin-front",
-  "version": "0.0.53",
+  "version": "0.0.55",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs.js",
