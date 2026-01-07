@@ -19,8 +19,10 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         })
         return s3
     }
-    
-    app.get('/api/media/url/put/:ext', auth.isAuthenticated, async function(req, res){
+
+    const api_prefix = options?.api_prefix || ''
+
+    app.get(api_prefix+'/api/media/url/put/:ext', auth.isAuthenticated, async function(req, res){
         let s3 = getS3()
         let member_no = req.user.member_no || req.user.id;;
         let fileName = await genEntityIdWithKey(db, 'file');
@@ -37,7 +39,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         res.json(r);
     });
 
-    app.get('/api/media/url/secure/put/:ext', auth.isAuthenticated, async function(req, res){
+    app.get(api_prefix+'/api/media/url/secure/put/:ext', auth.isAuthenticated, async function(req, res){
         let s3 = getS3()
         let member_no = req.user.member_no || req.user.id;;
         let fileName = await genEntityIdWithKey(db, 'file');
@@ -55,7 +57,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
     });
 
     // request uploadId
-    app.get('/api/media/url/secure/init/:ext', auth.isAuthenticated, async function (req, res) {
+    app.get(api_prefix+'/api/media/url/secure/init/:ext', auth.isAuthenticated, async function (req, res) {
         let s3 = getS3();
         let member_no = req.user.member_no || req.user.id;
         let fileName = await genEntityIdWithKey(db, 'file');
@@ -74,7 +76,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
     });
 
     // request presigned url
-    app.post('/api/media/url/secure/part', auth.isAuthenticated, async function (req, res) {
+    app.post(api_prefix+'/api/media/url/secure/part', auth.isAuthenticated, async function (req, res) {
         let s3 = getS3();
         let { key, uploadId, partNumber } = req.body;
 
@@ -91,7 +93,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
     });
 
     // merge file
-    app.post('/api/media/url/secure/complete', auth.isAuthenticated, async function (req, res) {
+    app.post(api_prefix+'/api/media/url/secure/complete', auth.isAuthenticated, async function (req, res) {
         let s3 = getS3();
         let { key, uploadId, parts } = req.body;
 
@@ -108,7 +110,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
     });
 
     // 청크파일 삭제
-    app.post('/api/media/url/secure/abort', auth.isAuthenticated, async (req, res) => {
+    app.post(api_prefix+'/api/media/url/secure/abort', auth.isAuthenticated, async (req, res) => {
         try {
             const { key, uploadId } = req.body;
             const s3 = getS3();
@@ -126,7 +128,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         }
     });
 
-    app.post('/api/media/url/put', auth.isAuthenticated, async function(req, res) {
+    app.post(api_prefix+'/api/media/url/put', auth.isAuthenticated, async function(req, res) {
         let s3 = getS3()
         let member_no = req.user.member_no || req.user.id;
         const {ext_list} = req.body
@@ -146,7 +148,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         res.json(r);
     })
 
-    app.post('/api/media/url/secure/put', auth.isAuthenticated, async function(req, res) {
+    app.post(api_prefix+'/api/media/url/secure/put', auth.isAuthenticated, async function(req, res) {
         let s3 = getS3()
         let member_no = req.user.member_no || req.user.id;
         const {ext_list} = req.body
@@ -171,8 +173,9 @@ const generateLocalUploadApi = async ({ app, db, yml, options }) => {
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
     const { path, path_private } = yml.upload.local;
 
+    const api_prefix = options?.api_prefix || ''
     // Accept raw binary for local upload and stream to disk
-    app.put('/api/local/media/upload', auth.isAuthenticated, async function(req, res) {
+    app.put(api_prefix+'/api/local/media/upload', auth.isAuthenticated, async function(req, res) {
         let member_no = req.user.member_no || req.user.id;
         let {ext, name} = req.query
         let fileName = await genEntityIdWithKey(db, 'file')
@@ -193,7 +196,7 @@ const generateLocalUploadApi = async ({ app, db, yml, options }) => {
         });
     })
 
-    app.put('/api/local/media/upload/secure', auth.isAuthenticated, async function(req, res) {
+    app.put(api_prefix+'/api/local/media/upload/secure', auth.isAuthenticated, async function(req, res) {
         let member_no = req.user.member_no || req.user.id;
         let {ext, name} = req.query
 

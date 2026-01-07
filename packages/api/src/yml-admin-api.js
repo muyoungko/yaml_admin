@@ -18,7 +18,10 @@ const changeEnv = (yamlString, env = {}) => {
 }
 
 async function registerRoutes(app, options = {}) {
-  const { yamlPath, yamlString, env, yamlJson, prefix } = options;
+  const { yamlPath, yamlString, env, yamlJson, api_prefix } = options;
+  if(!api_prefix)
+    api_prefix = ''
+  
   let yml;
 
   if(yamlJson) {
@@ -50,8 +53,8 @@ async function registerRoutes(app, options = {}) {
     }
   }
 
-  await generateLoginApi(app, db, yml, prefix)
-  await generateChartApi(app, db, yml, prefix)
+  await generateLoginApi(app, db, yml, api_prefix)
+  await generateChartApi(app, db, yml, api_prefix)
   
   entity && Object.keys(entity).forEach(async (entity_name) => {
     await generateEntityApi({
@@ -71,7 +74,7 @@ async function registerRoutes(app, options = {}) {
   
   //local secure download api
   const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
-  app.get('/local-secure-download', auth.isAuthenticated, async (req, res) => {
+  app.get(api_prefix + '/local-secure-download', auth.isAuthenticated, async (req, res) => {
     const {key} = req.query;
     const a = `${yml.upload.local.path_private}/${key}`
     const file = await fs.readFile(a)

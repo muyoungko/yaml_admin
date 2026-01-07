@@ -24,6 +24,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     const api_host = yml["api-host"].uri;
     let isS3 = yml.upload.s3
     let host_image = isS3 ? yml.upload.s3.base_url : yml.upload.local.base_url
+    let api_prefix = options?.api_prefix || ''
 
     const uploader = yml.upload.s3 ? withConfigS3({
         access_key_id: yml.upload.s3.access_key_id,
@@ -177,7 +178,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }
 
     //list
-    app.get(`/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+    app.get(`${api_prefix}/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         //검색 파라미터
         var s = {};
         var _sort = req.query._sort;
@@ -289,7 +290,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     };
 
     //create
-    app.post(`/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+    app.post(`${api_prefix}/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         
         await recalcurateAutoGenerateIndex(db, entity_name)
         
@@ -329,7 +330,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
 
     //edit
-    app.put(`/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+    app.put(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let entityId = parseKey(req.params.id)
 
         const entity = await constructEntity(req, entityId);
@@ -370,7 +371,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }));
 
     //view
-    app.get(`/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+    app.get(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
         const m = await db.collection(entity_name).findOne(f);
@@ -387,7 +388,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }))
 
     //delete
-    app.delete(`/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) =>{
+    app.delete(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) =>{
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
         const entity = await db.collection(entity_name).findOne(f);
@@ -417,7 +418,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
 
     if (yml_entity.crud?.export) {
-        app.post(`/excel/${entity_name}/export`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+        app.post(`${api_prefix}/excel/${entity_name}/export`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
             const filename = `${entity_name}_`
             const fields = yml_entity.crud.export.fields.map(field => ({
                 label: field.name,
@@ -457,7 +458,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }
 
     if (yml_entity.crud?.import) {
-        app.post(`/excel/${entity_name}/import`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+        app.post(`${api_prefix}/excel/${entity_name}/import`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
             const { base64 } = req.body
             const buf = Buffer.from(base64, 'base64');
             const workbook = XLSX.read(buf, { type: 'buffer' });
