@@ -18,9 +18,12 @@ const changeEnv = (yamlString, env = {}) => {
 }
 
 async function registerRoutes(app, options = {}) {
-  const { yamlPath, yamlString, env } = options;
+  const { yamlPath, yamlString, env, yamlJson } = options;
   let yml;
-  if(yamlPath) {
+
+  if(yamlJson) {
+    yml = yamlJson;
+  } else if(yamlPath) {
     yml = await readYml(yamlPath, env);
   } else if(yamlString) {
     const replaced = changeEnv(yamlString, env);

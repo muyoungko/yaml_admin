@@ -1,6 +1,6 @@
 {
   "name": "yaml-admin-api",
-  "version": "0.0.39",
+  "version": "0.0.45",
   "license": "MIT",
   "description": "YAML Admin API package",
   "type": "commonjs",
