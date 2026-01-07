@@ -8,7 +8,7 @@ const { makeMongoSortFromYml } = require('./crud-common.js');
  * @param {*} db 
  * @param {*} yml 
  */
-const generateChartApi = async (app, db, yml) => {
+const generateChartApi = async (app, db, yml, prefix) => {
     const { front } = yml;
     const dashboard = front?.dashboard;
     if (!dashboard)
@@ -281,7 +281,7 @@ const generateChartApi = async (app, db, yml) => {
        /**
         * TODO : globalFilterDelegate not implemented
         */
-        app.get(`/api/chart/${id}`, auth.isAuthenticated, async (req, res) => {
+        app.get(`${prefix}/api/chart/${id}`, auth.isAuthenticated, async (req, res) => {
             try {
                 const { x } = chart;
                 let r

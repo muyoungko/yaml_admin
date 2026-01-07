@@ -18,7 +18,7 @@ const changeEnv = (yamlString, env = {}) => {
 }
 
 async function registerRoutes(app, options = {}) {
-  const { yamlPath, yamlString, env, yamlJson } = options;
+  const { yamlPath, yamlString, env, yamlJson, prefix } = options;
   let yml;
 
   if(yamlJson) {
@@ -50,8 +50,8 @@ async function registerRoutes(app, options = {}) {
     }
   }
 
-  await generateLoginApi(app, db, yml)
-  await generateChartApi(app, db, yml)
+  await generateLoginApi(app, db, yml, prefix)
+  await generateChartApi(app, db, yml, prefix)
   
   entity && Object.keys(entity).forEach(async (entity_name) => {
     await generateEntityApi({
