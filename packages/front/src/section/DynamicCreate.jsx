@@ -129,7 +129,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
                         return getFieldEdit({
                             field,
                             search: false,
-                            globalFilter: custom?.globalFilterDelegate(resource),
+                            globalFilter: custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {},
                             defaultValue,
                             crud_field,
                         })

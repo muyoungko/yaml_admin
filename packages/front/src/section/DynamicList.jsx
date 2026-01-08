@@ -57,7 +57,7 @@ const DynamicFilter = ({ custom, ...props }) => {
                     return getFieldEdit({
                         field,
                         search: true,
-                        globalFilter: custom?.globalFilterDelegate(resource) || {},
+                        globalFilter: custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {},
                         crud_field: m
                     })
                 })
@@ -136,7 +136,7 @@ const ListActions = ({ crud, custom, ...props }) => {
             filter = JSON.parse(filter)
         else
             filter = {}
-        const globalFilter = custom?.globalFilterDelegate(resource)
+        const globalFilter = custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {}
         let mergedFilter = {}
         if (globalFilter) {
             mergedFilter = { ...filter, ...globalFilter }
@@ -286,7 +286,7 @@ export const DynamicList = ({ custom, ...props }) => {
                 perPage={30}
                 pagination={<Pagination rowsPerPageOptions={[]} />}
                 actions={<ListActions crud={crud} custom={custom} />}
-                filter={custom?.globalFilterDelegate(resource) || {}}
+                filter={custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {}}
             //Custom List Action Start
 
             //Custom List Action End

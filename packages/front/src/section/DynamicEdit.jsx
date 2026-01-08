@@ -91,7 +91,7 @@ export const DynamicEdit = ({custom, ...props}) => {
                     return getFieldEdit({
                         field, 
                         search:false, 
-                        globalFilter:custom?.globalFilterDelegate(resource) || {},
+                        globalFilter: custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {},
                         crud_field:crud.edit == true ? null : crud.edit.find(a=>a.name == field.name)
                     })
                 })}
