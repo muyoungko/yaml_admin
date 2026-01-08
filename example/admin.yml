@@ -785,6 +785,10 @@ entity:
         type: password
         required: true
 front:
+  appearance:
+    pagination:
+      rowsPerPage: 30
+      rowsPerPageOptions: []
   dashboard:
     - component: chart
       id: lock_history1

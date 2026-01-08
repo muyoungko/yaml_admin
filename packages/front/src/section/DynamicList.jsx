@@ -283,8 +283,8 @@ export const DynamicList = ({ custom, ...props }) => {
             <List {...props} filters={<DynamicFilter custom={custom} />} mutationMode='optimistic'
                 exporter={false}
                 sort={{ field: 'id', order: 'DESC' }}
-                perPage={30}
-                pagination={<Pagination rowsPerPageOptions={[]} />}
+                perPage={yml?.front?.appearance?.pagination?.rowsPerPage || 50}
+                pagination={<Pagination rowsPerPageOptions={yml?.front?.appearance?.pagination?.rowsPerPageOptions || [5, 10, 30, 50, 100]} />}
                 actions={<ListActions crud={crud} custom={custom} />}
                 filter={custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {}}
             //Custom List Action Start
