@@ -55,7 +55,7 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
     let label = crud_field?.label || field.label
     if (!field || field.type == 'password') return null;
     if (field.type == 'string' || field.key) {
-        return <TextField key={field.name} label={label} source={field.name} />
+        return <TextField key={field.name} label={label} source={field.name}/>
     } else if (field.type == 'integer')
         return <NumberField key={field.name} label={label} source={field.name} />
     else if (field.type == 'length')
@@ -64,10 +64,13 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
                 {record[field.name]?.length}
             </>
         } />
-    else if (field.type == 'select')
-        return <FunctionField key={field.name} label={label} source={field.name}
-            render={record => field.select_values.find(m => m.name == record[field.name])?.label} />
-    else if (field.type == 'reference')
+    else if (field.type == 'select'){
+        if(field.select_values)
+            return <FunctionField key={field.name} label={label} source={field.name}
+                render={record => field.select_values.find(m => m.name == record[field.name])?.label} />
+        else   
+            return <TextField key={field.name} label={label} source={field.name} />
+    } else if (field.type == 'reference')
         return <ReferenceField key={field.name} link="show" label={label} source={field.name} reference={field.reference_entity}>
             {!field.reference_format && <TextField source={field.reference_name} />}
             {field.reference_format && (() => {
@@ -212,6 +215,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
             required={!search && field?.type != 'password' && field.required}
             validate={field.required && field?.type != 'password' && !search && validateRequire}
             defaultValue={defaultValue}
+            resettable
         />
     }
 }

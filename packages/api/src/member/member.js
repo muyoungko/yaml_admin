@@ -1,7 +1,11 @@
 const {withConfig} = require('../login/auth.js');
 
 module.exports = async function (app, db, yml, api_prefix) {
-    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"], passwordEncoding: yml.login["password-encoding"] });
+    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"], 
+        passwordEncoding: yml.login["password-encoding"],
+        master_email: yml.login["master-email"],
+        master_password: yml.login["master-password"]
+     });
 
     app.get(api_prefix + '/member/login',
         auth.authenticate,

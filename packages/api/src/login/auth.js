@@ -3,8 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 const withConfig = (config) => {
-  const { db, jwt_secret, passwordEncoding } = config;
-
+  const { db, jwt_secret, passwordEncoding, master_email, master_password } = config;
   const comparePassword = async (plainPass, hashword) => {
     if(passwordEncoding === 'bcrypt') {
       let isPasswordMatch = await bcrypt.compare(plainPass, hashword)
@@ -73,9 +72,9 @@ const withConfig = (config) => {
     const email = req.query.email || req.body.email;
     const password = req.query.pass || req.body.pass;
     const type = req.query.type || req.body.type || "email";
-    if (email === 'master' && password === '5756') {
+    if (master_email && master_password && email === master_email && password === master_password) {
       authenticateSuccess(req, res,
-        { id: '1111111', email: 'admin', name: 'admin', type: 'email' },
+        { id: '1111111', email: 'master', name: 'master', type: 'email' },
         next);
     }
     else {
