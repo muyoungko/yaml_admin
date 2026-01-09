@@ -39,18 +39,19 @@ const MyMenu = () => {
         <Menu>
             {yml?.front?.dashboard && <Menu.DashboardItem />}
 
-            {noCartegoryList.map(m => <Menu.ResourceItem key={m.name} name={m.name} />)}
+            {noCartegoryList.map(m => <Menu.ResourceItem key={m.name} name={m.name} sx={{ fontSize: '14px' }}/>)}
             {categoryList.map(c => {
                 return <SubMenu
                     key={c.name}
                     handleToggle={() => handleToggle(c.name)}
                     isOpen={state[c.name]}
                     name={c.name}
-                    icon={<Icon icon={c.icon} />}
+                    icon={<Icon icon={c.icon}/>}
                     dense={true}
+                    sx={{ fontSize: '14px'}}
                 >
                     {c.menuList.map(m => {
-                        return <Menu.ResourceItem key={m.name} name={m.name} />
+                        return <Menu.ResourceItem key={m.name} name={m.name} sx={{ fontSize: '14px' }} />
                     })}
                 </SubMenu>
             })}

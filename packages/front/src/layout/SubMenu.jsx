@@ -20,7 +20,7 @@ const SubMenu = (props) => {
 
     const header = (
         <MenuItem dense={dense} onClick={handleToggle}>
-            <ListItemIcon sx={{ minWidth: 5 }}>
+            <ListItemIcon sx={{ minWidth: 5, marginRight: '4px' }}>
                 {isOpen ? <ExpandMore /> : icon}
             </ListItemIcon>
             <Typography variant="inherit">
