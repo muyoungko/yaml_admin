@@ -59,7 +59,6 @@ const withConfig = (config) => {
     else
       jwt.verify(token, jwt_secret, (err, decoded) => {
         if (err) {
-          console.log('err', err)
           res.json({ r: false, err: { code: 666 }, msg: 'No authentication' });
           return;
         }
