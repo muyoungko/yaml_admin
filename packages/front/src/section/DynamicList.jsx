@@ -275,14 +275,30 @@ export const DynamicList = ({ custom, ...props }) => {
         return false
 
     }, [fields])
-    //Custom List Code Start
+    
+    const sort = useMemo(() => {
+        const key_field = fields.find(f=>f.key)
+        if(crud.list == true) {
+            if(key_field)
+                return { field: key_field.name, order: 'DESC' }
+        }
+        else if(crud.list) {
+            let sort_field = crud.list.find(f=>f.sort)
+            if(sort_field)
+                return { field: sort_field.name, order: sort_field.desc ? 'DESC' : 'ASC' }
+            else if(key_field)
+                return { field: key_field.name, order: 'DESC' }
+            else
+                return { field: 'id', order: 'DESC' }
+        }
+        
+    }, [crud.list, fields])
 
-    //Custom List Code End
     return (
         <DynamicLayout entity={yml.entity[resource]} custom={custom}>
             <List {...props} filters={<DynamicFilter custom={custom} />} mutationMode='optimistic'
                 exporter={false}
-                sort={{ field: 'id', order: 'DESC' }}
+                sort={sort}
                 perPage={yml?.front?.appearance?.pagination?.rowsPerPage || 50}
                 pagination={<Pagination rowsPerPageOptions={yml?.front?.appearance?.pagination?.rowsPerPageOptions || [5, 10, 30, 50, 100]} />}
                 actions={<ListActions crud={crud} custom={custom} />}

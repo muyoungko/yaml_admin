@@ -74,7 +74,7 @@ export const DynamicEdit = ({custom, ...props}) => {
     //Custom Create Code End
     
     return (
-        <Edit title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="edit"
+        <Edit title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
         //Custom Create Property Start
        
         //Custom Create Property End
@@ -85,6 +85,7 @@ export const DynamicEdit = ({custom, ...props}) => {
             //Custom Create SimpleForm Property End
             >
                 {fields.filter(field => crud.edit == true || crud.edit.map(a=>a.name).includes(field.name))
+                    .filter(field => field.key != true)
                     //exclude field by api_generate
                     .filter(field => checkApiGenerateContain(field.name))
                     .map(field => {
