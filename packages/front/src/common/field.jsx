@@ -133,7 +133,7 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, crud_field, defaultValue = null}) => {
+export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, defaultValue = null}) => {
     if (!field)
         return null;
 
@@ -147,18 +147,19 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
                     value = value.trim().replace(/['"]/g, '')
                     if(record?.[key] != value) return null
                 }
-                return getFieldEditCore({field, search, globalFilter, label, crud_field, defaultValue})
+                return getFieldEditCore({field, search, globalFilter, label, defaultValue})
             }}
         </FormDataConsumer> 
     } else {
-        return getFieldEditCore({field, search, globalFilter, label, crud_field, defaultValue})
+        return getFieldEditCore({field, search, globalFilter, label, defaultValue})
     }
 }
 
-export const getFieldEditCore = ({field, search = false, globalFilter = {}, label = null, crud_field, defaultValue = null}) => {
+export const getFieldEditCore = ({field, search = false, globalFilter = {}, label = null, defaultValue = null}) => {
     
     const { type, autogenerate } = field
     if (autogenerate && !search) return null
+    defaultValue = defaultValue || field.default //TODO : parameter defaultValue calcuration
 
     if (type == 'reference') {
         return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity}
@@ -172,14 +173,14 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
                 defaultValue={defaultValue || globalFilter[field.name] }
             />
         </ReferenceInput>
-    } else if (field?.type == 'select')
+    } else if (field?.type == 'select') {
         return <SelectInput key={field.name} label={field?.label} source={field.name} alwaysOn
             choices={field?.select_values}
             optionText="label" optionValue="name"
             validate={field.required && !search && validateRequire}
             defaultValue={defaultValue}
         />
-    else if (field?.type == 'integer') {
+    } else if (field?.type == 'integer') {
         return <NumberInput key={field.name} label={field?.label} source={field.name} alwaysOn
             validate={field.required && !search && validateRequire}
             defaultValue={defaultValue}
@@ -232,7 +233,6 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
                         search, 
                         globalFilter, 
                         label:subField.label,
-                        crud_field  //TODO : crud_field should be child of the field
                     })
                 })}
             </SimpleFormIterator>

@@ -58,7 +58,6 @@ const DynamicFilter = ({ custom, ...props }) => {
                         field,
                         search: true,
                         globalFilter: custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {},
-                        crud_field: m
                     })
                 })
             }

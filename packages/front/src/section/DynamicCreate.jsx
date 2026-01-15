@@ -71,14 +71,15 @@ export const DynamicCreate = ({ custom, ...props }) => {
     }, [yml, resource])
 
     const getDefaultValue = useCallback((crud_field) => {
-        if (crud_field?.default) {
-            if(Number.isInteger(crud_field?.default))
-                return crud_field?.default
+        let name = crud_field?.name
+        let defaultValue = crud_field?.default
+        if (defaultValue) {
+            if(Number.isInteger(defaultValue))
+                return defaultValue
             
-            if (crud_field?.default.startsWith('$')) {
+            if (defaultValue.startsWith('$')) {
                 const params = new URLSearchParams(location.search);
-                let q = crud_field?.default
-                let name = crud_field.name
+                let q = defaultValue
 
                 //check default is integer by watching fields
                 let field = fields.find(f => f.name == name)
@@ -103,7 +104,8 @@ export const DynamicCreate = ({ custom, ...props }) => {
                         value = parseInt(value)
                     return value
                 }
-            }
+            } else 
+                return defaultValue
         }
 
         return null
@@ -131,7 +133,6 @@ export const DynamicCreate = ({ custom, ...props }) => {
                             search: false,
                             globalFilter: custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {},
                             defaultValue,
-                            crud_field,
                         })
                     })}
 

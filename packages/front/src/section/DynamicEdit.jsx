@@ -69,6 +69,47 @@ export const DynamicEdit = ({custom, ...props}) => {
         return true;
     }, [api_generate])
     
+    const getDefaultValue = useCallback((crud_field) => {
+        let name = crud_field?.name
+        let defaultValue = crud_field?.default
+        if (defaultValue) {
+            if(Number.isInteger(defaultValue))
+                return defaultValue
+            
+            if (defaultValue.startsWith('$')) {
+                const params = new URLSearchParams(location.search);
+                let q = defaultValue
+
+                //check default is integer by watching fields
+                let field = fields.find(f => f.name == name)
+                let type = 'string'
+                if (field.type == 'integer')
+                    type = 'integer'
+                else if (field.type == 'reference') {
+                    let { reference_match, reference_entity } = field
+                    let reference_entity_yml = yml.entity[reference_entity]
+                    let reference_match_field = reference_entity_yml.fields.find(f => f.name == reference_match)
+                    let reference_type = reference_match_field.type
+                    if (reference_type == 'integer')
+                        type = 'integer'
+                    else
+                        type = 'string'
+                }
+
+                if (q.startsWith('$')) {
+                    q = q.replace('$', '')
+                    let value = params.get(q)
+                    if (type == 'integer' && value)
+                        value = parseInt(value)
+                    return value
+                }
+            } else 
+                return defaultValue
+        }
+
+        return null
+    }, [location, yml, fields])
+
     //Custom Create Code Start
     
     //Custom Create Code End
@@ -89,12 +130,14 @@ export const DynamicEdit = ({custom, ...props}) => {
                     //exclude field by api_generate
                     .filter(field => checkApiGenerateContain(field.name))
                     .map(field => {
-                    return getFieldEdit({
-                        field, 
-                        search:false, 
-                        globalFilter: custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {},
-                        crud_field:crud.edit == true ? null : crud.edit.find(a=>a.name == field.name)
-                    })
+                        let crud_field = crud.create == true ? null : crud.create.find(a => a.name == field.name)
+                        let defaultValue = getDefaultValue(crud_field)
+                        return getFieldEdit({
+                            field, 
+                            search:false, 
+                            globalFilter: custom?.globalFilterDelegate ? custom.globalFilterDelegate(resource) : {},
+                            defaultValue,
+                        })
                 })}
 
                 {/* Custom Create Start */}
