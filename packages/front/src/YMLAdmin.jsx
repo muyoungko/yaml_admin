@@ -47,10 +47,13 @@ const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout })
         });
         console.log('api_host', api_host)
         if(json.upload?.local) {
+          console.log('upload.local', json.upload.local.base_url)
           setDataProvider(fileUploader(jsonServerProvider(api_host, httpClient), true, privateEntityMap));
         } else if(json.upload?.s3) {
+          console.log('upload.s3', json.upload.s3.base_url)
           setDataProvider(fileUploader(jsonServerProvider(api_host, httpClient), false, privateEntityMap));
         } else {
+          console.log('upload.none')
           setDataProvider(jsonServerProvider(api_host, httpClient));
         }
         

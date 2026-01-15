@@ -69,12 +69,8 @@ const fileUploader = (provider, isLocal = false, privateEntityMap = {}) => {
             return provider.create(resource, { ...params, data: nextData });
         },
         async update(resource, params) {
-            try {
-                const nextData = await deepProcessData(resource, params?.data ?? {});            
-                return provider.update(resource, { ...params, data: nextData });
-            } catch (e) {
-                console.error('update error', e)
-            }
+            const nextData = await deepProcessData(resource, params?.data ?? {});            
+            return provider.update(resource, { ...params, data: nextData });
         },
     };
 };

@@ -124,7 +124,7 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
                 width={isList ? "100px" : "200px"} height={isList ? "100px" : "200px"} />
     }
     else
-        return <TextField key={field.name} label={label} source={field.name} />
+        return <TextField key={field.name} label={label} source={field.name}/>
 }
 
 const required = (message = 'ra.validation.required') =>
@@ -220,6 +220,7 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
             required={!search && field?.type != 'password' && field.required}
             validate={field.required && field?.type != 'password' && !search && validateRequire}
             defaultValue={defaultValue}
+            multiline={field.multiline}
             resettable
         />
     }
