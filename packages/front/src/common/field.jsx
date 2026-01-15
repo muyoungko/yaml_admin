@@ -4,7 +4,7 @@ import {
     SelectInput, FunctionField, ImageInput, ImageField, FileInput, FileField,
     ArrayInput, ArrayField, SingleFieldList, Datagrid, SimpleFormIterator, BooleanInput,
     DateInput, NumberInput, DateTimeInput,
-    useRecordContext,
+    FormDataConsumer,
 } from 'react-admin';
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
@@ -134,6 +134,27 @@ const validateRequire = [required()];
 export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, crud_field, defaultValue = null}) => {
     if (!field)
         return null;
+
+    if(field.condition) {
+        return <FormDataConsumer key={field.name + "condition"}>
+            {({formData, scopedFormData}) => {
+                let record = scopedFormData ? scopedFormData : formData
+                if(field.condition.includes('==')) {
+                    let [key, value] = field.condition.split('==')
+                    key = key.trim()
+                    value = value.trim().replace(/['"]/g, '')
+                    if(record?.[key] != value) return null
+                }
+                return getFieldEditCore({field, search, globalFilter, label, crud_field, defaultValue})
+            }}
+        </FormDataConsumer> 
+    } else {
+        return getFieldEditCore({field, search, globalFilter, label, crud_field, defaultValue})
+    }
+}
+
+export const getFieldEditCore = ({field, search = false, globalFilter = {}, label = null, crud_field, defaultValue = null}) => {
+    
     const { type, autogenerate } = field
     if (autogenerate && !search) return null
 
