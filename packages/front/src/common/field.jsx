@@ -55,7 +55,9 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
     let label = crud_field?.label || field.label
     if (!field || field.type == 'password') return null;
     if (field.type == 'string' || field.key) {
-        return <TextField key={field.name} label={label} source={field.name}/>
+        if (field.multiline)
+            return <FunctionField key={field.name} label={label} render={record => <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{record[field.name]}</pre>} />
+        return <TextField key={field.name} label={label} source={field.name} multiline={field.multiline}/>
     } else if (field.type == 'integer')
         return <NumberField key={field.name} label={label} source={field.name} />
     else if (field.type == 'length')
