@@ -3,7 +3,7 @@ import {
     ReferenceInput, AutocompleteInput, TextInput,
     SelectInput, FunctionField, ImageInput, ImageField, FileInput, FileField,
     ArrayInput, ArrayField, SingleFieldList, Datagrid, SimpleFormIterator, BooleanInput,
-    DateInput, NumberInput,
+    DateInput, NumberInput, DateTimeInput,
     useRecordContext,
 } from 'react-admin';
 import { Avatar } from '@mui/material';
@@ -187,11 +187,16 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
         />
     }
     else if (field?.type == 'date') {
-        return <DateInput key={field.name} label={field?.label} source={field.name} alwaysOn
-            showTime={field.showtime}
-            validate={field.required && !search && validateRequire}
-            defaultValue={defaultValue}
-        />
+        if(field.showtime)
+            return <DateTimeInput key={field.name} label={field?.label} source={field.name} alwaysOn
+                validate={field.required && !search && validateRequire}
+                defaultValue={defaultValue}
+            />
+        else
+            return <DateInput key={field.name} label={field?.label} source={field.name} alwaysOn
+                validate={field.required && !search && validateRequire}
+                defaultValue={defaultValue}
+            />
     }
     else if (field.type == 'array') {
         return (<ArrayInput key={field.name} source={field.name} label={field.label} alwaysOn
