@@ -482,6 +482,11 @@ entity:
           - input: number 
             if: user_type=='관리자'
             message: "관리자는 숫자로만 입력해야 합니다."
+          - input: length
+            if: user_type=='관리자'
+            min: 7
+            max: 7
+            message: "관리자는 7자리 숫자로만 입력해야 합니다."
       - name: name
         label: "이름"
         type: string

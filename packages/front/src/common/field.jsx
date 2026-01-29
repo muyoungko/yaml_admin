@@ -139,6 +139,11 @@ const validateCustom = (rules) => (value, allValues) => {
         if (rule.if && !ifChecker(rule.if, allValues)) continue;
         if (rule.input === 'number') {
             if (value && !/^\d+$/.test(value)) return rule.message;
+        } else if (rule.input === 'length') {
+            if (value) {
+                if (rule.min && value.length < rule.min) return rule.message;
+                if (rule.max && value.length > rule.max) return rule.message;
+            }
         }
     }
     return undefined;
