@@ -77,14 +77,15 @@ const withConfig = (config) => {
         next);
     }
     else {
-      const memberProjection = { projection: { _id: false, name: true, email: true, password: true, super: true, id: true } };
+      const memberProjection = { projection: { _id: false } };
       if (type === 'email') {
         memberProjection['password'] = true;
-        let member = await db.collection('admin').findOne({ email: email }, memberProjection)
+        let entity = 'admin';
+        let member = await db.collection(entity).findOne({ email: email }, memberProjection)
         if (member != null) {
           let isPasswordMatch = await comparePassword(password, member.password)
           if (isPasswordMatch) {
-            await db.collection('admin').updateOne({ email: email }, { $set: { login_date: new Date() } }, { upsert: false })
+            await db.collection(entity).updateOne({ email: email }, { $set: { login_date: new Date() } }, { upsert: false })
             delete member.password;
             authenticateSuccess(req, res, member, next);
           } else

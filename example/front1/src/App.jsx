@@ -27,7 +27,10 @@ export default function App() {
           }
         },
         customRoutes:[],
-        globalFilterDelegate
+        globalFilterDelegate,
+        loginSuccess: (admin) => {
+          console.log('loginSuccess', admin)
+        }
       }}
     />
   );

@@ -1,4 +1,4 @@
-import { Admin, Resource, fetchUtils, CustomRoutes, defaultTheme } from "react-admin";
+import { Admin, Resource, fetchUtils, CustomRoutes, defaultTheme, Login } from "react-admin";
 import jsonServerProvider from "ra-data-json-server";
 import { Route } from "react-router-dom";
 import YAML from 'yaml';
@@ -7,9 +7,9 @@ import DynamicList from './section/DynamicList';
 import DynamicCreate from './section/DynamicCreate';
 import DynamicEdit from './section/DynamicEdit';
 import DynamicShow from './section/DynamicShow';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Icon } from '@iconify/react';
-import { AdminProvider } from './AdminContext';
+import { AdminProvider, useAdminContext } from './AdminContext';
 import authProvider from './login/authProvider';
 import { setApiHost } from './common/axios';
 import fileUploader from './common/fileUploader';
@@ -24,9 +24,28 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 }
 
+const CustomLoginPage = () => {
+  const { yml } = useAdminContext();
+  return <Login backgroundImage={yml?.front?.appearance?.login?.background} />;
+};
+
 const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout }) => {
   const [yml, setYml] = useState(null);
   const [dataProvider, setDataProvider] = useState(null);
+
+  const myAuthProvider = useMemo(() => {
+    return {
+      ...authProvider,
+      login: (params) => {
+        return authProvider.login(params).then((res) => {
+          if (custom?.loginSuccess) {
+            custom.loginSuccess(res.member);
+          }
+          return res;
+        })
+      }
+    }
+  }, [custom]);
 
   useEffect(() => {
     const loadYamlFile = async () => {
@@ -70,10 +89,11 @@ const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout })
     <>
       {dataProvider && <AdminProvider initialYml={yml} width="1250px">
         <Admin
+          loginPage={CustomLoginPage}
           theme={{...defaultTheme, ...theme}}
           dashboard={yml?.front?.dashboard ? DashboardLayout : undefined}
           layout={layout || MyLayout}
-          authProvider={authProvider}
+          authProvider={myAuthProvider}
           i18nProvider={i18nProvider}
           dataProvider={dataProvider}>
           {yml?.entity && Object.keys(yml.entity).map(name => {

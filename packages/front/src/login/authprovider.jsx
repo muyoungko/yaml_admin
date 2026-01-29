@@ -15,12 +15,13 @@ const authProvider = {
             type: 'email',
             email: username,
             pass: password
-        }).then(({ token, r, msg }) => {
+        }).then(({ token, r, msg, ...admin }) => {
             if (!r)
                 throw new Error(msg);
             localStorage.setItem('token', token);
             axios.defaults.headers.common['x-access-token'] = token;
             setAdminInContext({ token });
+            return { token, ...admin };
         })
     },
     checkError: error => {
