@@ -9,7 +9,7 @@ import {
 import { Avatar } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
 import SafeImageField from '../component/SafeImageField';
-import { format } from '../common/format';
+import { format, ifChecker } from '../common/format';
 
 /**
  * 
@@ -133,6 +133,17 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
+const validateCustom = (rules) => (value, allValues) => {
+    if (!rules) return undefined;
+    for (const rule of rules) {
+        if (rule.if && !ifChecker(rule.if, allValues)) continue;
+        if (rule.input === 'number') {
+            if (value && !/^\d+$/.test(value)) return rule.message;
+        }
+    }
+    return undefined;
+}
+
 export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, defaultValue = null, crud_field}) => {
     if (!field)
         return null;
@@ -161,6 +172,10 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
     if (autogenerate && !search) return null
     defaultValue = defaultValue || field.default //TODO : parameter defaultValue calcuration
 
+    const validators = []
+    if (field.required && !search && field.type !== 'password') validators.push(required())
+    if (field.validate && !search) validators.push(validateCustom(field.validate))
+
     if (type == 'reference') {
         let filter = {...globalFilter}
         if(crud_field?.filter) {
@@ -176,7 +191,7 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
             <AutocompleteInput label={field?.label} 
                 optionText={(record) => format(field?.reference_format, record) || record[field?.reference_name]}
                 filterToQuery={(searchText) => ({ [field?.reference_name || 'q']: searchText })}
-                validate={field.required && !search && validateRequire}
+                validate={validators}
                 defaultValue={defaultValue || globalFilter[field.name] }
             />
         </ReferenceInput>
@@ -184,12 +199,12 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
         return <SelectInput key={field.name} label={field?.label} source={field.name} alwaysOn
             choices={field?.select_values}
             optionText="label" optionValue="name"
-            validate={field.required && !search && validateRequire}
+            validate={validators}
             defaultValue={defaultValue}
         />
     } else if (field?.type == 'integer') {
         return <NumberInput key={field.name} label={field?.label} source={field.name} alwaysOn
-            validate={field.required && !search && validateRequire}
+            validate={validators}
             defaultValue={defaultValue}
         />
     }
@@ -198,7 +213,7 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
             sx={(theme) => ({
                 maxWidth: theme?.components?.MuiFormControl?.styleOverrides?.root?.maxWidth
             })}
-            validate={field.required && !search && validateRequire}>
+            validate={validators}>
             <SafeImageField source={'src'} title={'title'}/>
         </ImageInput>
     }
@@ -207,25 +222,25 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
             sx={(theme) => ({
                 maxWidth: theme?.components?.MuiFormControl?.styleOverrides?.root?.maxWidth
             })}
-            validate={field.required && !search && validateRequire}>
+            validate={validators}>
             <FileField source="src" title="title" />
         </FileInput>
     }
     else if (field?.type == 'boolean') {
         return <BooleanInput key={field.name} label={field?.label} source={field.name} alwaysOn
-            validate={field.required && !search && validateRequire}
+            validate={validators}
             defaultValue={defaultValue}
         />
     }
     else if (field?.type == 'date') {
         if(field.showtime)
             return <DateTimeInput key={field.name} label={field?.label} source={field.name} alwaysOn
-                validate={field.required && !search && validateRequire}
+                validate={validators}
                 defaultValue={defaultValue}
             />
         else
             return <DateInput key={field.name} label={field?.label} source={field.name} alwaysOn
-                validate={field.required && !search && validateRequire}
+                validate={validators}
                 defaultValue={defaultValue}
             />
     }
@@ -248,7 +263,7 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
     } else {
         return <TextInput key={field.name} label={field?.label} source={field.name} alwaysOn
             required={!search && field?.type != 'password' && field.required}
-            validate={field.required && field?.type != 'password' && !search && validateRequire}
+            validate={validators}
             defaultValue={defaultValue}
             multiline={field.multiline}
             resettable

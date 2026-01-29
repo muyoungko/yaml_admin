@@ -478,6 +478,10 @@ entity:
         label: "로그인아이디"
         type: string
         required: true
+        validate:
+          - input: number 
+            if: user_type=='관리자'
+            message: "관리자는 숫자로만 입력해야 합니다."
       - name: name
         label: "이름"
         type: string
@@ -790,11 +794,26 @@ entity:
         - name: email
         - name: name
       list: true
-      create: true
+      create:
+        - name: server_id
+          filter:
+          - name: server_id
+            value: $server_id
+            type: integer
+        - name: email
+        - name: name
+        - name: password
       edit: true
       show: true
       delete: true
     fields:
+      - name: server_id
+        label: "시설"
+        type: reference
+        reference_entity: server
+        reference_match: id
+        reference_name: factory
+        required: true
       - name: id
         label: "ID"
         type: integer
@@ -818,6 +837,8 @@ front:
     pagination:
       rowsPerPage: 30
       rowsPerPageOptions: []
+    login:
+      background: http://admin.smartils.co.kr.s3-website.ap-northeast-2.amazonaws.com/login_bg.jpg
   dashboard:
     - component: chart
       id: lock_history1
