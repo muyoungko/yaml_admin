@@ -28,9 +28,9 @@ upload:
   #   base_url: http://localhost:6911
 entity:
   server:
-    category: '공장 관리'
+    category: '시설 관리'
     icon: "solar:buildings-3-outline"
-    label: "공장"
+    label: "시설"
     crud:
       search:
         - name: id
@@ -55,11 +55,11 @@ entity:
         type: string
         required: true
       - name: factory
-        label: "공장명"
+        label: "시설명"
         type: string
         required: true
   floor:
-    category : '공장 관리'
+    category : '시설 관리'
     icon: "solar:map-outline"
     label: "도면"
     crud:
@@ -79,7 +79,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "시설"
         type: reference
         reference_entity: server
         reference_match: id
@@ -103,7 +103,7 @@ entity:
         type: image
         private: true
   region:
-    category : '공장 관리'
+    category : '시설 관리'
     label: '개소'
     icon: "solar:download-square-outline"
     layout:
@@ -152,9 +152,20 @@ entity:
         - name: server_id
         - name: parent_id
           default: $parent_id
+          filter:
+            - name: parent_id
+              value: null
         - name: name
         - name: seq
-      edit: true
+      edit:
+        - name: server_id
+        - name: parent_id
+          default: $parent_id
+          filter:
+            - name: parent_id
+              value: null
+        - name: name
+        - name: seq
       show: true
       delete: true
       export:
@@ -174,7 +185,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "시설"
         type: reference
         reference_entity: server
         reference_match: id
@@ -214,7 +225,7 @@ entity:
         field: id
         single: true
   item:
-    category : '공장 관리'
+    category : '시설 관리'
     label: '항목'
     icon: "solar:download-twice-square-outline"
     layout:
@@ -255,9 +266,19 @@ entity:
         - name: server_id
         - name: region_id
           default: $region_id
+          filter:
+            - name: parent_id
+              value: not null
         - name: name
         - name: seq
-      edit: true
+      edit:
+        - name: server_id
+        - name: region_id
+          filter:
+            - name: parent_id
+              value: not null
+        - name: name
+        - name: seq
       show: true
       delete: true
       export:
@@ -277,7 +298,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "시설"
         type: reference
         reference_entity: server
         reference_match: id
@@ -348,7 +369,8 @@ entity:
               - name: user_type
               - name: phone
   place:
-    category: '공장 관리'
+    hidden: true
+    category: '시설 관리'
     label: 'Location'
     icon: "solar:download-minimalistic-bold-duotone"
     # hidden: true
@@ -378,7 +400,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "시설"
         type: reference
         reference_entity: server
         reference_match: id
@@ -440,7 +462,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "시설"
         type: reference
         reference_entity: server
         reference_match: id
@@ -503,7 +525,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "시설"
         type: reference
         reference_entity: server
         reference_match: id
@@ -584,7 +606,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "시설"
         type: reference
         reference_entity: server
         reference_match: id
@@ -695,6 +717,13 @@ entity:
         - name: ils_id
       list: true
     fields:
+      - name: server_id
+        label: "시설"
+        type: reference
+        reference_entity: server
+        reference_match: id
+        reference_name: factory
+        required: true
       - name: ils_id
         label: "ILS"
         type: reference
@@ -794,8 +823,12 @@ front:
       id: lock_history1
       label: '잠금/해제 이용횟수'
       type: line
-      size: 12
+      size: 6
       height: 300
+      filter:
+        - name: server_id
+          value: $server_id
+          type: integer
       x:
         label: '날짜'
         type: date
@@ -819,8 +852,14 @@ front:
       id: lock_by_region
       label: '상위 개소별 잠금 현황'
       type: bar
-      size: 12
+      size: 6
       debug: false
+      filter:
+        - name: server_id
+          value: $server_id
+          type: integer
+        - name: parent_id
+          value: null
       relation:
         chain:
           - match_from: ils_id
@@ -860,31 +899,15 @@ front:
           - label: '관리자 잠금'
             color: '#228B22' #green
             if: member.user_type==관리자
-
-    - component: chart
-      id: lock_by_member
-      label: '사용자 타입 별 잠금 현황'
-      type: bar
-      size: 6
-      relation_chain_y_to_x:
-        - match_from: member_no
-          entity: member
-          match: member_no
-      x:
-        label: '사용자 타입'
-        type: field
-        entity: member
-        field: user_type
-      y:
-        entity: lock
-        series:
-          - label: '잠금'
-    
     - component: chart
       id: member_type
       label: '사용자 타입'
       type: bar
       size: 6
+      filter:
+        - name: server_id
+          value: $server_id
+          type: integer
       x:
         label: '사용자 타입'
         type: field
@@ -896,7 +919,7 @@ front:
           - label: '사용자'
             color: '#1a66cc'
   category:
-    - name: '공장 관리'
+    - name: '시설 관리'
       icon: 'material-symbols:factory-outline'
     - name: '자원 관리'
       icon: 'solar:lock-keyhole-minimalistic-outline'

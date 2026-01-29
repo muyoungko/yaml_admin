@@ -18,7 +18,18 @@ export const YAMLComponent = ({ component, custom, ...props }) => {
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        fetcher(`/api/chart/${component.id}`).then(res => {
+        let queryString = '';
+        component.filter?.forEach(s => {
+            if(s.value?.startsWith('$')) {
+                let value = localStorage.getItem(s.value.substring(1));
+                if(value) {
+                    queryString += `${s.name}=${encodeURIComponent(value)}&`;
+                }
+            } else {
+                queryString += `${s.name}=null&`;
+            }
+        });
+        fetcher(`/api/chart/${component.id}?${queryString}`).then(res => {
             setData(res);
         });
     }, [component.id]);

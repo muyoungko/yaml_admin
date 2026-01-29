@@ -20,7 +20,7 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
 
-    const createChartDataTypeDate = async (chart, {from_date}) => {
+    const createChartDataTypeDate = async (chart, {from_date, filter}) => {
         const r = {
             options: {
                 chart: { id: chart.id },
@@ -92,19 +92,26 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                 }
             })
 
-            let a = [
-                { $match: {server_id:148, parent_id:null}},
+            let a = []
+            if(filter && Object.keys(filter).length > 0) 
+                a.push({ $match: filter })
+
+            a.push(...[
                 ...lookup_list,
                 { $match: match},
                 ...group_list,
                 { $sort: { _id: -1 } },
-            ]
+            ])
 
             if(limit)
                 a.push({ $limit: limit })
 
+            //debug
+            if(yml.debug)
+                console.log('chart', chart.label, entity_x, JSON.stringify(a, null, 2))
+
             const list = await db.collection(entity_x).aggregate(a).toArray();
-            
+
             list.map(m => {
                 if (format)
                     return moment.tz(m._id, timezone).format(format);
@@ -131,7 +138,7 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
         return r
     }
 
-    const createChartDataTypeField = async (chart) => {
+    const createChartDataTypeField = async (chart, {filter}) => {
         const r = {
             options: {
                 chart: { id: chart.id },
@@ -154,10 +161,6 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
         for (const s of y.series) {
             const { label } = s;
             
-            let match_list = []
-            if(s['if'] && !relation)
-                match_list.push({ $match: evaluateIfToMatch(s['if'])})
-
             let lookup_list = []
             if (relation) {
                 if(!relation.chain)
@@ -169,7 +172,7 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                     from: entity_y,
                     let: { root_x_key: `$${relation.match.x}` },
                     pipeline: [],
-                      as: entity_y,
+                    as: entity_y,
                 }
 
                 for(let i=0;i<relation.chain.length;i++) {
@@ -185,7 +188,6 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                     lookup.pipeline.push({ $unwind: `$${m.entity}` })
                 }
 
-                
                 if(s['if'])
                     lookup.pipeline.push({ $match: evaluateIfToMatch(s['if'])})
 
@@ -226,11 +228,12 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                 })
             }
 
-            let a = [
-                { $match: {server_id:148, parent_id:null}},
-                ...lookup_list,
-            ]
+            let a = []
 
+            if(filter && Object.keys(filter).length > 0)
+                a.push({ $match: filter })
+
+            a.push(...lookup_list)
             a.push(...group_list)
             
             if(sort)
@@ -240,8 +243,8 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                 a.push({ $limit: limit })
 
             //debug
-            if(chart.debug)
-                console.log('a', entity_x, JSON.stringify(a, null, 2))
+            if(yml.debug)
+                console.log('chart', chart.label, entity_x, JSON.stringify(a, null, 2))
 
             const list = await db.collection(entity_x).aggregate(a).toArray();
 
@@ -285,11 +288,25 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
             try {
                 const { x } = chart;
                 let r
+
+                let filter = {};
+                chart.filter?.forEach(s => {
+                    let value = req.query[s.name];
+                    if(value == 'null')
+                        filter[s.name] = null;
+                    else if(value == 'not null')
+                        filter[s.name] = { $ne: null };
+                    else if(s.type == 'integer')
+                        filter[s.name] = parseInt(value);
+                    else
+                        filter[s.name] = value;
+                });
+                
                 if (x.type == 'date') {
                     let {from_date} = req.query //YYYYMMDD
-                    r = await createChartDataTypeDate(chart, {from_date});
+                    r = await createChartDataTypeDate(chart, {from_date, filter});
                 } else if(x.type == 'field') {
-                    r = await createChartDataTypeField(chart);
+                    r = await createChartDataTypeField(chart, {filter});
                 } else {
                     throw new Error('x.type is not date or field');
                 }
