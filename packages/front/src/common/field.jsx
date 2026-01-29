@@ -133,7 +133,7 @@ const required = (message = 'ra.validation.required') =>
     value => value ? undefined : message;
 const validateRequire = [required()];
 
-export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, defaultValue = null}) => {
+export const getFieldEdit = ({field, search = false, globalFilter = {}, label = null, defaultValue = null, crud_field}) => {
     if (!field)
         return null;
 
@@ -147,24 +147,31 @@ export const getFieldEdit = ({field, search = false, globalFilter = {}, label = 
                     value = value.trim().replace(/['"]/g, '')
                     if(record?.[key] != value) return null
                 }
-                return getFieldEditCore({field, search, globalFilter, label, defaultValue})
+                return getFieldEditCore({field, search, globalFilter, label, defaultValue, crud_field})
             }}
         </FormDataConsumer> 
     } else {
-        return getFieldEditCore({field, search, globalFilter, label, defaultValue})
+        return getFieldEditCore({field, search, globalFilter, label, defaultValue, crud_field})
     }
 }
 
-export const getFieldEditCore = ({field, search = false, globalFilter = {}, label = null, defaultValue = null}) => {
+export const getFieldEditCore = ({field, search = false, globalFilter = {}, label = null, defaultValue = null, crud_field}) => {
     
     const { type, autogenerate } = field
     if (autogenerate && !search) return null
     defaultValue = defaultValue || field.default //TODO : parameter defaultValue calcuration
 
     if (type == 'reference') {
+        let filter = {...globalFilter}
+        if(crud_field?.filter) {
+            crud_field.filter.forEach(f => {
+                filter[f.name] = f.value
+            })
+        }
+
         return <ReferenceInput key={field.name} label={field?.label} source={field.name} reference={field?.reference_entity}
             alwaysOn={globalFilter[field.name] ? false : true}
-            filter={globalFilter}
+            filter={filter}
         >
             <AutocompleteInput label={field?.label} 
                 optionText={(record) => format(field?.reference_format, record) || record[field?.reference_name]}

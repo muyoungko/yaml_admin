@@ -78,6 +78,10 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const parseValueByType = (value, field) => {
         const { type, reference_entity, reference_match } = field
+        if(value == 'not null')
+            return { $ne: null }
+        else if(value == 'null')
+            return null
         if (type == 'reference') {
             const referenceEntity = yml.entity[reference_entity]
             const referenceField = referenceEntity.fields.find(f => f.name == reference_match)
@@ -239,9 +243,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         list.map(m => {
             m.id = getKeyFromEntity(m)
         })
-        
-        if(yml.debug)
-            console.log('list', entity_name, 'found', count)
         
         await addInfo(db, list)
         if(options?.listener?.entityListed)
