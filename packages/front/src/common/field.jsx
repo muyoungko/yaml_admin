@@ -186,7 +186,7 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
         if(crud_field?.filter) {
             crud_field.filter.forEach(f => {
                 filter[f.name] = f.value
-                if(f.value.startsWith('$')) {
+                if(f.value?.startsWith('$')) {
                     let value = localStorage.getItem(f.value.replace('$', ''))
                     if(value)
                         filter[f.name] = value

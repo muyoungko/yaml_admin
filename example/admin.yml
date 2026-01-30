@@ -70,11 +70,24 @@ entity:
       list: true
       create: 
         - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
         - name: region_id
           default: $region_id
         - name: name
         - name: image
-      edit: true
+      edit: 
+        - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
+        - name: region_id
+          default: $region_id
+        - name: name
+        - name: image
       show: true
       delete: true
     fields:
@@ -150,20 +163,28 @@ entity:
               url: /floor/${floor_id}
       create: 
         - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
         - name: parent_id
           default: $parent_id
           filter:
-            - name: parent_id
-              value: null
+          - name: parent_id
+            value: null
         - name: name
         - name: seq
       edit:
         - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
         - name: parent_id
           default: $parent_id
           filter:
-            - name: parent_id
-              value: null
+          - name: parent_id
+            value: null
         - name: name
         - name: seq
       show: true
@@ -251,7 +272,6 @@ entity:
                     desc: false
     crud:
       search:
-        - name: server_id
         - name: region_id
         - name: id
         - name: name
@@ -264,6 +284,10 @@ entity:
         - name: ils.id
       create: 
         - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
         - name: region_id
           default: $region_id
           filter:
@@ -273,10 +297,14 @@ entity:
         - name: seq
       edit:
         - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
         - name: region_id
           filter:
-            - name: parent_id
-              value: not null
+          - name: parent_id
+            value: not null
         - name: name
         - name: seq
       show: true
@@ -423,7 +451,7 @@ entity:
   member:
     category : '사용자 관리'
     icon: "solar:user-hands-outline"
-    label: "사용자"
+    label: "직영 · 계열"
     crud:
       search:
           - name: server_id
@@ -456,8 +484,30 @@ entity:
           - name: department_id
         upsert: true
       list: true
-      create: true
-      edit: true
+      create: 
+        - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
+        - name: email
+        - name: name
+        - name: user_type
+        - name: pass
+        - name: phone
+        - name: department_id
+      edit: 
+        - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
+        - name: email
+        - name: name
+        - name: user_type
+        - name: pass
+        - name: phone
+        - name: department_id
       show: true
       delete: true
     fields:
@@ -481,12 +531,12 @@ entity:
         validate:
           - input: number 
             if: user_type=='관리자'
-            message: "관리자는 숫자로만 입력해야 합니다."
+            message: "(직영 · 계열)는 숫자로만 입력해야 합니다."
           - input: length
             if: user_type=='관리자'
             min: 7
             max: 7
-            message: "관리자는 7자리 숫자로만 입력해야 합니다."
+            message: "(직영 · 계열)는 7자리 숫자로만 입력해야 합니다."
       - name: name
         label: "이름"
         type: string
@@ -500,9 +550,9 @@ entity:
         label: "역할"
         select_values:
           - name: "관리자"
-            label: "관리자"
+            label: "직영 · 계열"
           - name: "작업자"
-            label: "작업자"
+            label: "협력사"
         required: true
       - name: phone
         type: string
@@ -528,8 +578,20 @@ entity:
           - name: name
             exact: false
       list: true
-      create: true
-      edit: true
+      create: 
+        - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
+        - name: name
+      edit:
+        - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
+        - name: name
       show: true
       delete: true
     fields:
@@ -576,6 +638,10 @@ entity:
             field: id
       create:
         - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
         - name: key
         - name: serial
         - name: version
@@ -583,6 +649,10 @@ entity:
         - name: battery
       edit: 
         - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
         - name: key
         - name: serial
         - name: version
@@ -802,13 +872,21 @@ entity:
       create:
         - name: server_id
           filter:
-          - name: server_id
+          - name: id
             value: $server_id
             type: integer
         - name: email
         - name: name
         - name: password
-      edit: true
+      edit: 
+        - name: server_id
+          filter:
+          - name: id
+            value: $server_id
+            type: integer
+        - name: email
+        - name: name
+        - name: password
       show: true
       delete: true
     fields:
