@@ -25,7 +25,6 @@ import {
     BooleanField,
 } from 'react-admin';
 
-import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
 import YAMLComponentLayout from "./YAMLComponentLayout";
 //Custom Import Start
@@ -33,7 +32,6 @@ import YAMLComponentLayout from "./YAMLComponentLayout";
 //Custom Import End
 
 export const DashboardLayout = ({ custom, ...props }) => {
-    const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
     
