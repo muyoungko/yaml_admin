@@ -25,7 +25,6 @@ import {
     BooleanField,
 } from 'react-admin';
 
-import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
 import { getFieldShow } from '../common/field';
 //Custom Import Start
@@ -49,7 +48,6 @@ const ShowContent = ({ customFunc }) => {
 };
 
 export const DynamicShow = ({ custom, ...props }) => {
-    const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
     const resource = useResourceContext(props);

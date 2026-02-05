@@ -74,4 +74,16 @@ const ifChecker = (if_expression, record = {}) => {
     }
   };
 
-export { format, ifChecker }
+/**
+ * react-admin HashRouter용 쿼리 파라미터 파싱
+ * location.hash에서 쿼리 파라미터를 추출하여 URLSearchParams 반환
+ *
+ * @param {object} location - react-router location 객체
+ * @returns {URLSearchParams}
+ */
+const parseQuery = (location) => {
+    const hashSearch = location.hash?.split('?')[1] || '';
+    return new URLSearchParams(hashSearch);
+};
+
+export { format, ifChecker, parseQuery }

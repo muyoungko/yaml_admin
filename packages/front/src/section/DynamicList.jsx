@@ -17,14 +17,15 @@ import {
     useNotify,
     useRecordContext,
     useRefresh,
+    useRedirect,
     useResourceContext
 } from 'react-admin';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAdminContext } from '../AdminContext';
 import { postFetcher } from '../common/axios.jsx';
 import { getFieldEdit, getFieldShow } from '../common/field';
 import DynamicLayout from './DynamicLayout';
-import { ifChecker } from '../common/format';
+import { ifChecker, parseQuery } from '../common/format';
 import { act } from '../common/actionParser';
 //Custom Import Start
 
@@ -129,7 +130,7 @@ const ListActions = ({ crud, custom, ...props }) => {
     };
 
     const handleExportClick = () => {
-        const params = new URLSearchParams(location.search);
+        const params = parseQuery(location);
         let filter = params.get("filter")
         if (filter)
             filter = JSON.parse(filter)
@@ -170,7 +171,7 @@ const ListActions = ({ crud, custom, ...props }) => {
     const createDefault = useMemo(() => {
         let search = ''
         if (Array.isArray(crud.create)) {
-            const params = new URLSearchParams(location.search);
+            const params = parseQuery(location);
             let filter = params.get("filter")
             if (filter)
                 filter = JSON.parse(filter)
@@ -218,7 +219,7 @@ const ListActions = ({ crud, custom, ...props }) => {
 
 
 const RowButton = ({ crud_field }) => {
-    const navigate = useNavigate()
+    const navigate = useRedirect()
     const record = useRecordContext()
     return <Button label={crud_field.label} onClick={(e) => {
         e.stopPropagation()
@@ -232,7 +233,6 @@ const RowButton = ({ crud_field }) => {
 }
 
 export const DynamicList = ({ custom, ...props }) => {
-    const navigate = useNavigate()
     const refresh = useRefresh();
     const yml = useAdminContext();
     const resource = useResourceContext(props);

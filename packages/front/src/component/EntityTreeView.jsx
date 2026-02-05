@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRedirect } from 'react-admin';
 import axios, { fetcher } from '../common/axios.jsx';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
@@ -20,7 +20,7 @@ import { useAdminContext } from '../AdminContext';
  * @returns 
  */
 export const EntityTreeView = ({ component, custom, ...props }) => {
-    const navigate = useNavigate()
+    const navigate = useRedirect()
     const [list, setList] = useState([])
     const { admin } = useAdminContext()
     
@@ -151,7 +151,7 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
     }
     
     return (
-        <Box sx={{ minHeight: 352, minWidth: 250 }}>
+        <Box sx={{ minHeight: 352, minWidth: 250}}>
             <SimpleTreeView onItemClick={itemClick}>
                 {list.map(item => {
                     return (
