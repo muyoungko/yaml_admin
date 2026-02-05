@@ -17,7 +17,6 @@ import {
 import { getFieldEdit } from '../common/field';
 import { useAdminContext } from '../AdminContext';
 import { useLocation } from 'react-router-dom';
-import { parseQuery } from '../common/format';
 //Custom Import Start
 
 //Custom Import End
@@ -38,6 +37,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
     const resource = useResourceContext(props);
+    const location = useLocation()
 
     const fields = useMemo(() => {
         return yml.entity[resource].fields
@@ -78,8 +78,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
                 return defaultValue
             
             if (defaultValue.startsWith('$')) {
-                
-                const params = parseQuery();
+                const params = new URLSearchParams(location.search);
                 let q = defaultValue
 
                 //check default is integer by watching fields
@@ -97,6 +96,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
                     else
                         type = 'string'
                 }
+
                 if (q.startsWith('$')) {
                     q = q.replace('$', '')
                     let value = params.get(q)

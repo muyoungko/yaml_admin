@@ -16,7 +16,6 @@ import {
 } from 'react-admin';
 import { getFieldEdit } from '../common/field';
 import { useAdminContext } from '../AdminContext';
-import { parseQuery } from '../common/format';
 //Custom Import Start
 
 //Custom Import End
@@ -78,7 +77,7 @@ export const DynamicEdit = ({custom, ...props}) => {
                 return defaultValue
             
             if (defaultValue.startsWith('$')) {
-                const params = parseQuery(location);
+                const params = new URLSearchParams(location.search);
                 let q = defaultValue
 
                 //check default is integer by watching fields
