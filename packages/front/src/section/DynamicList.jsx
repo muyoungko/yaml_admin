@@ -76,7 +76,6 @@ const ListActions = ({ crud, custom, ...props }) => {
     const fileInputRef = React.createRef();
     const notify = useNotify();
     const refresh = useRefresh();
-    const location = useLocation()
 
     const convertFileToBase64 = async file => {
 
@@ -130,7 +129,7 @@ const ListActions = ({ crud, custom, ...props }) => {
     };
 
     const handleExportClick = () => {
-        const params = parseQuery(location);
+        const params = parseQuery();
         let filter = params.get("filter")
         if (filter)
             filter = JSON.parse(filter)
@@ -171,7 +170,7 @@ const ListActions = ({ crud, custom, ...props }) => {
     const createDefault = useMemo(() => {
         let search = ''
         if (Array.isArray(crud.create)) {
-            const params = parseQuery(location);
+            const params = parseQuery();
             let filter = params.get("filter")
             if (filter)
                 filter = JSON.parse(filter)

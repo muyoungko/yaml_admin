@@ -38,7 +38,6 @@ export const DynamicCreate = ({ custom, ...props }) => {
     const { permissions } = usePermissions();
     const yml = useAdminContext();
     const resource = useResourceContext(props);
-    const location = useLocation()
 
     const fields = useMemo(() => {
         return yml.entity[resource].fields
@@ -79,7 +78,8 @@ export const DynamicCreate = ({ custom, ...props }) => {
                 return defaultValue
             
             if (defaultValue.startsWith('$')) {
-                const params = parseQuery(location);
+                
+                const params = parseQuery();
                 let q = defaultValue
 
                 //check default is integer by watching fields
@@ -97,7 +97,6 @@ export const DynamicCreate = ({ custom, ...props }) => {
                     else
                         type = 'string'
                 }
-
                 if (q.startsWith('$')) {
                     q = q.replace('$', '')
                     let value = params.get(q)

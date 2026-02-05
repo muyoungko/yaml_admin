@@ -82,7 +82,7 @@ const ifChecker = (if_expression, record = {}) => {
  * @returns {URLSearchParams}
  */
 const parseQuery = (location) => {
-    const hashSearch = location.hash?.split('?')[1] || '';
+    const hashSearch = window.location.href.split('?')[1] || '';
     return new URLSearchParams(hashSearch);
 };
 
