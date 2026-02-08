@@ -139,7 +139,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         }
 
-        let apiGenerateFields = await makeApiGenerateFields(db, entity_name, yml_entity, yml, options, list)
+        //await makeApiGenerateFields(db, entity_name, yml_entity, yml, options, list)
     }
 
     const mediaKeyToFullUrl = async (key, private) => {
@@ -197,10 +197,12 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         var _order = req.query._order;
         if (_sort != null)
             s[_sort] = (_order == 'ASC' ? 1 : -1);
+        else 
+            s._id = -1
 
         var _end = req.query._end;
-        var _start = req.query._start;
-        var l = _end - _start;
+        var _start = req.query._start || 0;
+        var l = _end - _start || 50;
 
         //검색 파라미터
         const f = {};
@@ -246,13 +248,35 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         const projection = (key_field.name == '_id' ? {} : { _id: false })
         if(yml.debug)
             console.log('list', entity_name, f)
-        var count = await db.collection(entity_name).find(f).project(projection).sort(s).count();
-        let list = await db.collection(entity_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
+
+        let list, count;
+        let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
+
+        if(aggregate?.length > 0) {
+            aggregate = [{$match: f}, ...aggregate]
+
+            const countResult = await db.collection(entity_name).aggregate([...aggregate, { $count: 'count' }]).toArray()
+            count = countResult.length > 0 ? countResult[0].count : 0
+
+            list = await db.collection(entity_name).aggregate(aggregate)
+                .sort(s)
+                .skip(parseInt(_start))
+                .limit(l).toArray()
+        } else 
+        {
+            count = await db.collection(entity_name).find(f).project(projection).sort(s).count()
+            list = await db.collection(entity_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
+        }
+
+        if(yml.debug)
+            console.log('list', entity_name, 'count', count, 'list length', list.length)
+
         list.map(m => {
             m.id = getKeyFromEntity(m)
         })
         
         await addInfo(db, list)
+        //await makeApiGenerateFields(db, entity_name, yml_entity, yml, options, list)
         
         if(options?.listener?.entityListed)
             await options.listener.entityListed(db, entity_name, list)
@@ -609,6 +633,120 @@ const matchPathInObject = (obj, path) => {
     }
         
     return r
+}
+
+const makeApiGenerateAggregate = async (db, entity_name, yml_entity, yml, options) => {
+    const apiGenerate = yml_entity.api_generate
+    if(!apiGenerate)
+        return;
+
+    // reference 필드를 위한 중첩 pipeline 생성 함수
+    const buildReferencePipeline = (refField) => {
+        const pipeline = []
+        let project = { _id: 0 }
+
+        if(refField.field)
+            project[refField.field] = 1
+        else if(refField.fields) {
+            refField.fields.forEach(f => {
+                project[f.name] = 1
+            })
+        }
+
+        pipeline.push({
+            $lookup: {
+                from: refField.reference_entity,
+                localField: refField.reference_from,
+                foreignField: refField.reference_match,
+                pipeline: [{ $project: project }],
+                as: refField.name
+            }
+        })
+
+        if(refField.single) {
+            pipeline.push({
+                $unwind: {
+                    path: `$${refField.name}`,
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+        }
+
+        if(refField.field) {
+            pipeline.push({
+                $addFields: { [refField.name]: `$${refField.name}.${refField.field}` }
+            })
+        }
+
+        return pipeline
+    }
+
+    const aggregate = []
+    for(let key in apiGenerate) {
+
+        const apiGenerateItem = apiGenerate[key]
+        let { entity, field, fields, match, sort, limit, single, match_from } = apiGenerateItem
+
+        sort = sort || []
+        sort = makeMongoSortFromYml(sort)
+        limit = limit || 1000
+
+        // lookup 내부 pipeline 구성
+        const innerPipeline = [
+            { $match: { $expr: { $eq: ['$' + match, '$$local_key'] } } }
+        ]
+
+        // projection 구성
+        const projection = { _id: 0, [match]: 1 }
+        if(field) {
+            projection[field] = 1
+        } else if(fields) {
+            fields.forEach(m => {
+                if(m.type !== 'reference') {
+                    projection[m.name] = 1
+                }
+            })
+
+            // reference 필드는 중첩 lookup으로 처리
+            fields.filter(m => m.type === 'reference').forEach(refField => {
+                projection[refField.reference_from] = 1
+                const refPipeline = buildReferencePipeline(refField)
+                innerPipeline.push(...refPipeline)
+            })
+        }
+
+        // projection을 innerPipeline 맨 앞에 추가 (match 다음)
+        innerPipeline.splice(1, 0, { $project: projection })
+
+        // 기본 $lookup 추가
+        aggregate.push({
+            $lookup: {
+                from: entity,
+                let: { local_key: '$' + match_from },
+                pipeline: innerPipeline,
+                as: key
+            }
+        })
+
+        if(single) {
+            aggregate.push({
+                $unwind: {
+                    path: `$${key}`,
+                    preserveNullAndEmptyArrays: true
+                }
+            })
+
+            // field만 있는 경우 값만 추출
+            if(field) {
+                aggregate.push({
+                    $addFields: { [key]: `$${key}.${field}` }
+                })
+            }
+        }
+    }
+
+    //console.log('aggregate', JSON.stringify(aggregate, null, 2))
+    return aggregate
 }
 
 const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, data_list) => {
