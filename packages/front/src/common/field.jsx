@@ -237,10 +237,23 @@ export const getFieldEditCore = ({field, search = false, globalFilter = {}, labe
         </FileInput>
     }
     else if (field?.type == 'boolean') {
-        return <BooleanInput key={field.name} label={field?.label} source={field.name} alwaysOn
-            validate={validators}
-            defaultValue={defaultValue}
-        />
+        if(search)
+            return <SelectInput key={field.name} label={field?.label} source={field.name} alwaysOn
+                choices={[
+                    { name: '', label: '' },
+                    { name: 'true', label: 'TRUE' },
+                    { name: 'false', label: 'FALSE' },
+                ]}
+                optionText="label" optionValue="name"
+                validate={validators}
+                defaultValue={defaultValue}
+                resettable
+            />
+        else
+            return <BooleanInput key={field.name} label={field?.label} source={field.name} alwaysOn
+                validate={validators}
+                defaultValue={defaultValue}
+            />
     }
     else if (field?.type == 'date') {
         if(field.showtime)

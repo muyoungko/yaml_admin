@@ -82,7 +82,15 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             return { $ne: null }
         else if(value == 'null')
             return null
-        if (type == 'reference') {
+        if (type == 'boolean') {
+            if(value == 'true')
+                return true
+            else if(value == 'false')
+                return false
+            else
+                return null
+        }
+        else if (type == 'reference') {
             const referenceEntity = yml.entity[reference_entity]
             const referenceField = referenceEntity.fields.find(f => f.name == reference_match)
             if(!referenceField)
@@ -245,6 +253,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         })
         
         await addInfo(db, list)
+        
         if(options?.listener?.entityListed)
             await options.listener.entityListed(db, entity_name, list)
 
