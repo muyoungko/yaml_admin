@@ -1,6 +1,6 @@
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import { YMLAdmin, EntityTreeView } from 'yaml-admin-front';
-import adminYamlText from '../../admin2.yml?raw';
+import adminYamlText from '../../admin.yml?raw';
 import koreanMessages from './i18n/ko';
 import { theme, customLayout } from './theme/theme1';
 const globalFilterDelegate = (entity) => {

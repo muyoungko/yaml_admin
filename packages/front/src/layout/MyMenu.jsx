@@ -15,11 +15,9 @@ const MyMenuItem = ({ to, icon, label, dense }) => {
 
     // HashRouter 사용 시 hash에서 pathname 추출
     const isActive = useMemo(() => {
-        // const path = location.pathname
-        let path = window.location.href.split('#')[1].split('?')[0]
-        const r = path === to || path.startsWith(to + '/');
-        return r
-    }, [to, location]);
+        const path = location.pathname || '/'
+        return path === to || path.startsWith(to + '/')
+    }, [to, location.pathname]);
 
     return (
         <MenuItem
