@@ -2,7 +2,7 @@ import { defaultTheme } from 'react-admin';
 import { deepmerge } from '@mui/utils';
 import { red, blue } from '@mui/material/colors';
 
-const theme1 = deepmerge(defaultTheme, {
+export const theme = deepmerge(defaultTheme, {
   palette: {
     primary: {
       main: blue['A700'],
@@ -27,12 +27,14 @@ const theme1 = deepmerge(defaultTheme, {
         elevation: 0,
       },
       styleOverrides: {
-        root: {
+        root: ({ ownerState }) => ({
+          '--Paper-shadow': 'none',
           boxShadow: 'none',
           border: '1px solid rgba(0,0,0,0.08)',
-        },
+        }),
       },
     },
+    
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -82,4 +84,6 @@ const theme1 = deepmerge(defaultTheme, {
   },
 });
 
-export default theme1;
+// ===== Export custom layout components for YMLAdmin =====
+export const customLayout = {
+};

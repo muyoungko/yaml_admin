@@ -20,7 +20,7 @@ export const setAdminInContext = (nextAdmin) => {
   }
 };
 
-export const AdminProvider = ({ initialYml = null, children }) => {
+export const AdminProvider = ({ initialYml = null, custom = null, children }) => {
   const [yml, setYml] = useState(initialYml);
   const [admin, setAdmin] = useState(() => ({
     token: typeof window !== 'undefined' ? (localStorage.getItem('token') || null) : null,
@@ -36,8 +36,8 @@ export const AdminProvider = ({ initialYml = null, children }) => {
   // Expose YAML fields at the top level for backward compatibility,
   // and also provide `yml` and `admin` namespaces.
   const value = useMemo(
-    () => ({ ...(yml || {}), yml, setYml, admin, setAdmin }),
-    [yml, admin]
+    () => ({ ...(yml || {}), yml, setYml, admin, setAdmin, custom }),
+    [yml, admin, custom]
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

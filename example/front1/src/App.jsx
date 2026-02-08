@@ -1,8 +1,8 @@
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import { YMLAdmin, EntityTreeView } from 'yaml-admin-front';
-import adminYamlText from '../../admin.yml?raw';
+import adminYamlText from '../../admin2.yml?raw';
 import koreanMessages from './i18n/ko';
-import theme1 from './theme/theme1';
+import { theme, customLayout } from './theme/theme1';
 const globalFilterDelegate = (entity) => {
   if (entity != 'server') {
     let s = localStorage.getItem('server_id')
@@ -16,9 +16,10 @@ export default function App() {
   return (
     <YMLAdmin
       adminYaml={adminYamlText}
-      theme={theme1}
+      theme={theme}
       i18nProvider={polyglotI18nProvider(() => koreanMessages, 'ko')}
       custom={{
+        layout: customLayout,
         entity: {
           floor: {
             show: (record) => {

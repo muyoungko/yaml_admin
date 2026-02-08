@@ -84,10 +84,10 @@ const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout })
 
     loadYamlFile();
   }, []);
-
+  
   return (
     <>
-      {dataProvider && <AdminProvider initialYml={yml} width="1250px">
+      {dataProvider && <AdminProvider initialYml={yml} custom={custom} width="1250px">
         <Admin
           loginPage={CustomLoginPage}
           theme={{...defaultTheme, ...theme}}
@@ -98,17 +98,13 @@ const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout })
           dataProvider={dataProvider}>
           {yml?.entity && Object.keys(yml.entity).map(name => {
             const entity = yml.entity[name];
-            const IconComponent = entity?.icon
-              ? () => <Icon icon={entity.icon} width="1.25rem" height="1.25rem" />
-              : undefined;
-
             if (entity.custom)
               return <Resource key={name} name={name} options={{ label: entity.label }} icon={IconComponent}/>  
             else 
               return (
                 <Resource key={name} name={name}
                   options={{ label: entity.label }}
-                  icon={IconComponent}
+                  icon={<Icon icon={entity?.icon} width="1.25rem" height="1.25rem" />}
                   list={(props => <DynamicList {...props} custom={custom} />)}
                   create={(props => <DynamicCreate {...props} custom={custom} />)}
                   edit={(props => <DynamicEdit {...props} custom={custom} />)}

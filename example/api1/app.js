@@ -44,6 +44,8 @@ module.exports = async function createApp() {
     }
   }
 
+  // options.api_prefix = '/bnbhost/dev';
+  // await registerRoutes(router, {yamlPath:'../admin2.yml', ...options})
   await registerRoutes(router, {yamlPath:'../admin.yml', ...options})
 
   app.use('/', router)
