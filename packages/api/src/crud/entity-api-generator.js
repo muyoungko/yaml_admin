@@ -408,7 +408,18 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     app.get(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
-        const m = await db.collection(entity_name).findOne(f);
+
+        let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
+
+        let m
+        if(aggregate?.length > 0) {
+            aggregate = [{$match: f}, ...aggregate, { $limit: 1 }]
+            const result = await db.collection(entity_name).aggregate(aggregate).toArray()
+            m = result.length > 0 ? result[0] : null
+        } else {
+            m = await db.collection(entity_name).findOne(f);
+        }
+
         if (!m)
             return res.status(404).send('Not found');
 
@@ -417,7 +428,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         if(yml.debug)
             console.log('show', entity_name, m)
-        
+
         res.json(m);
     }))
 
