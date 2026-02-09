@@ -10,10 +10,10 @@ import { parseQuery } from '../common/format';
 
 const MyMenuItem = ({ to, icon, label, dense }) => {
     const navigate = useRedirect();
-    const location = window.location;
+    const location = useLocation();
     const [sidebarIsOpen] = useSidebarState();
 
-    // HashRouter 사용 시 hash에서 pathname 추출
+    // useLocation은 HashRouter에서도 올바른 pathname 반환
     const isActive = useMemo(() => {
         const path = location.pathname || '/'
         return path === to || path.startsWith(to + '/')
