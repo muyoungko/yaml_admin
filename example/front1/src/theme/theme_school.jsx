@@ -1,23 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { defaultTheme, Menu, AppBar, Logout, UserMenu, useSidebarState, useTranslate } from 'react-admin';
-import { deepmerge } from '@mui/utils';
-import { red, blue, green, grey } from '@mui/material/colors';
+import { Icon } from '@iconify/react';
 import {
   Box,
-  Typography,
-  Avatar,
   Chip,
-  List,
-  MenuItem,
-  ListItemIcon,
-  Collapse,
-  Tooltip,
-  Divider
+  Typography
 } from '@mui/material';
-import { Icon } from '@iconify/react';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import { useAdminContext } from 'yaml-admin-front';
+import { green, red } from '@mui/material/colors';
+import { deepmerge } from '@mui/utils';
+import React from 'react';
+import { AppBar, defaultTheme, Logout, UserMenu } from 'yaml-admin-front';
 
 export const theme = deepmerge(defaultTheme, {
   

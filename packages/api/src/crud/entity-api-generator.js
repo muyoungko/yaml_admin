@@ -19,6 +19,19 @@ const asyncErrorHandler = (fn) => (req, res, next) => {
 
 const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) => {
 
+    // entity 속성이 있으면 해당 값을 실제 collection 이름으로 사용
+    const collection_name = yml_entity.entity || entity_name
+
+    // filter 배열을 객체로 변환
+    let default_filter = {}
+    if (Array.isArray(yml_entity.filter)) {
+        yml_entity.filter.forEach(f => {
+            default_filter[f.name] = f.value
+        })
+    } else if (yml_entity.filter) {
+        default_filter = yml_entity.filter
+    }
+
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
     const passwordEncoding = yml.login['password-encoding']
     const api_host = yml["api-host"].uri;
@@ -177,7 +190,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
      * @param {*} entity_name 
      */
     const recalcurateAutoGenerateIndex = async (db, entity_name) => {
-        const list = await db.collection(entity_name).find({})
+        const list = await db.collection(collection_name).find({})
             .project({ [key_field.name]: 1, _id: 0 })
             .sort({ [key_field.name]: -1 }).limit(1).toArray()
         const counter = await db.collection('counters').findOne({ _id: entity_name })
@@ -241,6 +254,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             f['name'] = { $regex: ".*" + name + ".*" };
         f.remove = { $ne: true }
 
+        // default_filter 적용
+        Object.assign(f, default_filter)
+
         //Custom f list Start
 
         //Custom f list End
@@ -254,15 +270,15 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         if(aggregate?.length > 0) {
             aggregate = [...aggregate, {$match: f}]
-            const countResult = await db.collection(entity_name).aggregate([...aggregate, { $count: 'count' }]).toArray()
+            const countResult = await db.collection(collection_name).aggregate([...aggregate, { $count: 'count' }]).toArray()
             count = countResult.length > 0 ? countResult[0].count : 0
 
             aggregate = [...aggregate, { $sort: s }, { $skip: parseInt(_start) }, { $limit: l }]
-            list = await db.collection(entity_name).aggregate(aggregate).toArray()
+            list = await db.collection(collection_name).aggregate(aggregate).toArray()
         } else 
         {
-            count = await db.collection(entity_name).find(f).project(projection).sort(s).count()
-            list = await db.collection(entity_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
+            count = await db.collection(collection_name).find(f).project(projection).sort(s).count()
+            list = await db.collection(collection_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
         }
 
         if(yml.debug)
@@ -334,7 +350,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if (entityId) {
             let f = {}
             f[key_field.name] = entityId
-            let already = await db.collection(entity_name).findOne(f)
+            let already = await db.collection(collection_name).findOne(f)
             if (already)
                 throw new Error("duplicate key of [" + key_field.name + "] - [" + entityId + "]")
         }
@@ -343,11 +359,14 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         entity['update_date'] = entity['create_date'] = new Date()
         entity['create_admin_id'] = req.user.id
 
+        // default_filter 값을 entity에 자동 적용
+        Object.assign(entity, default_filter)
+
         //Custom Create Start
 
         //Custom Create End
 
-        var r = await db.collection(entity_name).insertOne(entity);
+        var r = await db.collection(collection_name).insertOne(entity);
         //Custom Create Tail Start
         if(options?.listener?.entityCreated)
             await options.listener.entityCreated(db, entity_name, entity)
@@ -377,6 +396,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         let f = {}
         f[key_field.name] = entityId
+        Object.assign(f, default_filter)
 
         for (let field of yml_entity.fields) {
             if (['mp4', 'image', 'file'].includes(field.type)) {
@@ -388,7 +408,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             }
         }
 
-        await db.collection(entity_name).updateOne(f, { $set: entity });
+        await db.collection(collection_name).updateOne(f, { $set: entity });
 
         //Custom Create Tail Start
         if(options?.listener?.entityUpdated)
@@ -405,16 +425,17 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     app.get(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
+        Object.assign(f, default_filter)
 
         let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
 
         let m
         if(aggregate?.length > 0) {
             aggregate = [{$match: f}, ...aggregate, { $limit: 1 }]
-            const result = await db.collection(entity_name).aggregate(aggregate).toArray()
+            const result = await db.collection(collection_name).aggregate(aggregate).toArray()
             m = result.length > 0 ? result[0] : null
         } else {
-            m = await db.collection(entity_name).findOne(f);
+            m = await db.collection(collection_name).findOne(f);
         }
 
         if (!m)
@@ -433,7 +454,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     app.delete(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) =>{
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
-        const entity = await db.collection(entity_name).findOne(f);
+        Object.assign(f, default_filter)
+        const entity = await db.collection(collection_name).findOne(f);
         if (!entity)
             return res.status(404).send('Not found');
 
@@ -448,9 +470,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if (customDelete)
             ;
         else if (softDelete)
-            await db.collection(entity_name).updateOne(f, { $set: { remove: true } });
+            await db.collection(collection_name).updateOne(f, { $set: { remove: true } });
         else
-            await db.collection(entity_name).deleteOne(f);
+            await db.collection(collection_name).deleteOne(f);
 
         if(options?.listener?.entityDeleted)
             await options.listener.entityDeleted(db, entity_name, entity)
@@ -469,7 +491,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             //{ label: '상품', value: row => row.product_list?.map(m=>m.total_name).join(',') },
 
             let f = req.body.filter || {}
-            const list = await db.collection(entity_name).find(f).project({
+            const list = await db.collection(collection_name).find(f).project({
                 _id: false,
             }).toArray();
 
@@ -564,7 +586,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                 })
             }
 
-            let result = await db.collection(entity_name).bulkWrite(bulk);
+            let result = await db.collection(collection_name).bulkWrite(bulk);
             //result에서 update entity와 created entity list로 추출 해서 options?.listener?.entityCreated?.(entity_name, createdEntity)와 options?.listener?.entityUpdated?.(entity_name, updateEntity) 호출
             try {
                 const upsertIndexToId = new Map()
