@@ -6,7 +6,7 @@ import {
     DateInput, NumberInput, DateTimeInput,
     FormDataConsumer,
 } from 'react-admin';
-import { Avatar } from '@mui/material';
+import { Avatar, Chip, Box } from '@mui/material';
 import ClickableImageField from '../component/ClickableImageField';
 import SafeImageField from '../component/SafeImageField';
 import { format, ifChecker } from '../common/format';
@@ -99,11 +99,21 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
                 </SingleFieldList>
             </ArrayField>
         } else {
-            if (isList)
-                return <FunctionField key={field.name} label={label} render={record =>
-                    record?.[field.name]?.length || 0
-                } />
-            else {
+            if (isList) {
+                if(crud_field?.chip) {
+                    return <FunctionField key={field.name} label={label} render={record =>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {record?.[field.name]?.map((item, index) => (
+                                <Chip key={index} label={format(crud_field.format, item)} size="small" />
+                            ))}
+                        </Box>
+                    } />
+                } else {
+                    return <FunctionField key={field.name} label={label} render={record =>
+                        record?.[field.name]?.length || 0
+                    } />
+                }
+            } else {
                 return <ArrayField label={label} source={field.name} >
                     <Datagrid bulkActionButtons={false} rowClick={false}>
                         {field.fields.map(m => getFieldShow({ field: m, isList }))}
