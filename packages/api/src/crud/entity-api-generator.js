@@ -704,6 +704,12 @@ const makeApiGenerateAggregate = async (db, entity_name, yml_entity, yml, option
             { $match: { $expr: { $eq: ['$' + match, '$$local_key'] } } }
         ]
 
+        // single일 때 max _id로 하나만 선택 ($match 바로 다음에)
+        if(single) {
+            innerPipeline.push({ $sort: { _id: -1 } })
+            innerPipeline.push({ $limit: 1 })
+        }
+
         // projection 구성
         const projection = { _id: 0, [match]: 1 }
         if(field) {
@@ -723,8 +729,8 @@ const makeApiGenerateAggregate = async (db, entity_name, yml_entity, yml, option
             })
         }
 
-        // projection을 innerPipeline 맨 앞에 추가 (match 다음)
-        innerPipeline.splice(1, 0, { $project: projection })
+        // projection을 innerPipeline에 추가
+        innerPipeline.push({ $project: projection })
 
         // 기본 $lookup 추가
         aggregate.push({
