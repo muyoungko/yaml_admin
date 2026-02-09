@@ -253,15 +253,12 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
 
         if(aggregate?.length > 0) {
-            aggregate = [{$match: f}, ...aggregate]
-
+            aggregate = [...aggregate, {$match: f}]
             const countResult = await db.collection(entity_name).aggregate([...aggregate, { $count: 'count' }]).toArray()
             count = countResult.length > 0 ? countResult[0].count : 0
 
-            list = await db.collection(entity_name).aggregate(aggregate)
-                .sort(s)
-                .skip(parseInt(_start))
-                .limit(l).toArray()
+            aggregate = [...aggregate, { $sort: s }, { $skip: parseInt(_start) }, { $limit: l }]
+            list = await db.collection(entity_name).aggregate(aggregate).toArray()
         } else 
         {
             count = await db.collection(entity_name).find(f).project(projection).sort(s).count()
