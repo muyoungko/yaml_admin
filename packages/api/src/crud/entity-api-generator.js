@@ -89,6 +89,32 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         return key
     }
 
+    // unique 검사 함수
+    const checkUnique = async (entity, excludeId = null) => {
+        const uniqueFields = yml_entity.unique
+        if (!uniqueFields || uniqueFields.length === 0) return
+
+        const f = {}
+        for (const field of uniqueFields) {
+            f[field.name] = entity[field.name]
+        }
+
+        // 자기 자신 제외 (update 시)
+        if (excludeId !== null) {
+            f[key_field.name] = { $ne: excludeId }
+        }
+
+        const existing = await db.collection(collection_name).findOne(f)
+        if (existing) {
+            const fieldNames = uniqueFields.map(u => {
+                const fieldDef = yml_entity.fields?.find(field => field.name === u.name)
+                return fieldDef?.label || u.name
+            }).join(', ')
+            const fieldValues = uniqueFields.map(u => entity[u.name]).join(', ')
+            throw new Error("duplicate key of [" + fieldNames + "] - [" + fieldValues + "]")
+        }
+    }
+
     const parseValueByType = (value, field) => {
         const { type, reference_entity, reference_match } = field
         if(value == 'not null')
@@ -262,9 +288,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         //Custom f list End
 
         const projection = (key_field.name == '_id' ? {} : { _id: false })
-        if(yml.debug)
-            console.log('list', entity_name, f)
-
         let list, count;
         let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
 
@@ -274,9 +297,12 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             count = countResult.length > 0 ? countResult[0].count : 0
 
             aggregate = [...aggregate, { $sort: s }, { $skip: parseInt(_start) }, { $limit: l }]
+            if(yml.debug)
+                console.log('list', entity_name, JSON.stringify(aggregate, null, 2))
             list = await db.collection(collection_name).aggregate(aggregate).toArray()
-        } else 
-        {
+        } else {
+            if(yml.debug)
+                console.log('list', entity_name, f)
             count = await db.collection(collection_name).find(f).project(projection).sort(s).count()
             list = await db.collection(collection_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
         }
@@ -362,6 +388,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         // default_filter 값을 entity에 자동 적용
         Object.assign(entity, default_filter)
 
+        // unique 검사
+        await checkUnique(entity)
+
         //Custom Create Start
 
         //Custom Create End
@@ -407,6 +436,9 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                 }
             }
         }
+
+        // unique 검사 (자기 자신 제외)
+        await checkUnique(entity, entityId)
 
         await db.collection(collection_name).updateOne(f, { $set: entity });
 
@@ -726,6 +758,15 @@ const makeApiGenerateAggregate = async (db, entity_name, yml_entity, yml, option
             { $match: { $expr: { $eq: ['$' + match, '$$local_key'] } } }
         ]
 
+        // filter 처리
+        if (Array.isArray(apiGenerateItem.filter)) {
+            let filterMatch = {}
+            apiGenerateItem.filter.forEach(f => {
+                filterMatch[f.name] = f.value
+            })
+            innerPipeline.push({ $match: filterMatch })
+        }
+
         // single일 때 max _id로 하나만 선택 ($match 바로 다음에)
         if(single) {
             innerPipeline.push({ $sort: { _id: -1 } })
@@ -783,84 +824,6 @@ const makeApiGenerateAggregate = async (db, entity_name, yml_entity, yml, option
 
     //console.log('aggregate', JSON.stringify(aggregate, null, 2))
     return aggregate
-}
-
-const makeApiGenerateFields = async (db, entity_name, yml_entity, yml, options, data_list) => {
-    const apiGenerate = yml_entity.api_generate
-    if(!apiGenerate)
-        return;
-    for(let key in apiGenerate) {
-        
-        const apiGenerateItem = apiGenerate[key]
-        let { entity, field, fields, match, sort, limit, single, match_from } = apiGenerateItem
-
-        sort = sort || []
-        sort = makeMongoSortFromYml(sort)
-        limit = limit || 1000
-        
-        let match_from_list = data_list.map(m=>matchPathInObject(m, match_from))
-        match_from_list = match_from_list.filter(m=>m)
-        const projection = {[match]:1}
-
-        const aggregate = [
-            { $match: { [match]: {$in:match_from_list} } },
-        ]
-
-        if(field)
-            projection[field] = 1
-        else if(fields){
-            fields.map(m=>{
-                projection[m.name] = 1
-            })
-
-            fields.map(m=>{
-                if(m.type == 'reference') {
-                    let project = { _id: 0 }
-
-                    if(m.field)
-                        project[m.field] = 1
-                    else
-                        m.fields.map(f=>{
-                            project[f.name] = 1
-                        })
-
-                    aggregate.push({ $lookup: {
-                        from: m.reference_entity,
-                        let: { local_key: '$'+m.reference_from },
-                        pipeline: [
-                            { $match: { $expr: { $eq: ["$"+m.reference_match, "$$local_key"] } } },
-                            { $project: project }
-                        ],
-                        as: m.name
-                    } })
-                    if(m.single)
-                        aggregate.push({ $unwind: `$${m.name}` })
-                
-                    if(m.field)
-                        aggregate.push({ $addFields: { [m.field]: `$${m.name}.${m.field}` } })
-                }
-            })
-        }
-
-        const result = await db.collection(entity)
-            .aggregate(aggregate)
-            .project(projection)
-            .toArray()
-        data_list.map(m=>{
-            let found = result.filter(f=>matchPathInObject(f, match) === matchPathInObject(m, match_from))
-            if(single) {
-                if(field)
-                    m[key] = found.length > 0 ? found[0][field] : null
-                else 
-                    m[key] = found.length > 0 ? found[0] : null
-            } else {
-                if(field)
-                    m[key] = found.map(f=>f[field])
-                else
-                    m[key] = found
-            }
-        })
-    }
 }
 
 const generateEntityApi = async ({ app, db, entity_name, entity, yml, options }) => {

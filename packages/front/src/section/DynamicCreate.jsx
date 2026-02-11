@@ -112,7 +112,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
     }, [location, yml, fields])
 
     return (
-        <Create title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
+        <Create title={<DynamicTitle />} {...props} mutationMode='pessimistic' redirect="list"
         //Custom Create Property Start
 
         //Custom Create Property End

@@ -115,7 +115,7 @@ export const DynamicEdit = ({custom, ...props}) => {
     //Custom Create Code End
     
     return (
-        <Edit title={<DynamicTitle />} {...props} mutationMode='optimistic' redirect="list"
+        <Edit title={<DynamicTitle />} {...props} mutationMode='pessimistic' redirect="list"
         //Custom Create Property Start
        
         //Custom Create Property End

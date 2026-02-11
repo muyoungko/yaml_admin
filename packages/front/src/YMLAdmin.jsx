@@ -1,4 +1,4 @@
-import { Admin, Resource, fetchUtils, CustomRoutes, defaultTheme, Login } from "react-admin";
+import { Admin, Resource, fetchUtils, CustomRoutes, defaultTheme, Login, HttpError } from "react-admin";
 import jsonServerProvider from "ra-data-json-server";
 import { Route } from "react-router-dom";
 import YAML from 'yaml';
@@ -15,13 +15,23 @@ import { setApiHost } from './common/axios';
 import fileUploader from './common/fileUploader';
 import DashboardLayout from './section/DashboardLayout';
 
-const httpClient = (url, options = {}) => {
+const httpClient = async (url, options = {}) => {
   if (!options.headers) {
     options.headers = new Headers({ Accept: 'application/json' });
   }
   const token = localStorage.getItem('token');
   options.headers.set('x-access-token', token);
-  return fetchUtils.fetchJson(url, options);
+
+  try {
+    return await fetchUtils.fetchJson(url, options);
+  } catch (error) {
+    // 서버 에러 응답에서 메시지 추출
+    if (error.body && error.body.message) {
+      console.log('error.body.message', error.body.message)
+      throw new HttpError(error.body.message, error.status, error.body);
+    }
+    throw error;
+  }
 }
 
 const CustomLoginPage = () => {
