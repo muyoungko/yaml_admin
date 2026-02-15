@@ -28,6 +28,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
                         newFilter[f.name] = op + ' ' + val;
                     } else if (typeof f.value === 'string' && value.startsWith('$')) {
                         value = localStorage.getItem(value.substring(1));
+                        newFilter[f.name] = value;
                     } else {
                         newFilter[f.name] = value;
                     }
@@ -40,7 +41,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
     const { data, total, isLoading, error } = useGetList(
         component.entity,
         { 
-            pagination: { page: 1, perPage: component.size || 10 },
+            pagination: { page: 1, perPage: component.limit || 10 },
             sort: { field: 'id', order: 'DESC' },
             filter: filter
         },
@@ -52,7 +53,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
         isLoading,
         total,
         page: 1,
-        perPage: component.size || 10,
+        perPage: component.limit || 10,
         sort: { field: 'id', order: 'DESC' },
         filterValues: filter,
         setSort: () => {},
@@ -64,7 +65,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
         onSelect: () => {},
         onToggleItem: () => {},
         onUnselectItems: () => {},
-    }), [data, isLoading, total, filter, component.entity, component.size]);
+    }), [data, isLoading, total, filter, component.entity, component.limit]);
 
     if (isLoading) {
         return (
