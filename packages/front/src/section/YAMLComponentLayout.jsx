@@ -4,7 +4,8 @@ import {
 } from 'react-admin';
 
 import { useAdminContext } from '../AdminContext';
-import { Box, Grid, Card, Paper, CardContent, CardHeader, Typography } from '@mui/material';
+import { Box, Card, Paper, CardContent, Grid, Typography } from '@mui/material';
+
 import YAMLComponent from './YAMLComponent';
 import { useTheme, alpha } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -71,11 +72,11 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
                 </Typography>
             </Box>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={3} >
                 {components?.map((component, index) => {
                     const gradientIndex = index % cardGradients.length;
                     return (
-                        <Grid item key={index} xs={12} md={component.size || 4}>
+                        <Grid item key={index} size={{ xs: 12, md: component.size || 4 }}>
                             <Paper
                                 elevation={0}
                                 sx={{
