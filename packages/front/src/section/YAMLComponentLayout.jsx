@@ -13,6 +13,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
+import YAMLComponentTable from './YAMLComponentTable';
 
 // 컨테이너 근처에서
 
@@ -133,7 +134,8 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
 
                                 {/* Card Content */}
                                 <CardContent sx={{ p: 3 }}>
-                                    <YAMLComponent component={component} />
+                                    {component.component === 'table' && <YAMLComponentTable component={component} />}
+                                    {component.component === 'chart' && <YAMLComponent component={component} />}
                                 </CardContent>
                             </Paper>
                         </Grid>

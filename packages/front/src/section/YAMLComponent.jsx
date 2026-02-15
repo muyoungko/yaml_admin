@@ -160,14 +160,17 @@ export const YAMLComponent = ({ component, custom, ...props }) => {
     useEffect(() => {
         setLoading(true);
         let queryString = '';
-        component.filter?.forEach(s => {
-            if(s.value?.startsWith('$')) {
-                let value = localStorage.getItem(s.value.substring(1));
+        component.filter?.forEach(f => {
+            if (typeof f.value === 'string' && (f.value.includes('$lte ') || f.value.includes('$gte ') || f.value.includes('$lt ') || f.value.includes('$gt '))) {
+                const [op, val] = f.value.split(' ');
+                queryString += `${s.name}=${encodeURIComponent(op + ' ' + val)}&`;
+            } else if(f.value?.startsWith('$')) {
+                let value = localStorage.getItem(f.value.substring(1));
                 if(value) {
-                    queryString += `${s.name}=${encodeURIComponent(value)}&`;
+                    queryString += `${f.name}=${encodeURIComponent(value)}&`;
                 }
             } else {
-                queryString += `${s.name}=null&`;
+                queryString += `${f.name}=null&`;
             }
         });
         fetcher(`/api/chart/${component.id}?${queryString}`).then(res => {

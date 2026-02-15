@@ -121,6 +121,20 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             return { $ne: null }
         else if(value == 'null')
             return null
+        if(value?.startsWith('$')) {
+            const [op, val] = value.split(' ')
+            if(op == '$lte')
+                return { $lte: parseFloat(val) }
+            else if(op == '$gte')
+                return { $gte: val }
+            else if(op == '$lt')
+                return { $lt: val }
+            else if(op == '$gt')
+                return { $gt: val }
+            else
+                return value
+        }
+
         if (type == 'boolean') {
             if(value == 'true')
                 return true
