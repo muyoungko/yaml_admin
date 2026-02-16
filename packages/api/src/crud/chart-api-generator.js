@@ -291,7 +291,12 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
 
                 let filter = {};
                 chart.filter?.forEach(s => {
-                    let value = req.query[s.name];
+                    let value = s.value;
+                    if(value?.startsWith('$')) {
+                        let q_value = value.substring(1);
+                        value = req.query[q_value]
+                    }
+
                     if(value == 'null')
                         filter[s.name] = null;
                     else if(value == 'not null')
