@@ -125,6 +125,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
                 {fields.filter(field => crud.create == true || crud.create.map(a => a.name).includes(field.name))
                     //exclude field by api_generate
                     .filter(field => checkApiGenerateContain(field.name))
+                    .filter(field => field.type != 'objectId')
                     .map(field => {
                         let crud_field = crud.create == true ? null : crud.create.find(a => a.name == field.name)
                         let defaultValue = getDefaultValue(crud_field)
