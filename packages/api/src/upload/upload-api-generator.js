@@ -29,10 +29,10 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let ext = req.params.ext;
 
         let contentType = whatIsContentType(ext)
-        let key = `${member_no}/${fileName}.${ext}`
+        let key = `${prefix}/${member_no}/${fileName}.${ext}`
         const uploadUrl = await getSignedUrl(s3, new PutObjectCommand({Bucket: bucket,
             ContentType: contentType,
-            Key: `${prefix}/${key}`}), { expiresIn: 300 }); 
+            Key: key}), { expiresIn: 300 }); 
 
         let r = {upload_url:uploadUrl, key, fileName:`${fileName}.${ext}`, member_no, contentType}
         console.log(r)
@@ -46,10 +46,10 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let ext = req.params.ext;
 
         let contentType = whatIsContentType(ext)
-        let key = `${member_no}/${fileName}.${ext}`
+        let key = `${prefix}/${member_no}/${fileName}.${ext}`
         const uploadUrl = await getSignedUrl(s3, new PutObjectCommand({Bucket: bucket_private,
             ContentType: contentType,   
-            Key: `${prefix}/${key}`}), { expiresIn: 300 }); 
+            Key: `${key}`}), { expiresIn: 300 }); 
 
         let r = {upload_url:uploadUrl, key, fileName:`${fileName}.${ext}`, member_no, contentType}
         
@@ -63,12 +63,12 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let fileName = await genEntityIdWithKey(db, 'file');
         let ext = req.params.ext;
         
-        let key = `/${member_no}/${fileName}.${ext}`;
+        let key = `${prefix}/${member_no}/${fileName}.${ext}`;
         let contentType = whatIsContentType(ext);
 
         const createMultipartUpload = await s3.send(new CreateMultipartUploadCommand({
             Bucket: bucket_private,
-            Key: `${prefix}/${key}`,
+            Key: `${key}`,
             ContentType: contentType
         }));
 
@@ -79,10 +79,9 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
     app.post(api_prefix+'/api/media/url/secure/part', auth.isAuthenticated, async function (req, res) {
         let s3 = getS3();
         let { key, uploadId, partNumber } = req.body;
-
         const command = new UploadPartCommand({
             Bucket: bucket_private,
-            Key: `${prefix}/${key}`,
+            Key: `${key}`,
             UploadId: uploadId,
             PartNumber: partNumber
         });
@@ -101,7 +100,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
 
         await s3.send(new CompleteMultipartUploadCommand({
             Bucket: bucket_private,
-            Key: `${prefix}/${key}`,
+            Key: `${key}`,
             UploadId: uploadId,
             MultipartUpload: { Parts: parts }
         }));
@@ -117,7 +116,7 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
 
             await s3.send(new AbortMultipartUploadCommand({
                 Bucket: bucket_private,
-                Key: `${prefix}/${key}`,
+                Key: `${key}`,
                 UploadId: uploadId
             }));
 
@@ -136,11 +135,11 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let r = {list:[], r:true}
         for(let ext of ext_list) {
             let fileName = await genEntityIdWithKey(db, 'file')
-            let key = `/${member_no}/${fileName}.${ext}`
+            let key = `${prefix}/${member_no}/${fileName}.${ext}`
             let contentType = whatIsContentType(ext)
             const upload_url = await getSignedUrl(s3, new PutObjectCommand({Bucket: bucket,
                 ContentType: contentType,
-                Key: `${prefix}/${key}`}), { expiresIn: 300 }); 
+                Key: `${key}`}), { expiresIn: 300 }); 
             
             r.list.push({upload_url, key, fileName:`${fileName}.${ext}`, member_no, contentType})
         }
@@ -156,11 +155,11 @@ const generateS3UploadApi = async ({ app, db, yml, options }) => {
         let r = {list:[], r:true}
         for(let ext of ext_list) {
             let fileName = await genEntityIdWithKey(db, 'file')
-            let key = `${member_no}/${fileName}.${ext}`
+            let key = `${prefix}/${member_no}/${fileName}.${ext}`
             let contentType = whatIsContentType(ext)
             const upload_url = await getSignedUrl(s3, new PutObjectCommand({Bucket: bucket_private,
                 ContentType: contentType,
-                Key: `${prefix}/${key}`}), { expiresIn: 300 }); 
+                Key: `${key}`}), { expiresIn: 300 }); 
 
             r.list.push({upload_url, key, fileName:`${fileName}.${ext}`, member_no, contentType})
         }
