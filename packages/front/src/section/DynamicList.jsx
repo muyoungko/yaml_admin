@@ -1,4 +1,5 @@
 
+import { Icon } from '@iconify/react';
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
 import moment from 'moment';
@@ -220,7 +221,9 @@ const ListActions = ({ crud, custom, ...props }) => {
 const RowButton = ({ crud_field }) => {
     const navigate = useNavigate()
     const record = useRecordContext()
-    return <Button label={crud_field.label} onClick={(e) => {
+    return <Button label={crud_field.label}
+        startIcon={crud_field.icon ? <Icon icon={crud_field.icon} /> : null}
+        onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
         crud_field.action.forEach(a => {
