@@ -41,6 +41,8 @@ import { format, ifChecker } from '../common/format';
     }}
  */
 const findChildField = (field, field_path) => {
+    if(field.name == field_path)
+        return field
     let field_path_array = field_path.split('.')
     if (field_path_array.length == 1)
         return field
@@ -91,14 +93,17 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
     else if (field.type == 'objectId')
         return <TextField key={field.name} label={label} source={field.name} />
     else if (field.type == 'array') {
-        if (crud_field?.name?.includes('.')) {
+        if (crud_field?.show == 'chip') {
             let child_field = findChildField(field, crud_field.name)
             return <ArrayField key={field.name} source={field.name} label={label}>
                 <SingleFieldList linkType={false}>
-                    {getFieldShow({ field: child_field, isList })}
+                    <ReferenceField key={child_field.reference_match} link="show" source={child_field.name} reference={child_field.reference_entity}>
+                        <FunctionField render={record => <Chip label={record?.[child_field.reference_name]} size="small" />} />
+                    </ReferenceField>
                 </SingleFieldList>
             </ArrayField>
-        } else {
+        }
+        else {
             if (isList) {
                 if(crud_field?.chip) {
                     return <FunctionField key={field.name} label={label} render={record =>
@@ -116,7 +121,7 @@ export const getFieldShow = ({ field, isList, crud_field }) => {
             } else {
                 return <ArrayField label={label} source={field.name} >
                     <Datagrid bulkActionButtons={false} rowClick={false}>
-                        {field.fields.map(m => getFieldShow({ field: m, isList }))}
+                        {field.fields?.map(m => getFieldShow({ field: m, isList }))}
                     </Datagrid>
                 </ArrayField>
             }

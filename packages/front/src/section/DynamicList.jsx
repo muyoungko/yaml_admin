@@ -269,7 +269,17 @@ export const DynamicList = ({ custom, ...props }) => {
         )
             return true
 
-        return findField(name) != null
+        if (crud_field.name.includes('.')) {
+            let name_array = crud_field.name.split('.')
+            let current_fields = fields
+            for(let i=0; i<name_array.length; i++) {
+                let field = current_fields.find(f => f.name == name_array[i])
+                if(!field) return false
+                if(i == name_array.length - 1) return true
+                if(field.fields) current_fields = field.fields
+                else return false
+            }
+        }
 
         return false
 
