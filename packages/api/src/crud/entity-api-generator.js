@@ -338,6 +338,34 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         res.json(list);
     }));
 
+    //view
+    app.get(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+        let f = {}
+        f[key_field.name] = parseKey(req.params.id)
+        Object.assign(f, default_filter)
+
+        let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
+
+        let m
+        if(aggregate?.length > 0) {
+            aggregate = [{$match: f}, ...aggregate, { $limit: 1 }]
+            if(yml.debug && entity_name == 'ils')
+                console.log('list', entity_name, JSON.stringify(aggregate, null, 2))
+            const result = await db.collection(collection_name).aggregate(aggregate).toArray()
+            m = result.length > 0 ? result[0] : null
+        } else {
+            m = await db.collection(collection_name).findOne(f);
+        }
+
+        if (!m)
+            return res.status(404).send('Not found');
+
+        m.id = getKeyFromEntity(m)
+        await addInfo(db, [m])
+
+        res.json(m);
+    }))
+
 
     const constructEntity = async (req, entityId) => {
         var entity = {};
@@ -466,35 +494,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         res.json(entity);
     }));
-
-    //view
-    app.get(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
-        let f = {}
-        f[key_field.name] = parseKey(req.params.id)
-        Object.assign(f, default_filter)
-
-        let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
-
-        let m
-        if(aggregate?.length > 0) {
-            aggregate = [{$match: f}, ...aggregate, { $limit: 1 }]
-            const result = await db.collection(collection_name).aggregate(aggregate).toArray()
-            m = result.length > 0 ? result[0] : null
-        } else {
-            m = await db.collection(collection_name).findOne(f);
-        }
-
-        if (!m)
-            return res.status(404).send('Not found');
-
-        m.id = getKeyFromEntity(m)
-        await addInfo(db, [m])
-
-        if(yml.debug)
-            console.log('show', entity_name, m)
-
-        res.json(m);
-    }))
 
     //delete
     app.delete(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) =>{
@@ -793,9 +792,7 @@ const makeApiGenerateAggregate = async (db, entity_name, yml_entity, yml, option
             projection[field] = 1
         } else if(fields) {
             fields.forEach(m => {
-                if(m.type !== 'reference') {
-                    projection[m.name] = 1
-                }
+                projection[m.name] = 1
             })
 
             // reference 필드는 중첩 lookup으로 처리
