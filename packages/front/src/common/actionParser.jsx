@@ -15,7 +15,7 @@ import { format, ifChecker } from './format';
  * @returns 
  */
 
-const act = (action, record, {navigate}) => {
+const act = (action, record, {navigate, setPopup}) => {
     if (!action || !action.type) return action
     if (action.type === 'body') {
         let { crud, entity, filter, sort } = action
@@ -52,6 +52,13 @@ const act = (action, record, {navigate}) => {
             }
         } else {
             navigate(url)
+        }
+    } else if (action.type === 'popup') {
+        if (setPopup) {
+            setPopup({
+                action,
+                record
+            })
         }
     }
 }

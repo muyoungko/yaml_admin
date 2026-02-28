@@ -3,6 +3,7 @@ import { Layout } from 'react-admin';
 import MyAppBar from './MyAppBar'
 import MyMenu from './MyMenu'
 import { useAdminContext } from '../AdminContext';
+import { ActionPopup } from '../component/ActionPopup';
 
 const MyLayout = ({ children }) => {
     const { custom } = useAdminContext();
@@ -12,6 +13,7 @@ const MyLayout = ({ children }) => {
     return (
         <Layout appBar={AppBarComponent} menu={MenuComponent} >
             {children}
+            <ActionPopup />
         </Layout>
     );
 };

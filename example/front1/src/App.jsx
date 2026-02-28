@@ -3,6 +3,8 @@ import { YMLAdmin, EntityTreeView } from 'yaml-admin-front';
 import adminYamlText from '../../admin.yml?raw';
 import koreanMessages from './i18n/ko';
 import { theme, customLayout } from './theme/theme1';
+import { MyPopupContent } from './custom/MyPopupContent';
+
 const globalFilterDelegate = (entity) => {
   if (entity != 'server') {
     let s = localStorage.getItem('server_id')
@@ -26,6 +28,9 @@ export default function App() {
               return <div> <CustomTreeView/></div>
             }
           }
+        },
+        action: {
+          member_admin_popup: MyPopupContent
         },
         customRoutes:[],
         globalFilterDelegate,

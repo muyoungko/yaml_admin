@@ -22,7 +22,7 @@ import { useAdminContext } from '../AdminContext';
 export const EntityTreeView = ({ component, custom, ...props }) => {
     const navigate = useNavigate()
     const [list, setList] = useState([])
-    const { admin } = useAdminContext()
+    const { admin, setPopup } = useAdminContext()
     
     useEffect(() => {
         let {entity, key, parent_key, label, sort} = component
@@ -99,12 +99,14 @@ export const EntityTreeView = ({ component, custom, ...props }) => {
     }, [component, custom, updateNodeChildren])
 
     const callAction = useCallback((action_list, theNode) => {
+        if (!action_list) return
         for(let action of action_list) {  
             act(action, theNode, {
-                navigate
+                navigate,
+                setPopup
             })
         }
-    }, [component, custom, navigate])
+    }, [component, custom, navigate, setPopup])
 
     const itemClick = useCallback((event, nodeId) => {
         let theNode = findNode({list}, nodeId)

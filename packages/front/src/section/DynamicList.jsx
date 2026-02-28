@@ -221,6 +221,7 @@ const ListActions = ({ crud, custom, ...props }) => {
 const RowButton = ({ crud_field }) => {
     const navigate = useNavigate()
     const record = useRecordContext()
+    const { setPopup } = useAdminContext()
     return <Button label={crud_field.label}
         startIcon={crud_field.icon ? <Icon icon={crud_field.icon} /> : null}
         onClick={(e) => {
@@ -228,7 +229,8 @@ const RowButton = ({ crud_field }) => {
         e.preventDefault()
         crud_field.action.forEach(a => {
             act(a, record, {
-                navigate
+                navigate,
+                setPopup
             })
         })
     }} />

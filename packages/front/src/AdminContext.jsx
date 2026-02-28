@@ -6,6 +6,8 @@ export const AdminContext = createContext({
   setYml: () => {},
   admin: { token: null },
   setAdmin: () => {},
+  popup: null,
+  setPopup: () => {},
 });
 
 // External setter hook-up so non-React modules (e.g., auth provider) can update admin
@@ -25,6 +27,7 @@ export const AdminProvider = ({ initialYml = null, custom = null, children }) =>
   const [admin, setAdmin] = useState(() => ({
     token: typeof window !== 'undefined' ? (localStorage.getItem('token') || null) : null,
   }));
+  const [popup, setPopup] = useState(null);
 
   useEffect(() => {
     externalSetAdmin = setAdmin;
@@ -36,8 +39,8 @@ export const AdminProvider = ({ initialYml = null, custom = null, children }) =>
   // Expose YAML fields at the top level for backward compatibility,
   // and also provide `yml` and `admin` namespaces.
   const value = useMemo(
-    () => ({ ...(yml || {}), yml, setYml, admin, setAdmin, custom }),
-    [yml, admin, custom]
+    () => ({ ...(yml || {}), yml, setYml, admin, setAdmin, custom, popup, setPopup }),
+    [yml, admin, custom, popup]
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
