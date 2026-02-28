@@ -13,5 +13,7 @@ export {
   defaultTheme,
   useSidebarState,
   useTranslate,
-  useRedirect
+  useRedirect,
+  Login,
+  LoginForm
 } from 'react-admin';

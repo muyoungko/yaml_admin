@@ -2,12 +2,15 @@ import { Icon } from '@iconify/react';
 import {
   Box,
   Chip,
-  Typography
+  Typography,
+  Card,
+  CardContent,
+  Avatar
 } from '@mui/material';
 import { green, red } from '@mui/material/colors';
 import { deepmerge } from '@mui/utils';
 import React from 'react';
-import { AppBar, defaultTheme, Logout, UserMenu } from 'yaml-admin-front';
+import { AppBar, defaultTheme, Logout, UserMenu, Login, LoginForm, useAdminContext } from 'yaml-admin-front';
 
 export const theme = deepmerge(defaultTheme, {
   
@@ -170,9 +173,102 @@ const CustomAppBar = (props) => {
   );
 };
 
+// ===== Custom Login Component =====
+const CustomLoginPage = () => {
+  const { yml } = useAdminContext();
+  
+  return (
+    <Login
+      backgroundImage={yml?.front?.appearance?.login?.background}
+      sx={{
+        background: !yml?.front?.appearance?.login?.background ? `linear-gradient(135deg, ${green[50]} 0%, ${green[100]} 100%)` : undefined,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        '& .MuiPaper-root': {
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
+        },
+        '& .RaLogin-avatar': {
+            display: 'none',
+        }
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      >
+        <Card
+          sx={{
+            minWidth: 350,
+            maxWidth: 400,
+            borderRadius: 4,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(10px)',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            overflow: 'visible',
+            position: 'relative',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: green[600],
+              borderRadius: '50%',
+              padding: 2,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 80,
+              height: 80,
+            }}
+          >
+            <Icon icon="mdi:shield-check" width="40" height="40" color="#ffffff" />
+          </Box>
+          
+          <CardContent sx={{ pt: 14, px: 4, pb: 4 }}>
+            <Box textAlign="center" mb={3}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 700,
+                  color: green[800],
+                  mb: 1
+                }}
+              >
+                Smart School Safety
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                관리자 로그인
+              </Typography>
+            </Box>
+            
+            <LoginForm />
+          </CardContent>
+        </Card>
+        
+        <Box mt={4} textAlign="center">
+          <Typography variant="caption" color="textSecondary">
+            © 2024 Smart School Safety System. All rights reserved.
+          </Typography>
+        </Box>
+      </Box>
+    </Login>
+  );
+};
+
 // ===== Export custom layout components for YMLAdmin =====
 export const customLayout = {
   appName: 'Smart School Safety',
   AppBar: CustomAppBar,
+  Login: CustomLoginPage,
   // Menu: CustomMenu,
 };

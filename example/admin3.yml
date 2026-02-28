@@ -1,0 +1,254 @@
+debug: true
+login:
+  jwt-secret: ${JWT_SECRET}
+  password-encoding: sha512 # bcrypt, sha512, sha256
+  id-password:
+    entity: admin
+    id-field: email 
+    password-field: password
+  master-email: master
+  master-password: '5756'
+api-host: 
+  uri: http://localhost:6911/devil/dev
+web-host: 
+  uri: http://localhost:6900/devil/dev
+database:
+  mongodb: 
+    uri: ${MONGODB_URL}
+upload:
+  s3:
+    access_key_id: ${S3_ACCESS_KEY_ID}
+    secret_access_key: ${S3_SECRET_ACCESS_KEY}
+    region: ${S3_REGION}
+    prefix: ${S3_PREFIX}
+    bucket: ${S3_BUCKET}
+    bucket_private: ${S3_BUCKET_PRIVATE}
+    base_url: ${S3_BASE_URL}
+entity:
+  member:
+    category : '사용자 관리'
+    label: "사용자"
+    icon: "solar:user-hands-outline"
+    crud:
+      search:
+        - name: email
+          exact: false
+        - name: name
+          exact: false
+        - name: type
+      list: 
+        - name: member_no
+          sort: desc
+        - name: name
+        - name: email
+        - name: type
+        - name: currency
+        - name: point
+        - name: reg_date
+      create: false
+      edit: false
+      show: true
+      delete: false
+    fields:
+      - name: member_no
+        label: "회원번호"
+        type: string
+        required: true
+        key: true
+        autogenerate: true
+      - name: email
+        label: "로그인아이디"
+        type: string
+        required: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
+      - name: point
+        label: "Point"
+        type: integer
+        required: true
+      - name: reg_date
+        label: "등록일"
+        type: date
+        showtime: true
+  game_quest:
+    category : '게임'
+    label: "퀘스트"
+    icon: "solar:user-hands-outline"
+    crud:
+      search:
+        - name: name
+      list: true
+      create:
+        - name: rank
+        - name: name
+        - name: script
+        - name: q
+        - name: a
+        - name: select_list
+        - name: reward_list
+      edit:
+        - name: rank
+        - name: name
+        - name: script
+        - name: q
+        - name: a
+        - name: select_list
+        - name: reward_list
+      show: true
+      delete: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: rank
+        label: "난이도"
+        type: integer
+        required: true
+      - name: name
+        label: "퀘스트명"
+        type: string
+        required: true
+      - name: script
+        label: "스크립트"
+        type: string
+        multiline: true
+        required: true
+      - name: q
+        label: "퀘스트 질문"
+        type: string
+        required: true
+      - name: a
+        label: "정답"
+        type: string
+        required: true
+      - name: select_list
+        label: "선택지문"
+        type: array
+        fields:
+          - name: text
+            label: "라벨"
+            type: string
+            required: true
+          - name: key
+            label: "값"
+            type: string
+            required: true
+      - name: reward_list
+        label: "보상 목록"
+        type: array
+        fields:
+          - name: type
+            label: "보상 형식"
+            type: select
+            default: "credit"
+            select_values:
+            - name: "item"
+              label: "아이템"
+            - name: "credit"
+              label: "크래딧"
+          - name: item_id
+            label: "아이템목록"
+            type: reference
+            reference_entity: game_item
+            reference_match: id
+            reference_name: name
+            condition: type == 'item'
+          - name: amount
+            label: "크래싯가격"
+            type: integer
+            condition: type == 'credit'
+      - name: create_date
+        label: "등록일"
+        type: date
+  game_item:
+    category : '게임'
+    label: "게임 아이템"
+    icon: "solar:user-hands-outline"
+    crud:
+      search:
+        - name: name
+      list: true
+      create:
+        - name: name
+        - name: image
+      edit:
+        - name: name
+        - name: image
+      show: true
+      delete: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: name
+        label: "아이템명"
+        type: string
+        required: true
+      - name: image
+        label: "이미지"
+        type: image
+      - name: update_date
+        label: "등록일"
+        type: date
+        showtime: true
+  admin:
+    category: '사용자 관리'
+    icon: 'solar:shield-user-outline'
+    label: '운영자'
+    crud:
+      search:
+        - name: email
+        - name: name
+      list: true
+      create: true
+      edit: true
+      show: true
+      delete: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: email
+        label: "이메일"
+        type: string
+        required: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
+      - name: password
+        label: "비밀번호"
+        type: password
+        required: true
+front:
+  category:
+    - name: '사용자 관리'
+      icon: 'solar:user-hands-outline'
+    - name: '게임'
+      icon: 'solar:user-hands-outline'
+  
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+

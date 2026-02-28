@@ -29,8 +29,8 @@ upload:
 entity:
   server:
     hidden: true
-    category: '시설 관리'
-    label: "시설"
+    category: '공장 관리'
+    label: "공장"
     crud:
       search:
         - name: id
@@ -55,11 +55,11 @@ entity:
         type: string
         required: true
       - name: factory
-        label: "시설명"
+        label: "공장명"
         type: string
         required: true
   top_floor:
-    category : '시설 관리'
+    category : '공장 관리'
     icon: "solar:map-broken"
     label: "최상위 도면"
     hidden: true
@@ -77,7 +77,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -94,7 +94,7 @@ entity:
         type: image
         private: true
   floor:
-    category : '시설 관리'
+    category : '공장 관리'
     icon: "solar:map-outline"
     label: "도면"
     hidden: true
@@ -128,7 +128,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -152,7 +152,7 @@ entity:
         type: image
         private: true
   region:
-    category : '시설 관리'
+    category : '공장 관리'
     label: '개소'
     icon: "solar:download-square-outline"
     layout:
@@ -242,7 +242,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -282,7 +282,7 @@ entity:
         field: id
         single: true
   item:
-    category : '시설 관리'
+    category : '공장 관리'
     label: '항목'
     icon: "solar:download-twice-square-outline"
     layout:
@@ -362,7 +362,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -431,10 +431,11 @@ entity:
             fields:
               - name: name
               - name: user_type
+              - name: department_id
               - name: phone
   place:
     hidden: true
-    category: '시설 관리'
+    category: '공장 관리'
     label: 'Location'
     icon: "solar:download-minimalistic-bold-duotone"
     crud:
@@ -463,7 +464,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -495,7 +496,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -592,8 +593,15 @@ entity:
         - name: phone
         - name: department_id
         - name: company
-        - name: server_list
+        - name: server_list.server_id
           show: chip
+        - name: server_popup_button
+          type: button
+          icon: 'material-symbols:folder-managed-outline'
+          label: '권한변경'
+          action:
+            - type: popup
+              custom: member_admin_popup
       create: 
         - name: server_id
           filter:
@@ -622,7 +630,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -678,6 +686,23 @@ entity:
       - name: company
         label: "회사"
         type: string
+      - name: server_list
+        label: "권한"
+        type: array
+        fields:
+          - name: server_id
+            label: "권한"
+            type: reference
+            reference_entity: server
+            reference_match: id
+            reference_name: factory
+    api_generate:
+      server_list:
+        match_from: email
+        entity: member
+        match: email
+        fields:
+          - name : server_id
   member_worker:
     entity: member
     category : '사용자 관리'
@@ -756,7 +781,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -828,7 +853,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -894,10 +919,10 @@ entity:
         - name: id
         - name: key
         - name: serial
+        - name: item.item_id
         - name: version
         - name: battery
         - name: sync_date
-        - name: item_id
         - name: lock_list
       delete: true
       export:
@@ -917,7 +942,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1011,7 +1036,7 @@ entity:
       delete: false
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1044,7 +1069,7 @@ entity:
       list: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1139,7 +1164,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "시설"
+        label: "공장"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1168,8 +1193,6 @@ front:
     pagination:
       rowsPerPage: 30
       rowsPerPageOptions: []
-    login:
-      background: http://admin.smartils.co.kr.s3-website.ap-northeast-2.amazonaws.com/login_bg.jpg
   dashboard:
     - component: chart
       id: lock_by_region
@@ -1342,7 +1365,7 @@ front:
             color: '#228B22' #green
     
   category:
-    - name: '시설 관리'
+    - name: '공장 관리'
       icon: 'solar:city-outline'
     - name: '자원 관리'
       icon: 'solar:lock-keyhole-minimalistic-outline'

@@ -99,7 +99,7 @@ const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout })
     <>
       {dataProvider && <AdminProvider initialYml={yml} custom={custom} width="1250px">
         <Admin
-          loginPage={CustomLoginPage}
+          loginPage={custom?.layout?.Login || CustomLoginPage}
           theme={{...defaultTheme, ...theme}}
           dashboard={yml?.front?.dashboard ? DashboardLayout : undefined}
           layout={layout || MyLayout}

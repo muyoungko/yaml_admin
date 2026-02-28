@@ -1,0 +1,365 @@
+debug: true
+login:
+  jwt-secret: ${JWT_SECRET}
+  password-encoding: sha512 # bcrypt, sha512, sha256
+  id-password:
+    entity: admin
+    id-field: email 
+    password-field: password
+  master-email: master
+  master-password: '5756'
+api-host: 
+  uri: http://localhost:6911/bnbhost/dev
+web-host: 
+  uri: http://localhost:6900/bnbhost/dev
+database:
+  mongodb: 
+    uri: ${MONGODB_URL}
+upload:
+  s3:
+    access_key_id: ${S3_ACCESS_KEY_ID}
+    secret_access_key: ${S3_SECRET_ACCESS_KEY}
+    region: ${S3_REGION}
+    prefix: ${S3_PREFIX}
+    bucket: ${S3_BUCKET}
+    bucket_private: ${S3_BUCKET_PRIVATE}
+    base_url: ${S3_BASE_URL}
+entity:
+  member:
+    category : '사용자 관리'
+    icon: "solar:user-hands-outline"
+    label: "사용자"
+    crud:
+      search:
+        - name: member_no
+        - name: email
+          exact: false
+        - name: name
+          exact: false
+        - name: purchase.valid
+      list: 
+        - name: member_no
+        - name: email
+        - name: name
+        - name: type
+        - name: push.os
+        - name: purchase.valid
+        - name: purchase.reg_date
+        - name: purchase.sync_date
+      create: false
+      edit: false
+      show: true
+      delete: false
+    fields:
+      - name: member_no
+        label: "회원번호"
+        type: string
+        required: true
+        key: true
+        autogenerate: true
+      - name: email
+        label: "이메일"
+        type: string
+        required: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
+      - name: type
+        type: select
+        label: "가입유형"
+        select_values:
+          - name: "google"
+            label: "구글"
+          - name: "apple"
+            label: "애플"
+        required: true
+      - name: push.os
+        type: string
+        label: "OS"
+      - name: purchase.valid
+        label: "구독"
+        type: boolean
+      - name: purchase.reg_date
+        label: "구독시작"
+        type: date
+      - name: purchase.sync_date
+        label: "구독동기화"
+        type: date
+    api_generate:
+      push:
+        match_from: member_no
+        entity: push
+        match: member_no
+        single: true
+        fields: 
+          - name: fcm
+          - name: os
+      purchase:
+        match_from: member_no
+        entity: purchase
+        match: member_no
+        single: true
+        filter:
+          - name: valid
+            value: true
+        fields: 
+          - name: valid
+          - name: reg_date
+          - name: sync_date
+  admin:
+    category: '사용자 관리'
+    icon: 'solar:shield-user-outline'
+    label: '운영자'
+    crud:
+      search:
+        - name: email
+        - name: name
+      list: true
+      create: true
+      edit: true
+      show: true
+      delete: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: email
+        label: "이메일"
+        type: string
+        required: true
+      - name: name
+        label: "이름"
+        type: string
+        required: true
+      - name: password
+        label: "비밀번호"
+        type: password
+        required: true
+                    
+  room_one:
+    category : '자원 관리'
+    icon: "solar:lock-keyhole-minimalistic-outline"
+    label: "Room"
+    crud:
+      search:
+        - name: id
+        - name: key
+          exact: false
+        - name: type
+      list: true
+      create: false
+      edit: false
+      show: true
+      delete: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: type
+        label: "형식"
+        type: string
+      - name: reg_date
+        label: "등록일"
+        type: date
+        showtime: true
+      - name: show_date
+        label: "최근조회"
+        type: date
+      - name: key
+        label: "URL"
+        type: string
+        required: true
+      - name: sleep
+        label: "유휴"
+        type: boolean
+      - name: room_member_list
+        label: "참조 인원수"
+        type: array
+        fields:
+          - name: member_no
+            label: "회원"
+            type: reference
+            reference_entity: member
+            reference_match: member_no
+            reference_name: name
+          - name: udid
+            label: "기기"
+            type: string
+          - name: reg_date
+            label: "등록일"
+            type: date
+            showtime: true
+    api_generate:
+      room_member_list:
+        match_from: id
+        entity: room_member
+        match: room_id
+        fields: 
+          - name: member_no
+          - name: udid
+          - name: reg_date
+          - name: name
+            type: string
+  room_member:
+    category : '자원 관리'
+    icon: "solar:lock-keyhole-minimalistic-outline"
+    label: "Room Member"
+    crud:
+      search:
+        - name: room_id
+        - name: name
+          exact: false
+      list: true
+      create: false
+      edit: false
+      show: true
+      delete: true
+    fields:
+      - name: room_id
+        label: "Room ID"
+        type: string
+      - name: name
+        label: "이름"
+        type: string
+      - name: member_no
+        label: "회원"
+        type: reference
+        reference_entity: member
+        reference_match: member_no
+        reference_name: name    
+  reservation:
+    category : '자원 관리'
+    icon: "solar:lock-keyhole-minimalistic-outline"
+    label: "예약"
+    crud:
+      search:
+        - name: room_id
+        - name: host
+        - name: s
+        - name: e
+      list: true
+      create: false
+      edit: false
+      show: true
+      delete: true
+    fields:
+      - name: room_id
+        label: "Room ID"
+        type: string
+      - name: host
+        label: "호스트"
+        type: string
+      - name: type
+        label: "타입"
+        type: string
+      - name: s
+        label: "시작일"
+        type: string
+      - name: e
+        label: "끝일"
+        type: string
+      - name: reg_date
+        label: "등록일"
+        type: date
+        showtime: true
+      - name: room_id
+        label: "url"
+        type: reference
+        reference_entity: room_one
+        reference_match: id
+        reference_name: key
+  room_memo_v2:
+    category : '자원 관리'
+    icon: "solar:lock-keyhole-minimalistic-outline"
+    label: "Memo"
+    crud:
+      search:
+        - name: room_id
+        - name: member_no
+        - name: memo
+          exact: false
+      list: true
+      create: false
+      edit: false
+      show: true
+      delete: true
+    fields:
+      - name: room_id
+        label: "room_id"
+        type: string  
+      - name: member_no
+        label: "회원"
+        type: reference
+        reference_entity: member
+        reference_match: member_no
+        reference_name: name
+        required: true
+      - name: date
+        label: "일"
+        type: string
+      - name: memo
+        label: "메모"
+        type: string
+      - name: reg_date
+        label: "등록일"
+        type: date
+  team:
+    category : '자원 관리'
+    icon: "solar:lock-keyhole-minimalistic-outline"
+    label: "팀"
+    crud:
+      search:
+        - name: id
+        - name: name
+          exact: false
+      list: true
+      create: false
+      edit: false
+      show: true
+      delete: true
+    fields:
+      - name: id
+        label: "ID"
+        type: integer
+        required: true
+        key: true
+        autogenerate: true
+      - name: name
+        label: "이름"
+        type: string
+      - name: member_no
+        label: "주인"
+        type: reference
+        reference_entity: member
+        reference_match: member_no
+        reference_name: name
+        required: true
+      - name: room_list
+        label: "방개수"
+        type: array
+      - name: team_room_member_list
+        label: "멤버 목록"
+        type: array
+    api_generate:
+      team_room_member_list:
+        match_from: id
+        entity: team_room_member
+        match: team_id
+        fields: 
+          - name: member_no
+front:
+  category:
+    - name: '사용자 관리'
+      icon: 'solar:user-hands-outline'
+    - name: '자원 관리'
+      icon: 'solar:lock-keyhole-minimalistic-outline'
+
+  
+
