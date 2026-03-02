@@ -123,6 +123,11 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             return null
         if(value?.startsWith('$')) {
             const [op, val] = value.split(' ')
+            
+            if (type == 'array') {
+                return { __isExpr: true, op, val: parseInt(val), field: field.name }
+            }
+
             if(op == '$lte')
                 return { $lte: parseFloat(val) }
             else if(op == '$gte')
@@ -267,7 +272,13 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                     f[field.name] = { $in: q.map(v => parseValueByType(v, field)) };
                 } else {
                     if (search?.exact != false || field.type == 'integer') {
-                        f[field.name] = parseValueByType(q, field)
+                        const v = parseValueByType(q, field)
+                        if(v && v.__isExpr) {
+                            if(!f.$expr) f.$expr = { $and: [] }
+                            f.$expr.$and.push({ [v.op]: [{ $size: `$${v.field}` }, v.val] })
+                        } else {
+                            f[field.name] = v
+                        }
                     } else
                         f[field.name] = { $regex: ".*" + q + ".*" };
                 }
@@ -303,7 +314,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         const projection = (key_field.name == '_id' ? {} : { _id: false })
         let list, count;
-        let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
+        let aggregate = await makeApiGenerateAggregate(yml_entity.api_generate)
 
         if(aggregate?.length > 0) {
             aggregate = [...aggregate, {$match: f}]
@@ -311,17 +322,17 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             count = countResult.length > 0 ? countResult[0].count : 0
 
             aggregate = [...aggregate, { $sort: s }, { $skip: parseInt(_start) }, { $limit: l }]
-            if(yml.debug)
-                console.log('list', entity_name, JSON.stringify(aggregate, null, 2))
+            if(yml.debug || yml_entity.debug)
+                console.log('list', entity_name, JSON.stringify(aggregate))
             list = await db.collection(collection_name).aggregate(aggregate).toArray()
         } else {
-            if(yml.debug)
+            if(yml.debug || yml_entity.debug)
                 console.log('list', entity_name, f)
             count = await db.collection(collection_name).find(f).project(projection).sort(s).count()
             list = await db.collection(collection_name).find(f).project(projection).sort(s).skip(parseInt(_start)).limit(l).toArray()
         }
 
-        if(yml.debug)
+        if(yml.debug || yml_entity.debug)
             console.log('list', entity_name, 'count', count, 'list length', list.length)
 
         list.map(m => {
@@ -344,12 +355,12 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         f[key_field.name] = parseKey(req.params.id)
         Object.assign(f, default_filter)
 
-        let aggregate = await makeApiGenerateAggregate(db, entity_name, yml_entity, yml, options)
+        let aggregate = await makeApiGenerateAggregate(yml_entity.api_generate)
 
         let m
         if(aggregate?.length > 0) {
             aggregate = [{$match: f}, ...aggregate, { $limit: 1 }]
-            if(yml.debug && entity_name == 'ils')
+            if(yml.debug || yml_entity.debug)
                 console.log('list', entity_name, JSON.stringify(aggregate, null, 2))
             const result = await db.collection(collection_name).aggregate(aggregate).toArray()
             m = result.length > 0 ? result[0] : null
@@ -710,8 +721,7 @@ const matchPathInObject = (obj, path) => {
     return r
 }
 
-const makeApiGenerateAggregate = async (db, entity_name, yml_entity, yml, options) => {
-    const apiGenerate = yml_entity.api_generate
+const makeApiGenerateAggregate = async (apiGenerate) => {
     if(!apiGenerate)
         return;
 

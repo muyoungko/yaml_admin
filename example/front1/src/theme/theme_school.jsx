@@ -201,6 +201,8 @@ const CustomLoginPage = () => {
           alignItems: 'center',
           justifyContent: 'center',
           width: '100%',
+          backgroundColor: '#ffffff',
+          p:4
         }}
       >
         <Card
@@ -257,7 +259,7 @@ const CustomLoginPage = () => {
         
         <Box mt={4} textAlign="center">
           <Typography variant="caption" color="textSecondary">
-            © 2024 Smart School Safety System. All rights reserved.
+            © 2026 Smart School Safety System. All rights reserved.
           </Typography>
         </Box>
       </Box>

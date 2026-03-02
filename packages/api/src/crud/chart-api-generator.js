@@ -107,7 +107,7 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                 a.push({ $limit: limit })
 
             //debug
-            if(yml.debug)
+            if(chart.debug)
                 console.log('chart', chart.label, entity_x, JSON.stringify(a, null, 2))
 
             const list = await db.collection(entity_x).aggregate(a).toArray();
@@ -243,7 +243,7 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                 a.push({ $limit: limit })
 
             //debug
-            if(yml.debug)
+            if(chart.debug)
                 console.log('chart', chart.label, entity_x, JSON.stringify(a, null, 2))
 
             const list = await db.collection(entity_x).aggregate(a).toArray();
@@ -324,6 +324,7 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
         })
     }
 }
+
 /**
  * 'lock==true' or 'lock!=true' to mongodb match format like {lock:true} , {lock:{$ne:true}}
  * @param {*} expression  
@@ -409,10 +410,11 @@ function evaluateIfToMatch(expression) {
     }
 }
 
+
 function getPath(obj, path) {
     return path.split('.').reduce((acc, k) => (acc && acc[k] !== undefined ? acc[k] : undefined), obj);
 }
 
 module.exports = {
-    generateChartApi
+    generateChartApi,
 }

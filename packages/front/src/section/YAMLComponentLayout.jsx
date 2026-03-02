@@ -49,30 +49,9 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
         <Box
             sx={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)',
                 padding: { xs: 2, md: 4 },
             }}
         >
-            {/* Dashboard Header */}
-            <Box sx={{ mb: 4 }}>
-                <Typography
-                    variant="h4"
-                    sx={{
-                        fontWeight: 700,
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        mb: 1,
-                    }}
-                >
-                    Dashboard
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    실시간 데이터 현황을 확인하세요
-                </Typography>
-            </Box>
-
             <Grid container spacing={3} >
                 {components?.map((component, index) => {
                     const gradientIndex = index % cardGradients.length;
@@ -97,7 +76,7 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
                                 {/* Card Header with Gradient */}
                                 <Box
                                     sx={{
-                                        background: cardGradients[gradientIndex],
+                                        borderColor: theme.palette.primary.main,
                                         px: 3,
                                         py: 2,
                                         display: 'flex',
@@ -105,26 +84,11 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
                                         gap: 1.5,
                                     }}
                                 >
-                                    <Box
-                                        sx={{
-                                            width: 36,
-                                            height: 36,
-                                            borderRadius: 2,
-                                            background: 'rgba(255,255,255,0.25)',
-                                            backdropFilter: 'blur(10px)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: '#fff',
-                                        }}
-                                    >
-                                        {getChartIcon(component.type)}
-                                    </Box>
                                     <Typography
                                         variant="subtitle1"
                                         sx={{
                                             fontWeight: 600,
-                                            color: '#fff',
+                                            color: '#333',
                                             textShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                         }}
                                     >

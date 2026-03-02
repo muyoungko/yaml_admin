@@ -1,4 +1,3 @@
-debug: true
 login:
   jwt-secret: ${JWT_SECRET}
   password-encoding: sha512 # bcrypt, sha512, sha256
@@ -282,6 +281,7 @@ entity:
         field: id
         single: true
   item:
+    debug: true
     category : '공장 관리'
     label: '항목'
     icon: "solar:download-twice-square-outline"
@@ -400,6 +400,9 @@ entity:
         reference_entity: ils
         reference_match: id
         reference_name: key
+      - name: lock_list
+        label: "잠금자수"
+        type: array
     api_generate:
       place_id:
         match_from: id
@@ -1250,7 +1253,6 @@ front:
       label: '하위 개소별 잠금 현황'
       type: bar
       size: 7
-      debug: true
       filter:
         - name: server_id
           value: $server_id
@@ -1296,9 +1298,27 @@ front:
             color: '#228B22' #green
             if: member.user_type==관리자
     - component: table
+      id: lock_by_item
+      limit: 100
+      entity: item
+      label: '현재 잠금 현황'
+      type: bar
+      size: 6
+      debug: true
+      filter:
+        - name: server_id
+          value: $server_id
+          type: integer
+        - name: lock_list
+          value: $gt 0
+      fields:
+        - name: id
+        - name: name
+        - name: lock_list
+    - component: table
       id: low_battery_ils
       label: '배터리 부족 ILS'
-      size: 12
+      size: 6
       filter:
         - name: server_id
           value: $server_id
