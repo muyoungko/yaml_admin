@@ -60,10 +60,9 @@ const withConfigS3 = ({ access_key_id, secret_access_key, region, prefix, bucket
     }
 
     const uploadSecure = async (Key, stream) => {
-        console.log('uploadSecure', prefix, Key)
         return await s3.send(new PutObjectCommand({
             Bucket: bucket_private,
-            Key: `${prefix}/${Key}`,
+            Key: (prefix ?`${prefix}/${Key}` : Key),
             Body: stream,
             ACL: 'private',
             Expires: moment().add(10, 'minute').toDate(),
@@ -72,13 +71,16 @@ const withConfigS3 = ({ access_key_id, secret_access_key, region, prefix, bucket
     }
     
     const getUrl = async (Key) => {
-        return `${base_url}/${prefix}/${Key}`
+        if(prefix)
+            return `${base_url}/${prefix}/${Key}`
+        else
+            return `${base_url}/${Key}`
     }
     
     const getUrlSecure = async (Key) => {
         const command = new GetObjectCommand({
             Bucket: bucket_private,
-            Key: `${prefix}/${Key}`,
+            Key: prefix ? `${prefix}/${Key}` : Key,
         })
         const r = await getSignedUrl(s3, command, { expiresIn: 600 })
         return r
