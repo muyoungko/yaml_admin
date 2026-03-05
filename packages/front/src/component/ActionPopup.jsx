@@ -13,6 +13,10 @@ export const ActionPopup = () => {
     const [loading, setLoading] = useState(false);
     const notify = useNotify();
 
+    useEffect(()=> {
+        console.log('ActionPopup', 'useEffect', popup)
+    }, [popup])
+    
     if (!popup) return null;
 
     const { action, record } = popup;
@@ -23,7 +27,7 @@ export const ActionPopup = () => {
     };
 
     return (
-        <Dialog open={true} onClose={handleClose} fullWidth maxWidth="md">
+        <Dialog open={popup} onClose={handleClose} fullWidth maxWidth="md">
             {CustomComponent && <CustomComponent popup={popup} record={record} />}
         </Dialog>
     );

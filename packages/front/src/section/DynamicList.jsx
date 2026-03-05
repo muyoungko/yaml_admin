@@ -225,14 +225,14 @@ const RowButton = ({ crud_field }) => {
     return <Button label={crud_field.label}
         startIcon={crud_field.icon ? <Icon icon={crud_field.icon} /> : null}
         onClick={(e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        crud_field.action.forEach(a => {
-            act(a, record, {
-                navigate,
-                setPopup
+            e.stopPropagation()
+            e.preventDefault()
+            crud_field.action.forEach(a => {
+                act(a, record, {
+                    navigate,
+                    setPopup
+                })
             })
-        })
     }} />
 }
 
