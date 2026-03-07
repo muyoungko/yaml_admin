@@ -22,7 +22,7 @@ const SubMenu = ({ handleToggle, isOpen, name, icon, children, dense }) => {
         mx: 1,
         borderRadius: 2,
         mb: 0.5,
-        minWidth:230,
+        minWidth:200,
         transition: 'all 0.2s ease',
         '&:hover': {
           backgroundColor: 'action.hover',
@@ -40,7 +40,6 @@ const SubMenu = ({ handleToggle, isOpen, name, icon, children, dense }) => {
       <Typography
         variant="body2"
         sx={{
-          flex: 1,
           fontWeight: 500,
           color: 'text.secondary',
           transition: 'all 0.2s ease',
@@ -50,6 +49,7 @@ const SubMenu = ({ handleToggle, isOpen, name, icon, children, dense }) => {
       </Typography>
       <ExpandMore
         sx={{
+          ml: 1,
           color: 'text.disabled',
           fontSize: 20,
           transition: 'transform 0.3s ease',
