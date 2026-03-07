@@ -5,7 +5,7 @@ import {
 
 import { useAdminContext } from '../AdminContext';
 import { Box, Card, Paper, CardContent, Grid, Typography } from '@mui/material';
-
+import { Icon } from '@iconify/react';
 import YAMLComponent from './YAMLComponent';
 import { useTheme, alpha } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -54,6 +54,7 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
         >
             <Grid container spacing={3} >
                 {components?.map((component, index) => {
+                    console.log(`Dashboard Component [${index}] ${component.label}:`, component);
                     const gradientIndex = index % cardGradients.length;
                     return (
                         <Grid item key={index} size={{ xs: 12, md: component.size || 4 }}>
@@ -78,12 +79,20 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
                                     sx={{
                                         borderColor: theme.palette.primary.main,
                                         px: 3,
-                                        py: 2,
+                                        py: 3,
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 1.5,
+                                        gap: 1,
                                     }}
                                 >
+                                    {component.icon && (
+                                        <Icon 
+                                            icon={component.icon} 
+                                            width={24} 
+                                            height={24} 
+                                            style={{ color: '#666' }} 
+                                        />
+                                    )}
                                     <Typography
                                         variant="subtitle1"
                                         sx={{
