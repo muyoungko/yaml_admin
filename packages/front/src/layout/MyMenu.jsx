@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslate, useRedirect, useSidebarState } from 'react-admin';
 import { List, MenuItem, ListItemIcon, ListItemText, Box } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import SubMenu from './SubMenu';
 import { useLocation } from 'react-router-dom';
 import { Icon } from '@iconify/react';
@@ -31,22 +32,22 @@ const MyMenuItem = ({ to, icon, label, dense }) => {
                 maxWidth: sidebarIsOpen ? 200 : 40,
                 position: 'relative',
                 transition: 'all 0.2s ease',
-                backgroundColor: isActive ? 'primary.main' : 'transparent',
-                color: isActive ? 'primary.contrastText' : 'text.secondary',
+                backgroundColor: 'transparent',
+                color: 'text.secondary',
                 '&:hover': {
-                    backgroundColor: isActive ? 'primary.dark' : 'action.hover',
+                    backgroundColor: isActive ? (theme) => alpha(theme.palette.primary.main, 0.12) : 'action.hover',
                 },
                 '&.Mui-selected': {
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
+                    backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                    color: 'primary.main',
                     '&:hover': {
-                        backgroundColor: 'primary.dark',
+                        backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.12),
                     },
                 },
                 '& .MuiListItemIcon-root': {
                     marginLeft: sidebarIsOpen? 0 : -0.7,
                     minWidth: 36,
-                    color: isActive ? 'primary.contrastText' : 'text.secondary',
+                    color: isActive ? 'primary.main' : 'text.secondary',
                     transition: 'color 0.2s ease',
                 },
             }}
