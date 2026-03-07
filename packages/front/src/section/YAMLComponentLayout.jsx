@@ -63,42 +63,73 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
                                 sx={{
                                     borderRadius: 4,
                                     overflow: 'hidden',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
                                     background: '#ffffff',
                                     border: '1px solid',
-                                    borderColor: alpha(theme.palette.primary.main, 0.08),
+                                    borderColor: alpha(theme.palette.divider, 0.1),
+                                    position: 'relative',
                                     '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.15)}`,
-                                        borderColor: alpha(theme.palette.primary.main, 0.2),
+                                        transform: 'translateY(-8px)',
+                                        boxShadow: '0 20px 40px -12px rgba(0,0,0,0.15)',
+                                        borderColor: 'transparent',
+                                        zIndex: 1,
                                     },
                                 }}
                             >
                                 {/* Card Header with Gradient */}
                                 <Box
                                     sx={{
-                                        borderColor: theme.palette.primary.main,
                                         px: 3,
-                                        py: 3,
+                                        py: 2.5,
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 1,
+                                        gap: 2,
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                                        '&::before': {
+                                            content: '""',
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            width: '4px',
+                                            height: '100%',
+                                            background: cardGradients[gradientIndex],
+                                        }
                                     }}
                                 >
                                     {component.icon && (
-                                        <Icon 
-                                            icon={component.icon} 
-                                            width={24} 
-                                            height={24} 
-                                            style={{ color: '#666' }} 
-                                        />
+                                        <Box
+                                            sx={{
+                                                width: 42,
+                                                height: 42,
+                                                borderRadius: '14px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                background: cardGradients[gradientIndex],
+                                                boxShadow: '0 8px 16px -4px rgba(0,0,0,0.2)',
+                                                color: '#fff',
+                                                transition: 'transform 0.3s ease',
+                                                '.MuiPaper-root:hover &': {
+                                                    transform: 'scale(1.1) rotate(5deg)',
+                                                }
+                                            }}
+                                        >
+                                            <Icon 
+                                                icon={component.icon} 
+                                                width={22} 
+                                                height={22} 
+                                                style={{ color: '#fff' }} 
+                                            />
+                                        </Box>
                                     )}
                                     <Typography
                                         variant="subtitle1"
                                         sx={{
-                                            fontWeight: 600,
-                                            color: '#333',
-                                            textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                            fontWeight: 700,
+                                            color: '#2c3e50',
+                                            letterSpacing: '0.5px',
                                         }}
                                     >
                                         {component.label}

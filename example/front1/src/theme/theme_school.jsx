@@ -7,29 +7,37 @@ import {
   CardContent,
   Avatar
 } from '@mui/material';
-import { green, red } from '@mui/material/colors';
+import { red } from '@mui/material/colors';
+import { alpha } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 import React from 'react';
 import { AppBar, defaultTheme, Logout, UserMenu, Login, LoginForm, useAdminContext } from 'yaml-admin-front';
+
+// Brand Colors
+const PRIMARY_MAIN = '#6C2FF2';
+const PRIMARY_LIGHT = '#9D6CFF';
+const PRIMARY_DARK = '#3A00B2';
+const SECONDARY_MAIN = '#00E5FF'; 
 
 export const theme = deepmerge(defaultTheme, {
   
   palette: {
     primary: {
-      main: green[600],
-      light: green[400],
-      dark: green[800],
+      main: PRIMARY_MAIN,
+      light: PRIMARY_LIGHT,
+      dark: PRIMARY_DARK,
       contrastText: '#ffffff',
     },
     secondary: {
-      main: green[700],
-      light: green[500],
-      dark: green[900],
+      main: SECONDARY_MAIN,
+      light: '#6EFFFF',
+      dark: '#00B2CC',
+      contrastText: '#000000',
     },
     error: red,
     tonalOffset: 0.2,
     background: {
-      default: '#f8faf8',
+      default: '#F4F7FE',
       paper: '#ffffff',
     },
   },
@@ -102,7 +110,7 @@ export const theme = deepmerge(defaultTheme, {
           borderRadius: 10,
         },
         '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-          borderColor: green[600],
+          borderColor: PRIMARY_MAIN,
         },
         '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
           borderColor: red[600],
@@ -143,12 +151,12 @@ const CustomAppBar = (props) => {
     >
       <Box flex={1} display="flex" alignItems="center" gap={2}>
         <Box display="flex" alignItems="center" gap={1}>
-          <Icon icon="mdi:shield-check" width="28" height="28" color={green[600]} />
+          <Icon icon="mdi:shield-check" width="28" height="28" color={PRIMARY_MAIN} />
           <Typography
             variant="h6"
             sx={{
               fontWeight: 700,
-              background: `linear-gradient(135deg, ${green[700]} 0%, ${green[500]} 100%)`,
+              background: `linear-gradient(135deg, ${PRIMARY_MAIN} 0%, ${SECONDARY_MAIN} 100%)`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               letterSpacing: '-0.5px',
@@ -161,8 +169,8 @@ const CustomAppBar = (props) => {
           label="ADMIN"
           size="small"
           sx={{
-            backgroundColor: green[100],
-            color: green[800],
+            backgroundColor: alpha(PRIMARY_MAIN, 0.1),
+            color: PRIMARY_MAIN,
             fontWeight: 600,
             fontSize: '10px',
             height: 20,
@@ -181,7 +189,7 @@ const CustomLoginPage = () => {
     <Login
       backgroundImage={yml?.front?.appearance?.login?.background}
       sx={{
-        background: !yml?.front?.appearance?.login?.background ? `linear-gradient(135deg, ${green[50]} 0%, ${green[100]} 100%)` : undefined,
+        background: !yml?.front?.appearance?.login?.background ? `linear-gradient(135deg, ${alpha(PRIMARY_MAIN, 0.05)} 0%, ${alpha(SECONDARY_MAIN, 0.05)} 100%)` : undefined,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -222,15 +230,16 @@ const CustomLoginPage = () => {
               position: 'absolute',
               left: '50%',
               transform: 'translateX(-50%)',
-              backgroundColor: green[600],
+              backgroundColor: PRIMARY_MAIN,
               borderRadius: '50%',
               padding: 2,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              boxShadow: `0 4px 20px ${alpha(PRIMARY_MAIN, 0.4)}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               width: 80,
               height: 80,
+              background: `linear-gradient(135deg, ${PRIMARY_MAIN} 0%, ${SECONDARY_MAIN} 100%)`,
             }}
           >
             <Icon icon="mdi:shield-check" width="40" height="40" color="#ffffff" />
@@ -242,7 +251,7 @@ const CustomLoginPage = () => {
                 variant="h5"
                 sx={{
                   fontWeight: 700,
-                  color: green[800],
+                  color: PRIMARY_MAIN,
                   mb: 1
                 }}
               >
