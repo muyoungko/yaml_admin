@@ -28,8 +28,7 @@ upload:
 entity:
   server:
     hidden: true
-    category: '공장 관리'
-    label: "공장"
+    label: "학교"
     crud:
       search:
         - name: id
@@ -54,11 +53,10 @@ entity:
         type: string
         required: true
       - name: factory
-        label: "공장명"
+        label: "학교명"
         type: string
         required: true
   top_floor:
-    category : '공장 관리'
     icon: "solar:map-broken"
     label: "최상위 도면"
     hidden: true
@@ -76,7 +74,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -93,7 +91,6 @@ entity:
         type: image
         private: true
   floor:
-    category : '공장 관리'
     icon: "solar:map-outline"
     label: "도면"
     hidden: true
@@ -127,7 +124,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -140,7 +137,7 @@ entity:
         key: true
         autogenerate: true
       - name: region_id
-        label: "개소"
+        label: "지역"
         type: reference
         reference_entity: region
         reference_match: id
@@ -151,8 +148,8 @@ entity:
         type: image
         private: true
   region:
-    category : '공장 관리'
-    label: '개소'
+    label: '지역'
+    hidden: true
     icon: "solar:download-square-outline"
     layout:
       left:
@@ -241,7 +238,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -281,42 +278,16 @@ entity:
         field: id
         single: true
   item:
-    debug: true
-    category : '공장 관리'
-    label: '항목'
+    label: '장소'
     icon: "solar:download-twice-square-outline"
-    layout:
-      left:
-        - component: tree
-          entity: region
-          key: id
-          parent_key: parent_id
-          sort:
-            - name: seq
-              desc: false
-          label: name
-          peer_click:
-            action:
-              - type: body
-                crud : list
-                entity: item
-                filter:
-                  - name: region_id
-                    value: ${id}
-                sort:
-                  - name: seq
-                    desc: false
     crud:
       search:
-        - name: region_id
         - name: id
         - name: name
       list: 
-        - name: region_id
         - name: id
         - name: name
         - name: seq
-        - name: place_id
         - name: ils.id
       create: 
         - name: server_id
@@ -324,11 +295,6 @@ entity:
           - name: id
             value: $server_id
             type: integer
-        - name: region_id
-          default: $region_id
-          filter:
-            - name: parent_id
-              value: not null
         - name: name
         - name: seq
       edit:
@@ -337,10 +303,6 @@ entity:
           - name: id
             value: $server_id
             type: integer
-        - name: region_id
-          filter:
-          - name: parent_id
-            value: not null
         - name: name
         - name: seq
       show: true
@@ -348,32 +310,23 @@ entity:
       export:
         fields:
           - name: server_id
-          - name: region_id
           - name: id
           - name: name
           - name: seq
       import:
         fields:
           - name: server_id
-          - name: region_id
           - name: id
           - name: name
           - name: seq
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
         reference_name: factory
-        required: true
-      - name: region_id
-        label: "개소"
-        type: reference
-        reference_entity: region
-        reference_match: id
-        reference_name: name
         required: true
       - name: name
         label: "이름"
@@ -434,11 +387,9 @@ entity:
             fields:
               - name: name
               - name: user_type
-              - name: department_id
               - name: phone
   place:
     hidden: true
-    category: '공장 관리'
     label: 'Location'
     icon: "solar:download-minimalistic-bold-duotone"
     crud:
@@ -467,14 +418,14 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
         reference_name: factory
         required: true
       - name: item_id
-        label: "항목"
+        label: "장소"
         type: reference
         required: true
         reference_entity: item
@@ -488,10 +439,12 @@ entity:
         key: true
         autogenerate: true
   member:
-    hidden: true
-    category : '사용자 관리'
+    label: '사용자'
+    icon: "solar:user-hands-outline"
     crud:
-      search: true
+      search: 
+        - name: name
+        - name: email
       list: true
       create: true
       edit: true
@@ -499,7 +452,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -528,9 +481,9 @@ entity:
         label: "역할"
         select_values:
           - name: "관리자"
-            label: "직영 · 계열"
+            label: "관리자"
           - name: "작업자"
-            label: "협력사"
+            label: "담당자"
         required: true
       - name: phone
         type: string
@@ -546,290 +499,8 @@ entity:
       - name: company
         label: "회사"
         type: string
-  member_admin:
-    entity: member
-    category : '사용자 관리'
-    icon: "solar:user-hands-outline"
-    label: "직영 · 계열"
-    filter:
-      - name: user_type
-        value: 관리자
-    unique:
-      - name: server_id
-      - name: email
-    crud:
-      search:
-          - name: server_id
-          - name: email
-            exact: false
-          - name: name
-            exact: false
-          - name: phone
-            exact: false
-          - name: user_type
-      export:
-        fields:
-          - name: server_id
-          - name: member_no
-          - name: email
-          - name: name
-          - name: user_type
-          - name: pass
-          - name: phone
-          - name: department_id
-      import:
-        fields:
-          - name: server_id
-          - name: member_no
-          - name: email
-          - name: name
-          - name: user_type
-          - name: pass
-          - name: phone
-          - name: department_id
-        upsert: true
-      list: 
-        - name: server_id
-        - name: email
-        - name: name
-        - name: user_type
-        - name: phone
-        - name: department_id
-        - name: company
-        - name: server_list.server_id
-          show: chip
-        - name: server_popup_button
-          type: button
-          icon: 'material-symbols:folder-managed-outline'
-          label: '권한변경'
-          action:
-            - type: popup
-              custom: member_admin_popup
-      create: 
-        - name: server_id
-          filter:
-          - name: id
-            value: $server_id
-            type: integer
-        - name: email
-        - name: name
-        - name: pass
-        - name: phone
-        - name: department_id
-        - name: company
-      edit: 
-        - name: server_id
-          filter:
-          - name: id
-            value: $server_id
-            type: integer
-        - name: email
-        - name: name
-        - name: pass
-        - name: phone
-        - name: department_id
-        - name: company
-      show: true
-      delete: true
-    fields:
-      - name: server_id
-        label: "공장"
-        type: reference
-        reference_entity: server
-        reference_match: id
-        reference_name: factory
-        required: true
-      - name: member_no
-        label: "회원번호"
-        type: string
-        required: true
-        key: true
-        autogenerate: true
-      - name: email
-        label: "사번"
-        type: string
-        required: true
-        validate:
-          - input: number 
-            if: user_type=='관리자'
-            message: "(직영 · 계열)는 숫자로만 입력해야 합니다."
-          - input: length
-            if: user_type=='관리자'
-            min: 7
-            max: 7
-            message: "(직영 · 계열)는 7자리 숫자로만 입력해야 합니다."
-      - name: name
-        label: "이름"
-        type: string
-        required: true
-      - name: pass
-        label: "비밀번호"
-        type: password
-        required: true
-      - name: user_type
-        type: select
-        label: "역할"
-        select_values:
-          - name: "관리자"
-            label: "직영 · 계열"
-          - name: "작업자"
-            label: "협력사"
-        required: true
-      - name: phone
-        type: string
-        label: "전화번호"
-        required: true
-      - name: department_id
-        label: "부서"
-        type: reference
-        reference_entity: department
-        reference_match: id
-        reference_name: name
-        required: true
-      - name: company
-        label: "회사"
-        type: string
-      - name: server_list
-        label: "권한"
-        type: array
-        fields:
-          - name: server_id
-            label: "권한"
-            type: reference
-            reference_entity: server
-            reference_match: id
-            reference_name: factory
-    api_generate:
-      server_list:
-        match_from: email
-        entity: member
-        match: email
-        fields:
-          - name : server_id
-  member_worker:
-    entity: member
-    category : '사용자 관리'
-    icon: "solar:user-hands-outline"
-    label: "협력사"
-    filter:
-      - name: user_type
-        value: 작업자
-    unique:
-      - name: server_id
-      - name: name
-      - name: phone
-    crud:
-      search:
-          - name: server_id
-          - name: email
-            exact: false
-          - name: name
-            exact: false
-          - name: phone
-            exact: false
-          - name: user_type
-      export:
-        fields:
-          - name: server_id
-          - name: member_no
-          - name: email
-          - name: name
-          - name: user_type
-          - name: pass
-          - name: phone
-          - name: department_id
-      import:
-        fields:
-          - name: server_id
-          - name: member_no
-          - name: email
-          - name: name
-          - name: user_type
-          - name: pass
-          - name: phone
-          - name: department_id
-        upsert: true
-      list: 
-        - name: server_id
-        - name: email
-        - name: name
-        - name: user_type
-        - name: phone
-        - name: department_id
-        - name: company
-      create: 
-        - name: server_id
-          filter:
-          - name: id
-            value: $server_id
-            type: integer
-        - name: email
-        - name: pass
-        - name: phone
-        - name: department_id
-        - name: company
-      edit: 
-        - name: server_id
-          filter:
-          - name: id
-            value: $server_id
-            type: integer
-        - name: email
-        - name: name
-        - name: pass
-        - name: phone
-        - name: department_id
-        - name: company
-      show: true
-      delete: true
-    fields:
-      - name: server_id
-        label: "공장"
-        type: reference
-        reference_entity: server
-        reference_match: id
-        reference_name: factory
-        required: true
-      - name: member_no
-        label: "회원번호"
-        type: string
-        required: true
-        key: true
-        autogenerate: true
-      - name: email
-        label: "이름"
-        type: string
-        required: true
-      - name: pass
-        label: "비밀번호"
-        type: password
-        required: true
-      - name: user_type
-        type: select
-        label: "역할"
-        select_values:
-          - name: "관리자"
-            label: "직영 · 계열"
-          - name: "작업자"
-            label: "협력사"
-        required: true
-      - name: phone
-        type: string
-        label: "전화번호"
-        required: true
-      - name: department_id
-        label: "부서"
-        type: reference
-        reference_entity: department
-        reference_match: id
-        reference_name: name
-        required: true
-      - name: company
-        label: "회사"
-        type: string
-
+  
   department:
-    category : '사용자 관리'
     icon: "solar:city-outline"
     label: "부서"
     crud:
@@ -856,7 +527,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -874,7 +545,6 @@ entity:
         required: true
               
   ils:
-    category : '자원 관리'
     icon: "solar:lock-keyhole-minimalistic-outline"
     label: "ILS"
     crud:
@@ -922,10 +592,10 @@ entity:
         - name: id
         - name: key
         - name: serial
-        - name: item.item_id
         - name: version
         - name: battery
         - name: sync_date
+        - name: item_id
         - name: lock_list
       delete: true
       export:
@@ -945,7 +615,7 @@ entity:
         upsert: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1026,7 +696,6 @@ entity:
             field: department_id
   lock:
     hidden: true
-    category: '자원 관리'
     icon: "solar:lock-keyhole-minimalistic-outline"
     label: "잠금"
     crud:
@@ -1039,7 +708,7 @@ entity:
       delete: false
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1062,7 +731,6 @@ entity:
         type: date
         showtime: true
   lock_history:
-    category: '자원 관리'
     label: "잠금이력"
     icon: "solar:history-outline"
     # hidden: true
@@ -1072,7 +740,7 @@ entity:
       list: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1098,7 +766,6 @@ entity:
         label: "잠금/해제"
         type: boolean
   file:
-    category: '파일 관리'
     icon: "solar:file-check-outline"
     label: "파일"
     hidden: true
@@ -1137,7 +804,6 @@ entity:
         type: date
         showtime: true
   admin:
-    category: '사용자 관리'
     icon: 'solar:shield-user-outline'
     label: '운영자'
     crud:
@@ -1167,7 +833,7 @@ entity:
       delete: true
     fields:
       - name: server_id
-        label: "공장"
+        label: "학교"
         type: reference
         reference_entity: server
         reference_match: id
@@ -1198,110 +864,34 @@ front:
       rowsPerPageOptions: []
   dashboard:
     - component: chart
-      id: lock_by_region
-      label: '상위 개소별 잠금 현황'
-      type: bar
-      size: 5
-      debug: false
+      api: '/api/mychart/lock_history1'
+      id: lock_history1
+      label: '일별 잠금 현황'
+      icon: 'solar:chart-square-outline'
+      type: line
+      size: 12
+      height: 300
       filter:
         - name: server_id
           value: $server_id
           type: integer
-        - name: parent_id
-          value: null
-      relation:
-        chain:
-          - match_from: ils_id
-            entity: ils
-            match: id
-          - match_from: ils.place_id
-            entity: place
-            match: id
-          - match_from: place.item_id
-            entity: item
-            match: id
-          - match_from: item.region_id
-            entity: region
-            match: id
-          - match_from: member_no
-            entity: member
-            match: member_no
-        match:
-            x: id
-            with: region.parent_id
-
       x:
-        label: '상위 개소'
-        type: field
-        entity: region
-        field: name
-        if: parent_id==null
-        sort:
-          - name: seq
-            desc: false
+        label: '날짜'
+        type: date
       y:
-        entity: lock
-        series:
-          - label: '작업자 잠금'
-            color: '#1a66cc' #blue
-            if: member.user_type==작업자
-          - label: '관리자 잠금'
-            color: '#228B22' #green
-            if: member.user_type==관리자
-    - component: chart
-      id: lock_by_peer_region
-      label: '하위 개소별 잠금 현황'
-      type: bar
-      size: 7
-      filter:
-        - name: server_id
-          value: $server_id
-          type: integer
-        - name: parent_id
-          value: not null
-      relation:
-        chain:
-          - match_from: ils_id
-            entity: ils
-            match: id
-          - match_from: ils.place_id
-            entity: place
-            match: id
-          - match_from: place.item_id
-            entity: item
-            match: id
-          - match_from: item.region_id
-            entity: region
-            match: id
-          - match_from: member_no
-            entity: member
-            match: member_no
-        match:
-            x: id
-            with: region.id
-      x:
-        label: '지역'
-        type: field
-        entity: region
-        field: name
-        if: parent_id!=null
-        sort:
-          - name: seq
-            desc: false
-      y:
-        entity: lock
-        series:
-          - label: '작업자 잠금'
-            color: '#1a66cc' #blue
-            if: member.user_type==작업자
-          - label: '관리자 잠금'
-            color: '#228B22' #green
-            if: member.user_type==관리자
+        type: integer
+        max: 1
+        value_text:
+          - text: '잠금'
+            if: value==1
+          - text: '해제'
+            if: value==0
     - component: table
       id: lock_by_item
       limit: 100
       entity: item
       label: '현재 잠금 현황'
+      icon: 'solar:list-check-outline'
       type: bar
       size: 6
       debug: true
@@ -1318,6 +908,7 @@ front:
     - component: table
       id: low_battery_ils
       label: '배터리 부족 ILS'
+      icon: 'solar:chart-square-outline'
       size: 6
       filter:
         - name: server_id
@@ -1337,15 +928,15 @@ front:
 
     - component: chart
       id: member_type
-      label: '사용자 타입'
+      label: '사용자 현황'
+      icon: 'solar:users-group-rounded-outline'
       type: bar
-      size: 6
+      size: 4
       filter:
         - name: server_id
           value: $server_id
           type: integer
       x:
-        label: '사용자 타입'
         type: field
         entity: member
         field: user_type
@@ -1354,12 +945,31 @@ front:
         series:
           - label: '사용자'
             color: '#1a66cc'
-
+    - component: table
+      id: recent_lock_history
+      label: '최근 활동 로그'
+      icon: 'solar:history-outline'
+      size: 8
+      limit: 10
+      entity: lock_history
+      sort:
+        - name: reg_date
+          desc: true
+      filter:
+        - name: server_id
+          value: $server_id
+          type: integer
+      fields:
+        - name: member_no
+        - name: reg_date
+        - name: ils_id
+        - name: lock
     - component: chart
       id: lock_history1
       label: '잠금/해제 이용횟수'
-      type: line
-      size: 6
+      icon: 'solar:history-outline'
+      type: bar
+      size: 12
       height: 300
       filter:
         - name: server_id
@@ -1372,10 +982,12 @@ front:
         field: reg_date
         format: 'MM/DD'
         gap: day
-        limit: 7
+        limit: 4
         timezone: Asia/Seoul
         desc: true
       y:
+        type: integer
+        max: 20
         series:
           - label: '잠금'
             if: lock==true
@@ -1383,15 +995,5 @@ front:
           - label: '해제'
             if: lock!=true
             color: '#228B22' #green
-    
-  category:
-    - name: '공장 관리'
-      icon: 'solar:city-outline'
-    - name: '자원 관리'
-      icon: 'solar:lock-keyhole-minimalistic-outline'
-    - name: '사용자 관리'
-      icon: 'solar:user-hands-outline'
-
-  
 
   

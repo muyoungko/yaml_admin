@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { registerRoutes, genEntityIdWithKey } = require('yaml-admin-api');
+const customRoute = require('./customRoute.js');
 
 module.exports = async function createApp() {
   const app = express();
@@ -53,5 +54,7 @@ module.exports = async function createApp() {
 
   app.use('/', router)
   
+  await customRoute(app)
+
   return app;
 };

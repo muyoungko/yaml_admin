@@ -11,7 +11,7 @@ import { fetcher } from '../common/axios';
 const Chart2 = typeof Chart === 'object' ? Chart.default : Chart;
 
 // Enhanced chart options for better styling
-const getEnhancedOptions = (baseOptions, chartType) => {
+const getEnhancedOptions = (baseOptions, chartType, yOptions) => {
     const enhancedOptions = {
         ...baseOptions,
         chart: {
@@ -66,7 +66,7 @@ const getEnhancedOptions = (baseOptions, chartType) => {
             gradient: chartType === 'line' ? {
                 shadeIntensity: 0.3,
                 opacityFrom: 0.5,
-                opacityTo: 0.1,
+                opacityTo: 0.5,
                 stops: [0, 90, 100],
             } : undefined,
         },
@@ -112,8 +112,24 @@ const getEnhancedOptions = (baseOptions, chartType) => {
         },
         yaxis: {
             ...baseOptions?.yaxis,
+            max: yOptions?.max,
+            forceNiceScale: yOptions?.type === 'integer',
+            decimalsInFloat: yOptions?.type === 'integer' ? 0 : undefined,
             labels: {
                 ...baseOptions?.yaxis?.labels,
+                formatter: (val) => {
+                    if (yOptions?.value_text) {
+                        for (const item of yOptions.value_text) {
+                            try {
+                                const check = new Function('value', `return ${item.if}`);
+                                if (check(val)) return item.text;
+                            } catch (e) {
+                                console.warn('Failed to evaluate value_text condition:', item.if, e);
+                            }
+                        }
+                    }
+                    return yOptions?.type === 'integer' ? Math.floor(val).toString() : val;
+                },
                 style: {
                     colors: '#64748b',
                     fontSize: '12px',
@@ -173,7 +189,8 @@ export const YAMLComponent = ({ component, custom, ...props }) => {
                 queryString += `${f.name}=null&`;
             }
         });
-        fetcher(`/api/chart/${component.id}?${queryString}`).then(res => {
+        const apiUrl = component.api || `/api/chart/${component.id}`;
+        fetcher(`${apiUrl}?${queryString}`).then(res => {
             setData(res);
             setLoading(false);
         }).catch(() => {
@@ -183,8 +200,8 @@ export const YAMLComponent = ({ component, custom, ...props }) => {
 
     const enhancedOptions = useMemo(() => {
         if (!data?.options) return null;
-        return getEnhancedOptions(data.options, component?.type);
-    }, [data?.options, component?.type]);
+        return getEnhancedOptions(data.options, component?.type, component?.y);
+    }, [data?.options, component?.type, component?.y]);
 
     if (loading) {
         return (
