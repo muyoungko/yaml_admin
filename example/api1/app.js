@@ -38,14 +38,17 @@ module.exports = async function createApp() {
       entityCreated: async (db, entity_name, entity) => {
         console.log('entityCreated', entity_name, entity)
       },
+      entityUpdated: async (db, entity_name, entity) => {
+        console.log('entityUpdated', entity_name, entity)
+      },
       entityDeleted: async (db, entity_name, entity) => {
         console.log('entityDeleted', entity_name, entity)
       }
     }
   }
 
-  // options.api_prefix = '/bnbhost/dev';
-  // await registerRoutes(router, {yamlPath:'../admin2.yml', ...options})
+  // options.api_prefix = '/asset-8098/dev';
+  // await registerRoutes(router, {yamlPath:'../admin5.yml', ...options})
   await registerRoutes(router, {yamlPath:'../admin.yml', ...options})
 
   app.use('/', router)
