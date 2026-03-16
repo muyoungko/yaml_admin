@@ -450,13 +450,20 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         var r = await db.collection(collection_name).insertOne(entity);
         //Custom Create Tail Start
-        if(options?.listener?.entityCreated)
+        if(options?.listener?.entityCreated) {
+            let passwordField = yml_entity.fields.find(f => f.type == 'password')
+            if(passwordField)
+                entity[passwordField.name] = req.body[passwordField.name]
             await options.listener.entityCreated(db, entity_name, entity)
+        }
         //Custom Create Tail End
 
         const generatedId = entityId || r.insertedId
         entity.id = (key_field.type == 'objectId') ? generatedId?.toString() : generatedId;
-
+        let passwordField = yml_entity.fields.find(f => f.type == 'password')
+        if(passwordField)
+            delete entity[passwordField.name]
+        
         res.json(entity);
     }));
 
@@ -498,12 +505,19 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if(options?.listener?.entityUpdated) {
             let entityWithId = { ...entity }
             entityWithId[key_field.name] = entityId
+
+            let passwordField = yml_entity.fields.find(f => f.type == 'password')
+            if(passwordField && req.body[passwordField.name])
+                entityWithId[passwordField.name] = req.body[passwordField.name]
             await options.listener.entityUpdated(db, entity_name, entityWithId)
         }
         //Custom Create Tail End
 
         // Ensure React-Admin receives an `id` in the response
         entity.id = (key_field.type == 'objectId') ? entityId?.toString() : entityId
+        let passwordField = yml_entity.fields.find(f => f.type == 'password')
+        if(passwordField)
+            delete entity[passwordField.name]
 
         res.json(entity);
     }));
