@@ -471,7 +471,6 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         if (entity[key_field.name] !== undefined)
             delete entity[key_field.name]
 
-
         //Custom Create Start
 
         //Custom Create End
@@ -496,8 +495,11 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         await db.collection(collection_name).updateOne(f, { $set: entity });
 
         //Custom Create Tail Start
-        if(options?.listener?.entityUpdated)
-            await options.listener.entityUpdated(db, entity_name, entity)
+        if(options?.listener?.entityUpdated) {
+            let entityWithId = { ...entity }
+            entityWithId[key_field.name] = entityId
+            await options.listener.entityUpdated(db, entity_name, entityWithId)
+        }
         //Custom Create Tail End
 
         // Ensure React-Admin receives an `id` in the response
