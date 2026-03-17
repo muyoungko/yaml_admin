@@ -65,8 +65,8 @@ const getEnhancedOptions = (baseOptions, chartType, yOptions) => {
             type: chartType === 'line' ? 'gradient' : 'solid',
             gradient: chartType === 'line' ? {
                 shadeIntensity: 0.3,
-                opacityFrom: 0.5,
-                opacityTo: 0.5,
+                opacityFrom: 1.0,
+                opacityTo: 1.0,
                 stops: [0, 90, 100],
             } : undefined,
         },
