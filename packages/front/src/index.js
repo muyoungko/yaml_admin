@@ -2,6 +2,7 @@ export { default as YMLAdmin } from './YMLAdmin.jsx';
 export { EntityTreeView } from './component/EntityTreeView.jsx';
 export { useAdminContext, AdminContext, AdminProvider } from './AdminContext.jsx';
 export { fetcher,  postFetcher, uploadFile, uploadFileSecure } from './common/axios.jsx';
+export { ActionPopup } from './component/ActionPopup.jsx';
 
 // Re-export react-admin components to ensure same instance
 export {
