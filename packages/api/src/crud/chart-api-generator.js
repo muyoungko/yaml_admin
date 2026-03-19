@@ -249,6 +249,11 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
             const list = await db.collection(entity_x).aggregate(a).toArray();
 
             r.options.xaxis.categories = list.map(m => m._id);
+            if(chart.x.values) {
+                r.options.xaxis.categories = r.options.xaxis.categories.map(c => {
+                    return chart.x.values.find(v => v.name == c)?.label || c;
+                });
+            } 
             r.series.push({ name: label, data: list.map(m => m.count) });
         }
 
