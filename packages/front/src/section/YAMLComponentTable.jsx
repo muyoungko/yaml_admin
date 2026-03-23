@@ -16,6 +16,17 @@ import { getFieldShow } from '../common/field';
 export const YAMLComponentTable = ({ component, custom, ...props }) => {
     const { yml } = useAdminContext();
     const [filter, setFilter] = useState({});
+    const sort = useMemo(() => {
+        const firstSort = Array.isArray(component.sort) ? component.sort[0] : null;
+        if (!firstSort?.name) {
+            return { field: 'id', order: 'DESC' };
+        }
+
+        return {
+            field: firstSort.name,
+            order: firstSort.desc ? 'DESC' : 'ASC',
+        };
+    }, [component.sort]);
 
     useEffect(() => {
         const newFilter = {};
@@ -35,6 +46,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
                 }
             });
         }
+        
         setFilter(newFilter);
     }, [component.filter]);
 
@@ -42,7 +54,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
         component.entity,
         { 
             pagination: { page: 1, perPage: component.limit || 10 },
-            sort: { field: 'id', order: 'DESC' },
+            sort,
             filter: filter
         },
         { enabled: Object.keys(filter).length > 0 || !component.filter }
@@ -54,7 +66,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
         total,
         page: 1,
         perPage: component.limit || 10,
-        sort: { field: 'id', order: 'DESC' },
+        sort,
         filterValues: filter,
         setSort: () => {},
         setPage: () => {},
@@ -65,7 +77,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
         onSelect: () => {},
         onToggleItem: () => {},
         onUnselectItems: () => {},
-    }), [data, isLoading, total, filter, component.entity, component.limit]);
+    }), [data, isLoading, total, sort, filter, component.entity, component.limit]);
 
     if (isLoading) {
         return (

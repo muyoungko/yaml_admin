@@ -333,7 +333,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         }
 
         if(yml.debug || yml_entity.debug)
-            console.log('list', entity_name, 'count', count, 'list length', list.length)
+            console.log('list', entity_name, 'count', count, 'list length', list.length, f)
 
         list.map(m => {
             m.id = getKeyFromEntity(m)
