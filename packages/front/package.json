@@ -1,15 +1,10 @@
 {
   "name": "yaml-admin-front",
-  "version": "0.0.65",
+  "version": "0.0.102",
   "license": "MIT",
-  "type": "module",
-  "main": "./dist/index.cjs.js",
-  "module": "./dist/index.es.js",
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "type": "commonjs",
+  "main": "src/index.js",
+  
   "scripts": {},
   "dependencies": {
     "@iconify/react": "^6.0.0",

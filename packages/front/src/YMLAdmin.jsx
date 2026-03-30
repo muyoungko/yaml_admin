@@ -42,6 +42,7 @@ const CustomLoginPage = () => {
 const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout }) => {
   const [yml, setYml] = useState(null);
   const [dataProvider, setDataProvider] = useState(null);
+  const customRoutes = Array.isArray(custom?.customRoutes) ? custom.customRoutes : [];
 
   const myAuthProvider = useMemo(() => {
     return {
@@ -125,12 +126,18 @@ const YMLAdmin = ({ adminYaml, adminJson, i18nProvider, custom, theme, layout })
           })}
 
           <CustomRoutes>
-            {custom?.customRoutes?.map(m => {
-              console.log('customRoutes', m.path)
-              return (
-                <Route key={m.path} path={m.path} element={m.element} />
-              )
-            })}
+            {customRoutes
+              .filter(route => route?.path && route?.element && !route?.noLayout)
+              .map(route => (
+                <Route key={route.path} path={route.path} element={route.element} />
+              ))}
+          </CustomRoutes>
+          <CustomRoutes noLayout>
+            {customRoutes
+              .filter(route => route?.path && route?.element && route?.noLayout)
+              .map(route => (
+                <Route key={route.path} path={route.path} element={route.element} />
+              ))}
           </CustomRoutes>
         </Admin>
       </AdminProvider>

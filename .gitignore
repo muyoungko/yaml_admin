@@ -110,3 +110,4 @@ secret.sh
 secret2.sh
 secret3.sh
 secret4.sh
+secret*.sh

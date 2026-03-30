@@ -32,7 +32,13 @@ export default function App() {
         action: {
           member_admin_popup: MyPopupContent
         },
-        customRoutes:[],
+        customRoutes:[
+          {
+            path: '/custom1',
+            element: <div>Custom1</div>,
+            noLayout: true
+          }
+        ],
         globalFilterDelegate,
         loginSuccess: (admin) => {
           console.log('loginSuccess', admin)
