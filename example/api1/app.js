@@ -44,7 +44,11 @@ module.exports = async function createApp() {
       },
       entityDeleted: async (db, entity_name, entity) => {
         console.log('entityDeleted', entity_name, entity)
-      }
+      },
+      entityShouldDelete: async (db, entity_name, entity) => {
+        console.log('entityShouldDelete', entity_name, entity)
+        return {r:true, msg:'...'};
+      },
     }
   }
 

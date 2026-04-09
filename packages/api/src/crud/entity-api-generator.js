@@ -524,6 +524,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     //delete
     app.delete(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) =>{
+
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
         Object.assign(f, default_filter)
@@ -535,9 +536,14 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         let customDelete = false
         let softDelete = false
-        //Custom Delete Api Start
-
-        //Custom Delete Api End
+        
+        if(options?.listener?.entityShouldDelete) {
+            let result = await options.listener.entityShouldDelete(db, entity_name, entity)
+            if(result.r === false) {
+                const errorMessage = result.msg || 'Delete failed';
+                return res.status(400).json({ r: false, message: errorMessage });
+            }
+        }
 
         if (customDelete)
             ;
