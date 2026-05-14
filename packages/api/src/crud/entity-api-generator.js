@@ -6,8 +6,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const XLSX = require('xlsx');
 const moment = require('moment');
-const { withConfigLocal } = require('../upload/localUpload.js');
-const { withConfigS3 } = require('../upload/s3Upload.js');
+const { Uploader } = require('../common/Uploader.js');
 const { makeMongoSortFromYml } = require('./crud-common.js');
 
 const asyncErrorHandler = (fn) => (req, res, next) => {
@@ -34,25 +33,12 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
     const passwordEncoding = yml.login['password-encoding']
-    const api_host = yml["api-host"].uri;
+    
     let isS3 = yml.upload.s3
     let host_image = isS3 ? yml.upload.s3.base_url : yml.upload.local.base_url
     let api_prefix = options?.api_prefix || ''
 
-    const uploader = yml.upload.s3 ? withConfigS3({
-        access_key_id: yml.upload.s3.access_key_id,
-        secret_access_key: yml.upload.s3.secret_access_key,
-        bucket: yml.upload.s3.bucket,
-        region: yml.upload.s3.region,
-        prefix: yml.upload.s3.prefix,
-        bucket_private: yml.upload.s3.bucket_private,
-        base_url: yml.upload.s3.base_url,
-    }) : withConfigLocal({
-        path: yml.upload.local.path,
-        path_private: yml.upload.local.path_private,
-        base_url: yml.upload.local.base_url,
-        api_host,
-    })
+    const uploader = Uploader.getInstance()
 
     let key_field = yml_entity.fields?.find(field => field.key)
     if (!key_field) {
@@ -207,7 +193,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             url= host_image + '/' + url
 
         if(private) {
-            url = await uploader.getUrlSecure(key, auth);
+            url = await uploader.getSecureUrl(key, auth);
         }
 
         return url
@@ -594,7 +580,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             const currentTime = moment().format('YYYYMMDD_HHmmss');
             const key = `excel/${filename}${currentTime}.xlsx`;
             await uploader.uploadSecure(key, excelBuffer);
-            let url = await uploader.getUrlSecure(key, auth);
+            let url = await uploader.getSecureUrl(key, auth);
             return res.json({ r: true, url });
         }))
     }
@@ -869,8 +855,8 @@ const makeApiGenerateAggregate = async (apiGenerate) => {
     return aggregate
 }
 
-const generateEntityApi = async ({ app, db, entity_name, entity, yml, options }) => {
-    await generateCrud({ app, db, entity_name, yml_entity: entity, yml, options })
+const generateEntityApi = async ({ app, db, entity_name, entity, yml, options, uploader }) => {
+    await generateCrud({ app, db, entity_name, yml_entity: entity, yml, options, uploader })
 }
 
 module.exports = {

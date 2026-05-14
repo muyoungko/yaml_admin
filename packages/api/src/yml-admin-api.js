@@ -6,6 +6,7 @@ const { generateLoginApi } = require('./crud/login-api-generator');
 const { generateChartApi } = require('./crud/chart-api-generator');
 const { withConfig } = require('./login/auth.js');
 const { generateUploadApi } = require('./upload/upload-api-generator');
+const { Uploader } = require('./common/Uploader.js');
 
 const changeEnv = (yamlString, env = {}) => {
   if (!yamlString) return yamlString;
@@ -41,6 +42,10 @@ async function registerRoutes(app, options = {}) {
     yml = yaml.parse(yamlString);
   }
 
+  
+
+  const uploader = Uploader.init(yml);
+
   const {database, entity} = yml;
   let db = null;
   if(database) {
@@ -57,9 +62,9 @@ async function registerRoutes(app, options = {}) {
   
   entity && Object.keys(entity).forEach(async (entity_name) => {
     await generateEntityApi({
-      app, db, 
-      entity_name, 
-      entity:entity[entity_name], 
+      app, db,
+      entity_name,
+      entity:entity[entity_name],
       yml,
       options,
     })
