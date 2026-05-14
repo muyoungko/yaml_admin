@@ -193,7 +193,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             url= host_image + '/' + url
 
         if(private) {
-            url = await uploader.getSecureUrl(key, auth);
+            url = await uploader.getSecureUrl(key);
         }
 
         return url
@@ -580,7 +580,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
             const currentTime = moment().format('YYYYMMDD_HHmmss');
             const key = `excel/${filename}${currentTime}.xlsx`;
             await uploader.uploadSecure(key, excelBuffer);
-            let url = await uploader.getSecureUrl(key, auth);
+            let url = await uploader.getSecureUrl(key);
             return res.json({ r: true, url });
         }))
     }

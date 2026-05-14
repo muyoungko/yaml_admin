@@ -44,8 +44,6 @@ async function registerRoutes(app, options = {}) {
 
   
 
-  const uploader = Uploader.init(yml);
-
   const {database, entity} = yml;
   let db = null;
   if(database) {
@@ -57,9 +55,14 @@ async function registerRoutes(app, options = {}) {
     }
   }
 
+  //local secure download api
+  const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+
+  const uploader = Uploader.init(yml, auth);
+
   await generateLoginApi(app, db, yml, api_prefix)
   await generateChartApi(app, db, yml, api_prefix)
-  
+
   entity && Object.keys(entity).forEach(async (entity_name) => {
     await generateEntityApi({
       app, db,
@@ -75,9 +78,6 @@ async function registerRoutes(app, options = {}) {
     yml,
     options,
   })
-  
-  //local secure download api
-  const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
   app.get(api_prefix + '/local-secure-download', auth.isAuthenticated, async (req, res) => {
     const {key} = req.query;
     const a = `${yml.upload.local.path_private}/${key}`

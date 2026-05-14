@@ -6,8 +6,8 @@ class Uploader {
         this._uploader = uploader;
     }
 
-    async getSecureUrl(key, auth) {
-        return await this._uploader.getUrlSecure(key, auth);
+    async getSecureUrl(key) {
+        return await this._uploader.getUrlSecure(key);
     }
 
     async upload(key, stream) {
@@ -22,7 +22,7 @@ class Uploader {
         return await this._uploader.getUrl(key);
     }
 
-    static init(yml) {
+    static init(yml, auth) {
         const api_host = yml['api-host']?.uri;
         const raw = yml.upload.s3
             ? withConfigS3({
@@ -39,6 +39,7 @@ class Uploader {
                 path_private: yml.upload.local.path_private,
                 base_url: yml.upload.local.base_url,
                 api_host,
+                auth,
             });
         Uploader._instance = new Uploader(raw);
         return Uploader._instance;
