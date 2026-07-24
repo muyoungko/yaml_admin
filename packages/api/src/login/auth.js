@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 const withConfig = (config) => {
-  const { db, jwt_secret, passwordEncoding, master_email, master_password } = config;
+  const { db, jwt_secret, passwordEncoding, master_email, master_password, expires } = config;
   const comparePassword = async (plainPass, hashword) => {
     if(passwordEncoding === 'bcrypt') {
       let isPasswordMatch = await bcrypt.compare(plainPass, hashword)
@@ -44,6 +44,7 @@ const withConfig = (config) => {
         if (err) res.json({ r: false, msg: '알 수 없는 이유로 토큰 생성에 실패하였습니다.' });
 
         req.token = token;
+        req.expires = (expires && expires > 0) ? expires : null;
         delete user.password;
         req.user = user;
         next();

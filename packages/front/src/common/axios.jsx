@@ -24,7 +24,13 @@ export const setApiHost = (host) => {
 setApiHost();
 
 axiosInstance.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    const expires = localStorage.getItem('token_expires');
+    if (expires) {
+      localStorage.setItem('token_expires_at', String(Date.now() + Number(expires) * 1000));
+    }
+    return res;
+  },
   (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong')
 );
 

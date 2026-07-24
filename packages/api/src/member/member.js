@@ -1,16 +1,17 @@
 const {withConfig} = require('../login/auth.js');
 
 module.exports = async function (app, db, yml, api_prefix) {
-    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"], 
+    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"],
         passwordEncoding: yml.login["password-encoding"],
         master_email: yml.login["master-email"],
-        master_password: yml.login["master-password"]
+        master_password: yml.login["master-password"],
+        expires: yml.login["expires"]
      });
 
     app.get(api_prefix + '/member/login',
         auth.authenticate,
         function (req, res) {
-            res.json({ r: true, token: req.token, member: req.user });
+            res.json({ r: true, token: req.token, expires: req.expires, member: req.user });
         }
     );
 
@@ -24,7 +25,7 @@ module.exports = async function (app, db, yml, api_prefix) {
     app.post(api_prefix + '/member/login',
         auth.authenticate,
         function (req, res) {
-            res.json({ r: true, token: req.token, member: req.user });
+            res.json({ r: true, token: req.token, expires: req.expires, member: req.user });
         }
     );
 

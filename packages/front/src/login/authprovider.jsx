@@ -15,10 +15,17 @@ const authProvider = {
             type: 'email',
             email: username,
             pass: password
-        }).then(({ token, r, msg, ...admin }) => {
+        }).then(({ token, r, msg, expires, ...admin }) => {
             if (!r)
                 throw new Error(msg);
             localStorage.setItem('token', token);
+            if (expires) {
+                localStorage.setItem('token_expires', String(expires));
+                localStorage.setItem('token_expires_at', String(Date.now() + expires * 1000));
+            } else {
+                localStorage.removeItem('token_expires');
+                localStorage.removeItem('token_expires_at');
+            }
             axios.defaults.headers.common['x-access-token'] = token;
             setAdminInContext({ token });
             return { token, ...admin };
@@ -28,6 +35,14 @@ const authProvider = {
         return Promise.resolve();
     },
     checkAuth: params => {
+        const expiresAt = localStorage.getItem('token_expires_at');
+        if (expiresAt && Date.now() > Number(expiresAt)) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('token_expires');
+            localStorage.removeItem('token_expires_at');
+            return Promise.reject();
+        }
+
         localStorage.setItem(PreviousLocationStorageKey, window.location.href);
 
         const query = getUrlParams(window.location.href);
@@ -54,6 +69,8 @@ const authProvider = {
     },
     logout: () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('token_expires');
+        localStorage.removeItem('token_expires_at');
         document.cookie = ''
         setAdminInContext({ token: null });
         return Promise.resolve();
