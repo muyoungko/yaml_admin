@@ -19,6 +19,7 @@ import {
     TextField,
     TextInput,
     Toolbar,
+    TopToolbar,
     useRecordContext,
     useRefresh,
     useResourceContext,
@@ -51,6 +52,7 @@ export const DynamicShow = ({ custom, ...props }) => {
     const refresh = useRefresh();
     const yml = useAdminContext();
     const resource = useResourceContext(props);
+    const authority = yml?.admin?.authority || null;
 
     const fields = useMemo(() => {
         return yml.entity[resource].fields
@@ -61,7 +63,7 @@ export const DynamicShow = ({ custom, ...props }) => {
     }, [yml, resource])
 
     const crud = useMemo(() => {
-        return yml.entity[resource].crud || {
+        const base = yml.entity[resource].crud || {
             show: true,
             edit: true,
             create: true,
@@ -69,8 +71,13 @@ export const DynamicShow = ({ custom, ...props }) => {
             list: true,
             import: false,
             export: false,
-        }
-    }, [yml, resource])
+        };
+        if (!authority) return base;
+        return {
+            ...base,
+            edit: authority.edit === false ? false : base.edit,
+        };
+    }, [yml, resource, authority])
 
     const findField = useCallback((name) => {
         let name_array = name.split('.')[0]
@@ -107,7 +114,9 @@ export const DynamicShow = ({ custom, ...props }) => {
 
     //Custom List Code End
     return (
-        <Show title={<DynamicTitle />} {...props} >
+        <Show title={<DynamicTitle />} {...props}
+            actions={<TopToolbar>{crud.edit && <EditButton />}</TopToolbar>}
+        >
             <SimpleShowLayout>
                 {customFunc && <ShowContent customFunc={customFunc} fields={fields} />}
                 {!customFunc && crud.show == true && fields.map(m => {

@@ -21,7 +21,8 @@ module.exports = async function (app, db, yml, api_prefix) {
     app.get(api_prefix + '/member/islogin',
         auth.isAuthenticated,
         async function (req, res) {
-            res.json({ r: true, member: req.user });
+            const { authority, ...member } = req.user;
+            res.json({ r: true, authority, member });
         }
     );
 

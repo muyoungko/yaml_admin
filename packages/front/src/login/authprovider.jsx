@@ -62,7 +62,7 @@ const authProvider = {
             return fetcher(`/member/islogin?token=${encodeURIComponent(token)}`)
                 .then(res => {
                     if (res.r) {
-                        const authority = res?.member?.authority
+                        const authority = res?.authority
                             || JSON.parse(localStorage.getItem('authority') || 'null');
                         setAdminInContext({ token, authority, ...res?.member });
                         return Promise.resolve();
