@@ -12,6 +12,7 @@ export default defineConfig({
       'react-router-dom',
       'react-admin',
       'ra-core',
+      'react-hook-form',
     ],
   },
   server: {
