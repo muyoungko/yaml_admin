@@ -16,6 +16,13 @@ const asyncErrorHandler = (fn) => (req, res, next) => {
     });
 }
 
+const checkAuthority = (action) => (req, res, next) => {
+    const authority = req.user?.authority;
+    if (authority && authority[action] === false)
+        return res.status(403).json({ r: false, msg: '권한이 없습니다.' });
+    next();
+}
+
 const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) => {
 
     // entity 속성이 있으면 해당 값을 실제 collection 이름으로 사용
@@ -402,7 +409,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     };
 
     //create
-    app.post(`${api_prefix}/${entity_name}`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+    app.post(`${api_prefix}/${entity_name}`, auth.isAuthenticated, checkAuthority('create'), asyncErrorHandler(async (req, res) => {
         
         await recalcurateAutoGenerateIndex(db, entity_name)
         
@@ -455,7 +462,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
 
     //edit
-    app.put(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
+    app.put(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, checkAuthority('edit'), asyncErrorHandler(async (req, res) => {
         let entityId = parseKey(req.params.id)
 
         const entity = await constructEntity(req, entityId);
@@ -509,7 +516,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     }));
 
     //delete
-    app.delete(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) =>{
+    app.delete(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, checkAuthority('delete'), asyncErrorHandler(async (req, res) =>{
 
         let f = {}
         f[key_field.name] = parseKey(req.params.id)

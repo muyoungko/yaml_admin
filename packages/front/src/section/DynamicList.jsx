@@ -259,7 +259,7 @@ export const DynamicList = ({ custom, ...props }) => {
             create: authority.create === false ? false : base.create,
             edit: authority.edit === false ? false : base.edit,
             show: authority.show === false ? false : base.show,
-            delete: authority.delete === false ? false : (base.delete ?? false),
+            delete: authority.delete === true ? (base.delete ?? false) : false,
             list: authority.list === false ? false : base.list,
         };
     }, [yml, resource, authority])

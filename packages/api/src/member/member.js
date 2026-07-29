@@ -13,7 +13,8 @@ module.exports = async function (app, db, yml, api_prefix) {
     app.get(api_prefix + '/member/login',
         auth.authenticate,
         function (req, res) {
-            res.json({ r: true, token: req.token, expires: req.expires, member: req.user });
+            const { authority, ...member } = req.user;
+            res.json({ r: true, token: req.token, expires: req.expires, authority, member });
         }
     );
 
@@ -27,7 +28,8 @@ module.exports = async function (app, db, yml, api_prefix) {
     app.post(api_prefix + '/member/login',
         auth.authenticate,
         function (req, res) {
-            res.json({ r: true, token: req.token, expires: req.expires, member: req.user });
+            const { authority, ...member } = req.user;
+            res.json({ r: true, token: req.token, expires: req.expires, authority, member });
         }
     );
 

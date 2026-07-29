@@ -15,7 +15,7 @@ const authProvider = {
             type: 'email',
             email: username,
             pass: password
-        }).then(({ token, r, msg, expires, member, ...rest }) => {
+        }).then(({ token, r, msg, expires, authority, member, ...rest }) => {
             if (!r)
                 throw new Error(msg);
             localStorage.setItem('token', token);
@@ -26,7 +26,6 @@ const authProvider = {
                 localStorage.removeItem('token_expires');
                 localStorage.removeItem('token_expires_at');
             }
-            const authority = member?.authority || null;
             if (authority) {
                 localStorage.setItem('authority', JSON.stringify(authority));
             } else {
@@ -34,7 +33,7 @@ const authProvider = {
             }
             axios.defaults.headers.common['x-access-token'] = token;
             setAdminInContext({ token, authority, ...member });
-            return { token, member, ...rest };
+            return { token, authority, member, ...rest };
         })
     },
     checkError: error => {
