@@ -5,7 +5,9 @@ module.exports = async function (app, db, yml, api_prefix) {
         passwordEncoding: yml.login["password-encoding"],
         master_email: yml.login["master-email"],
         master_password: yml.login["master-password"],
-        expires: yml.login["expires"]
+        expires: yml.login["expires"],
+        authority: yml.login["authority"],
+        'id-password': yml.login["id-password"]
      });
 
     app.get(api_prefix + '/member/login',

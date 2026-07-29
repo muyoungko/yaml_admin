@@ -26,6 +26,7 @@ export const AdminProvider = ({ initialYml = null, custom = null, children }) =>
   const [yml, setYml] = useState(initialYml);
   const [admin, setAdmin] = useState(() => ({
     token: typeof window !== 'undefined' ? (localStorage.getItem('token') || null) : null,
+    authority: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('authority') || 'null') : null,
   }));
   const [popup, setPopup] = useState(null);
 

@@ -241,9 +241,10 @@ export const DynamicList = ({ custom, ...props }) => {
     const refresh = useRefresh();
     const yml = useAdminContext();
     const resource = useResourceContext(props);
+    const authority = yml?.admin?.authority || null;
 
     const crud = useMemo(() => {
-        return yml.entity[resource].crud || {
+        const base = yml.entity[resource].crud || {
             show: true,
             edit: true,
             create: true,
@@ -251,8 +252,17 @@ export const DynamicList = ({ custom, ...props }) => {
             list: true,
             import: false,
             export: false,
-        }
-    }, [yml, resource])
+        };
+        if (!authority) return base;
+        return {
+            ...base,
+            create: authority.create === false ? false : base.create,
+            edit: authority.edit === false ? false : base.edit,
+            show: authority.show === false ? false : base.show,
+            delete: authority.delete === false ? false : (base.delete ?? false),
+            list: authority.list === false ? false : base.list,
+        };
+    }, [yml, resource, authority])
 
     const fields = useMemo(() => {
         return yml.entity[resource].fields

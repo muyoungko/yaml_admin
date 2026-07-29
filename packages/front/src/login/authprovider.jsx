@@ -15,7 +15,7 @@ const authProvider = {
             type: 'email',
             email: username,
             pass: password
-        }).then(({ token, r, msg, expires, ...admin }) => {
+        }).then(({ token, r, msg, expires, member, ...rest }) => {
             if (!r)
                 throw new Error(msg);
             localStorage.setItem('token', token);
@@ -26,9 +26,15 @@ const authProvider = {
                 localStorage.removeItem('token_expires');
                 localStorage.removeItem('token_expires_at');
             }
+            const authority = member?.authority || null;
+            if (authority) {
+                localStorage.setItem('authority', JSON.stringify(authority));
+            } else {
+                localStorage.removeItem('authority');
+            }
             axios.defaults.headers.common['x-access-token'] = token;
-            setAdminInContext({ token });
-            return { token, ...admin };
+            setAdminInContext({ token, authority, ...member });
+            return { token, member, ...rest };
         })
     },
     checkError: error => {
@@ -57,7 +63,9 @@ const authProvider = {
             return fetcher(`/member/islogin?token=${encodeURIComponent(token)}`)
                 .then(res => {
                     if (res.r) {
-                        setAdminInContext({ token, ...res?.member });
+                        const authority = res?.member?.authority
+                            || JSON.parse(localStorage.getItem('authority') || 'null');
+                        setAdminInContext({ token, authority, ...res?.member });
                         return Promise.resolve();
                     } else {
                         return Promise.reject();
@@ -71,8 +79,9 @@ const authProvider = {
         localStorage.removeItem('token');
         localStorage.removeItem('token_expires');
         localStorage.removeItem('token_expires_at');
+        localStorage.removeItem('authority');
         document.cookie = ''
-        setAdminInContext({ token: null });
+        setAdminInContext({ token: null, authority: null });
         return Promise.resolve();
     },
     getIdentity: () =>
