@@ -7,6 +7,7 @@ import { useAdminContext } from '../AdminContext';
 import Chart from "react-apexcharts";
 import { Box, Skeleton } from '@mui/material';
 import { fetcher } from '../common/axios';
+import { filterToQueryString } from './YAMLFilterUtil';
 
 const Chart2 = typeof Chart === 'object' ? Chart.default : Chart;
 
@@ -175,20 +176,7 @@ export const YAMLComponentChart = ({ component, custom, ...props }) => {
 
     useEffect(() => {
         setLoading(true);
-        let queryString = '';
-        component.filter?.forEach(f => {
-            if (typeof f.value === 'string' && (f.value.includes('$lte ') || f.value.includes('$gte ') || f.value.includes('$lt ') || f.value.includes('$gt '))) {
-                const [op, val] = f.value.split(' ');
-                queryString += `${s.name}=${encodeURIComponent(op + ' ' + val)}&`;
-            } else if(f.value?.startsWith('$')) {
-                let value = localStorage.getItem(f.value.substring(1));
-                if(value) {
-                    queryString += `${f.name}=${encodeURIComponent(value)}&`;
-                }
-            } else {
-                queryString += `${f.name}=null&`;
-            }
-        });
+        const queryString = filterToQueryString(component.filter);
         const apiUrl = component.api || `/api/chart/${component.id}`;
         fetcher(`${apiUrl}?${queryString}`).then(res => {
             setData(res);

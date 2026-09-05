@@ -12,6 +12,7 @@ import {
 import { useAdminContext } from '../AdminContext';
 import { Box, Skeleton, Typography } from '@mui/material';
 import { getFieldShow } from '../common/field';
+import { filterToObject } from './YAMLFilterUtil';
 
 export const YAMLComponentTable = ({ component, custom, ...props }) => {
     const { yml } = useAdminContext();
@@ -29,25 +30,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
     }, [component.sort]);
 
     useEffect(() => {
-        const newFilter = {};
-        if (component.filter) {
-            component.filter.forEach(f => {
-                let value = f.value;
-                if (value !== undefined && value !== null) {
-                    if (typeof f.value === 'string' && (f.value.includes('$lte ') || f.value.includes('$gte ') || f.value.includes('$lt ') || f.value.includes('$gt '))) {
-                        const [op, val] = f.value.split(' ');
-                        newFilter[f.name] = op + ' ' + val;
-                    } else if (typeof f.value === 'string' && value.startsWith('$')) {
-                        value = localStorage.getItem(value.substring(1));
-                        newFilter[f.name] = value;
-                    } else {
-                        newFilter[f.name] = value;
-                    }
-                }
-            });
-        }
-        
-        setFilter(newFilter);
+        setFilter(filterToObject(component.filter));
     }, [component.filter]);
 
     const { data, total, isLoading, error } = useGetList(

@@ -3,6 +3,7 @@ import { Box, Typography, Skeleton } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import axiosInstance from '../common/axios';
 import YAMLIcon from './YAMLIcon';
+import { filterToQueryString } from './YAMLFilterUtil';
 
 export const YAMLComponentCount = ({ component }) => {
     const { entity, filter, icon, label, desc, unit } = component;
@@ -13,22 +14,9 @@ export const YAMLComponentCount = ({ component }) => {
     useEffect(() => {
         if (!entity) return;
 
-        const params = new URLSearchParams();
-        params.set('_start', '0');
-        params.set('_end', '1');
+        const queryString = `_start=0&_end=1&${filterToQueryString(filter)}`;
 
-        filter?.forEach(f => {
-            let value = f.value;
-            if (typeof value === 'string' && value.startsWith('$')) {
-                value = localStorage.getItem(value.substring(1));
-            }
-            if (value !== null && value !== undefined) {
-                if (f.type === 'integer') value = parseInt(value);
-                params.set(f.name, value);
-            }
-        });
-
-        axiosInstance.get(`/${entity}?${params.toString()}`)
+        axiosInstance.get(`/${entity}?${queryString}`)
             .then(res => {
                 setCount(parseInt(res.headers['x-total-count'] ?? 0));
             })
