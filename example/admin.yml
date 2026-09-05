@@ -894,6 +894,54 @@ front:
       - section: a
         size: 9
         components:
+          - component: welcome
+            text1: "안녕하세요 MULTISIG 공간 방문을 환영합니다."
+            text2: "문의사항 및 지원 1566-4775 / mygo@emsson.co.kr"
+            background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%)'
+          - component: count
+            size: 3
+            icon: solar:lock-keyhole-minimalistic-outline
+            label: '전체 잠금 장치'
+            desc: '전체 잠금 장치 수'
+            unit: '대'
+            entity: ils
+            filter:
+              - name: server_id
+                value: $server_id
+          - component: count
+            size: 3
+            icon: solar:lock-keyhole-outline
+            label: '현재 잠금 상태'
+            desc: '현재 잠금 수'
+            unit: '대'
+            entity: ils
+            filter:
+              - name: server_id
+                value: $server_id
+              - name: lock
+                value: true
+          - component: count
+            size: 3
+            icon: "solar:user-hands-outline"
+            label: '사용자 수'
+            desc: '등록된 시스템 사용자'
+            unit: '명'
+            entity: member
+            filter:
+              - name: server_id
+                value: $server_id
+          - component: count
+            size: 3
+            icon: "solar:shield-user-outline"
+            label: '관리자 수'
+            desc: '등록된 시스템 운영자'
+            unit: '명'
+            entity: admin
+            filter:
+              - name: server_id
+                value: $server_id
+          
+
           - component: chart
             api: '/api/mychart/lock_history2'
             id: lock_history2
@@ -935,32 +983,12 @@ front:
               - name: id
               - name: name
               - name: lock_list
-          - component: table
-            id: low_battery_ils
-            label: '배터리 부족 MULTISIG'
-            icon: 'solar:chart-square-outline'
-            size: 6
-            filter:
-              - name: server_id
-                value: $server_id
-              - name: battery
-                value: $lte 20
-            limit: 100
-            entity: ils
-            fields:
-              - name: id
-              - name: key
-              - name: battery
-              - name: serial
-              - name: version
-              - name: item_id
-              - name: lock_list
           - component: chart
             id: member_type
             label: '사용자 현황'
             icon: 'solar:users-group-rounded-outline'
             type: bar
-            size: 4
+            size: 6
             filter:
               - name: server_id
                 value: $server_id
@@ -979,25 +1007,6 @@ front:
               series:
                 - label: '사용자'
                   color: '#1a66cc'
-          - component: table
-            id: recent_lock_history
-            label: '최근 활동 로그'
-            icon: 'solar:history-outline'
-            size: 8
-            limit: 10
-            entity: lock_history
-            sort:
-              - name: reg_date
-                desc: true
-            filter:
-              - name: server_id
-                value: $server_id
-                type: integer
-            fields:
-              - name: member_no
-              - name: reg_date
-              - name: ils_id
-              - name: lock
           - component: chart
             id: lock_history1
             label: '잠금/해제 이용횟수'
@@ -1029,5 +1038,44 @@ front:
                   if: lock!=true
                   color: '#228B22' #green
       - section: b
-        size: 9
-  
+        size: 3
+        components:
+          - component: table
+            id: recent_lock_history
+            label: '최근 활동 로그'
+            icon: 'solar:history-outline'
+            size: 12
+            limit: 5
+            entity: lock_history
+            sort:
+              - name: reg_date
+                desc: true
+            filter:
+              - name: server_id
+                value: $server_id
+                type: integer
+            fields:
+              - name: member_no
+              - name: reg_date
+              - name: ils_id
+              - name: lock
+          - component: table
+            id: low_battery_ils
+            label: '배터리 부족 MULTISIG'
+            icon: 'solar:chart-square-outline'
+            size: 12
+            filter:
+              - name: server_id
+                value: $server_id
+              - name: battery
+                value: $lte 20
+            limit: 100
+            entity: ils
+            fields:
+              - name: id
+              - name: key
+              - name: battery
+              - name: serial
+              - name: version
+              - name: item_id
+              - name: lock_list
