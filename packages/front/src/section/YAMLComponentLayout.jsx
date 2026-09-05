@@ -109,25 +109,12 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                         position: 'relative',
                                         overflow: 'hidden',
                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
-                                        '&::before': {
-                                            content: '""',
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            width: '4px',
-                                            height: '100%',
-                                            background: cardGradients[gradientIndex],
-                                        }
                                     }}
                                 >
                                     <YAMLIcon icon={component.icon} size={44} />
                                     <Typography
-                                        variant="subtitle1"
-                                        sx={{
-                                            fontWeight: 700,
-                                            color: '#2c3e50',
-                                            letterSpacing: '0.5px',
-                                        }}
+                                        variant="body2"
+                                        sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.5, noWrap: true }}
                                     >
                                         {component.label}
                                     </Typography>
