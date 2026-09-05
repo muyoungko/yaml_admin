@@ -736,7 +736,6 @@ entity:
   lock_history:
     label: "잠금이력"
     icon: "solar:history-outline"
-    debug: true
     crud:
       search:
         - name: ils_id
@@ -946,6 +945,7 @@ front:
             api: '/api/mychart/lock_history2'
             id: lock_history2
             label: '일별 잠금 현황'
+            debug: true
             icon: 'solar:chart-square-outline'
             type: line
             size: 12
@@ -967,12 +967,12 @@ front:
                   if: value==0
           - component: table
             id: lock_by_item
-            limit: 100
+            limit: 5
             entity: item
             label: '현재 잠금 현황'
             icon: 'solar:list-check-outline'
             type: bar
-            size: 6
+            size: 8
             filter:
               - name: server_id
                 value: $server_id
@@ -988,8 +988,8 @@ front:
             label: '사용자 현황'
             icon: 'solar:users-group-rounded-outline'
             type: pie
-            size: 6
-            height: 200
+            size: 4
+            height: 150
             filter:
               - name: server_id
                 value: $server_id
@@ -1034,16 +1034,16 @@ front:
               series:
                 - label: '잠금'
                   if: lock==true
-                  color: '#8B0000' #red
+                  color: '#6366f1'
                 - label: '해제'
                   if: lock!=true
-                  color: '#228B22' #green
+                  color: '#10b981'
       - section: b
         size: 3
         components:
           - component: table
             id: recent_lock_history
-            label: '최근 활동 로그'
+            label: '최근 잠금 이력'
             icon: 'solar:history-outline'
             size: 12
             limit: 5
@@ -1064,6 +1064,7 @@ front:
             id: low_battery_ils
             label: '배터리 부족 MULTISIG'
             icon: 'solar:chart-square-outline'
+            none: '모든 MULTISIG 배터리 정상'
             size: 12
             filter:
               - name: server_id

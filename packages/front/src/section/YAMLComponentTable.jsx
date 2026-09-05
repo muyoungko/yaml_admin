@@ -89,7 +89,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
         <ResourceContextProvider value={component.entity}>
             <ListContextProvider value={listContext}>
                 <Box sx={{ width: '100%', overflow: 'auto' }}>
-                    <Datagrid bulkActionButtons={false} rowClick={false} empty={<Box sx={{ p: 2 }}>No data</Box>}>
+                    <Datagrid bulkActionButtons={false} rowClick={false} empty={<Box sx={{ p: 2, color: 'text.secondary' }}>{component.none ?? 'No data'}</Box>}>
                         {component.fields.map((fieldConf, index) => {
                             const fieldName = typeof fieldConf === 'string' ? fieldConf : fieldConf.name;
                             // Find field definition in entity
