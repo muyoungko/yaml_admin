@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Skeleton } from '@mui/material';
-import { Icon } from '@iconify/react';
 import { useTheme, alpha } from '@mui/material/styles';
 import axiosInstance from '../common/axios';
+import YAMLIcon from './YAMLIcon';
 
 export const YAMLComponentCount = ({ component }) => {
     const { entity, filter, icon, label, desc, unit } = component;
@@ -52,23 +52,7 @@ export const YAMLComponentCount = ({ component }) => {
             }}
         >
             {/* Icon badge */}
-            {icon && (
-                <Box
-                    sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        boxShadow: '0 6px 16px rgba(102,126,234,0.4)',
-                        flexShrink: 0,
-                    }}
-                >
-                    <Icon icon={icon} width={28} height={28} style={{ color: '#fff' }} />
-                </Box>
-            )}
+            <YAMLIcon icon={icon} size={44} />
 
             {/* Text */}
             <Box sx={{ flex: 1, minWidth: 0 }}>

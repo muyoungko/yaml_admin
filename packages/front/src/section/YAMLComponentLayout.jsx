@@ -5,7 +5,6 @@ import {
 
 import { useAdminContext } from '../AdminContext';
 import { Box, Card, Paper, CardContent, Grid, Typography } from '@mui/material';
-import { Icon } from '@iconify/react';
 
 import { useTheme, alpha } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -17,6 +16,7 @@ import YAMLComponentTable from './YAMLComponentTable';
 import YAMLComponentChart from './YAMLComponentChart';
 import YAMLComponentWelcome from './YAMLComponentWelcome';
 import YAMLComponentCount from './YAMLComponentCount';
+import YAMLIcon from './YAMLIcon';
 
 // 컨테이너 근처에서
 
@@ -120,32 +120,7 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                         }
                                     }}
                                 >
-                                    {component.icon && (
-                                        <Box
-                                            sx={{
-                                                width: 42,
-                                                height: 42,
-                                                borderRadius: '14px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                background: cardGradients[gradientIndex],
-                                                boxShadow: '0 8px 16px -4px rgba(0,0,0,0.2)',
-                                                color: '#fff',
-                                                transition: 'transform 0.3s ease',
-                                                '.MuiPaper-root:hover &': {
-                                                    transform: 'scale(1.1) rotate(5deg)',
-                                                }
-                                            }}
-                                        >
-                                            <Icon
-                                                icon={component.icon}
-                                                width={22}
-                                                height={22}
-                                                style={{ color: '#fff' }}
-                                            />
-                                        </Box>
-                                    )}
+                                    <YAMLIcon icon={component.icon} size={44} />
                                     <Typography
                                         variant="subtitle1"
                                         sx={{

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { Icon } from '@iconify/react';
+import YAMLIcon from './YAMLIcon';
 
 export const YAMLComponentWelcome = ({ component }) => {
     const {
@@ -45,24 +45,13 @@ export const YAMLComponentWelcome = ({ component }) => {
             }} />
 
             {/* Icon */}
-            {icon && (
-                <Box
-                    sx={{
-                        width: { xs: 48, md: 64 },
-                        height: { xs: 48, md: 64 },
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: icon_background,
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-                        flexShrink: 0,
-                        mr: { xs: 2.5, md: 4 },
-                    }}
-                >
-                    <Icon icon={icon} width={32} height={32} style={{ color: '#fff' }} />
-                </Box>
-            )}
+            <YAMLIcon
+                icon={icon}
+                size={44}
+                background={icon_background}
+                color="#fff"
+                sx={{ mr: { xs: 2.5, md: 4 } }}
+            />
 
             {/* Text */}
             <Box>
