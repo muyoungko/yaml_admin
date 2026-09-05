@@ -521,16 +521,25 @@ Sections use the same 12-column grid as components. Columns with `size` values t
 
 ---
 
+**Component types:**
+
+| `component` | Description | Default size |
+|-------------|-------------|--------------|
+| `welcome` | Hero banner at the top of the dashboard | 12 |
+| `count` | Stat card showing the total count of an entity | 3 |
+| `chart` | Chart rendered from a chart API | 4 |
+| `table` | Data table from a list API | 4 |
+
 **Common component properties:**
 
 | Property | Description |
 |----------|-------------|
-| `component` | `chart` or `table` |
-| `id` | Unique identifier |
-| `label` | Card title |
-| `icon` | Iconify icon |
+| `component` | Component type: `welcome` \| `count` \| `chart` \| `table` |
+| `id` | Unique identifier (required for `chart`) |
+| `label` | Card title (shown in card header for `chart`/`table`) |
+| `icon` | Iconify icon name |
 | `size` | Grid width 1–12 (12 = full width) |
-| `filter` | Data filter conditions |
+| `filter` | Data filter conditions (see [Filter Expressions](#filter-expressions)) |
 
 **chart component:**
 
@@ -613,6 +622,44 @@ y:
     - name: total_price
 ```
 
+**welcome component:**
+
+Full-width hero banner displayed at the top of the dashboard. No card wrapper — renders directly.
+
+```yaml
+- component: welcome
+  text1: 'Welcome to Admin'               # Main heading (large, bold)
+  text2: 'Support: 1566-0000'             # Sub-text (smaller, semi-transparent)
+  text3: 'Email: contact@example.com'     # Third line (smallest, more transparent)
+  icon: 'solar:home-outline'              # Iconify icon (optional)
+  height: 180                             # Banner height in px. Default: 180
+  background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%)'
+  text1_color: '#ffffff'                  # Default: #ffffff
+  text2_color: 'rgba(255,255,255,0.55)'  # Default: rgba(255,255,255,0.55)
+  text3_color: 'rgba(255,255,255,0.40)'  # Default: rgba(255,255,255,0.40)
+  icon_background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+```
+
+**count component:**
+
+Stat card that displays the total number of records in an entity. Reads the count from the `X-Total-Count` response header of the list API.
+
+```yaml
+- component: count
+  size: 3
+  icon: 'solar:lock-outline'             # Iconify icon (optional)
+  label: 'Total Devices'                 # Stat label shown above the number
+  desc: 'Total registered devices'       # Caption shown below the number (optional)
+  unit: '대'                             # Unit label shown after the number (optional)
+  entity: device                         # Entity (API collection) to count
+  filter:                                # Filter applied to the count query (optional)
+    - name: server_id
+      value: $server_id                  # Read from localStorage
+      type: integer
+    - name: status
+      value: active
+```
+
 ---
 
 ### Environment Variables
@@ -631,17 +678,38 @@ database:
 
 ### Filter Expressions
 
-Value expressions used in `filter`, `api_generate.filter`, and similar fields.
+Value expressions used in `filter` fields across entity definitions, `api_generate`, and dashboard components (`chart`, `table`, `count`).
 
 | Expression | Meaning |
 |------------|---------|
 | `null` | Match null |
 | `not null` | Match non-null |
-| `$field_name` | Read `field_name` value from localStorage |
+| `$field_name` | Read `field_name` from **localStorage** at runtime |
 | `$lte 100` | Less than or equal to 100 |
 | `$gte 10` | Greater than or equal to 10 |
 | `$lt 5` | Less than 5 |
 | `$gt 0` | Greater than 0 |
+
+**Filter field properties:**
+
+| Property | Description |
+|----------|-------------|
+| `name` | Query parameter / field name |
+| `value` | Value expression (see table above) |
+| `type` | Type cast applied after value resolution. `integer` = `parseInt`. Used in dashboard components (`count`, `chart`) |
+
+**Example — mixed filter in a count component:**
+
+```yaml
+filter:
+  - name: server_id
+    value: $server_id          # Read from localStorage, then cast to integer
+    type: integer
+  - name: status
+    value: active              # Static string value
+  - name: score
+    value: '$gte 80'           # Comparison: score >= 80
+```
 
 **if expressions (button actions, chart series conditions):**
 
