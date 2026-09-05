@@ -6,7 +6,7 @@ import {
 import { useAdminContext } from '../AdminContext';
 import { Box, Card, Paper, CardContent, Grid, Typography } from '@mui/material';
 import { Icon } from '@iconify/react';
-import YAMLComponent from './YAMLComponent';
+
 import { useTheme, alpha } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -14,6 +14,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import YAMLComponentTable from './YAMLComponentTable';
+import YAMLComponentChart from './YAMLComponentChart';
 
 // 컨테이너 근처에서
 
@@ -139,7 +140,7 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                 {/* Card Content */}
                                 <CardContent sx={{ p: 3 }}>
                                     {component.component === 'table' && <YAMLComponentTable component={component} />}
-                                    {component.component === 'chart' && <YAMLComponent component={component} />}
+                                    {component.component === 'chart' && <YAMLComponentChart component={component} />}
                                 </CardContent>
                             </Paper>
                         </Grid>

@@ -167,7 +167,7 @@ const getEnhancedOptions = (baseOptions, chartType, yOptions) => {
     return enhancedOptions;
 };
 
-export const YAMLComponent = ({ component, custom, ...props }) => {
+export const YAMLComponentChart = ({ component, custom, ...props }) => {
     const refresh = useRefresh();
     const yml = useAdminContext();
     const [data, setData] = useState(null);
@@ -236,4 +236,4 @@ export const YAMLComponent = ({ component, custom, ...props }) => {
 };
 
 
-export default YAMLComponent;
+export default YAMLComponentChart;
