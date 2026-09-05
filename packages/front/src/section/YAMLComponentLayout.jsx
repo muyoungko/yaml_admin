@@ -15,6 +15,7 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import YAMLComponentTable from './YAMLComponentTable';
 import YAMLComponentChart from './YAMLComponentChart';
+import YAMLComponentWelcome from './YAMLComponentWelcome';
 
 // 컨테이너 근처에서
 
@@ -57,6 +58,16 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                 {components?.map((component, index) => {
                     console.log(`Dashboard Component [${index}] ${component.label}:`, component);
                     const gradientIndex = index % cardGradients.length;
+
+                    // welcome: renders as a full-width banner without card wrapper
+                    if (component.component === 'welcome') {
+                        return (
+                            <Grid item key={index} size={{ xs: 12, md: component.size || 12 }}>
+                                <YAMLComponentWelcome component={component} />
+                            </Grid>
+                        );
+                    }
+
                     return (
                         <Grid item key={index} size={{ xs: 12, md: component.size || 4 }}>
                             <Paper
