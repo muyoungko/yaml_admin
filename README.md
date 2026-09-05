@@ -548,7 +548,7 @@ Sections use the same 12-column grid as components. Columns with `size` values t
   id: daily_sales
   label: 'Daily Sales'
   icon: 'solar:chart-square-outline'
-  type: bar                          # bar | line
+  type: bar                          # bar | line | pie | donut
   size: 12
   height: 300                        # Height in px. Default: 300
   api: '/api/mychart/custom'         # Custom API URL (optional). Defaults to /api/chart/<id>
@@ -582,23 +582,63 @@ Sections use the same 12-column grid as components. Columns with `size` values t
         if: lock!=true
 ```
 
-**x.type: field - group by field value:**
+**x.type: field — group by field value (bar):**
+
+Each bar gets an individual color via `x.values[].color`. When colors are defined per value, `distributed` mode is automatically enabled.
+
 ```yaml
-x:
-  type: field
-  entity: member
-  field: user_type
-  values:                            # Map raw values to display labels (optional)
-    - name: admin
-      label: 'Admin'
-    - name: user
-      label: 'Regular User'
-y:
-  entity: member
-  series:
-    - label: 'Member Count'
-      color: '#1a66cc'
+- component: chart
+  id: member_type
+  type: bar
+  size: 6
+  x:
+    type: field
+    entity: member
+    field: user_type
+    values:
+      - name: "admin"
+        label: "Admin"
+        color: '#1a66cc'             # Individual bar color
+      - name: "user"
+        label: "User"
+        color: '#228B22'
+  y:
+    entity: member
 ```
+
+**x.type: field — pie / donut:**
+
+For `pie` or `donut` charts, define `x.values` with colors. No `y.series` needed — the chart counts records grouped by the `x.field` value.
+
+```yaml
+- component: chart
+  id: member_type
+  label: 'User Distribution'
+  type: pie                          # pie | donut
+  size: 6
+  height: 200
+  x:
+    type: field
+    entity: member
+    field: user_type
+    values:
+      - name: "admin"
+        label: "Admin"
+        color: '#1a66cc'             # Slice color
+      - name: "user"
+        label: "User"
+        color: '#228B22'
+  y:
+    entity: member                   # Entity to count (no series needed)
+```
+
+**Color resolution rules:**
+
+| Source | Applied to | Behavior |
+|--------|-----------|----------|
+| `x.values[].color` | `pie`/`donut` slices | One color per slice |
+| `x.values[].color` | `bar` (field type) | One color per bar, `distributed` auto-enabled |
+| `y.series[].color` | `bar`/`line` (conditional series) | One color per series (`if`-based) |
 
 **table component:**
 

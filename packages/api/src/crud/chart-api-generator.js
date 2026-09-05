@@ -273,6 +273,42 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
         return r
     }
 
+    const createChartDataTypePie = async (chart, {filter}) => {
+        const { x, y } = chart;
+        const { field, entity: entity_x, values } = x;
+        const entity = entity_x || y?.entity;
+
+        let a = [];
+        if (filter && Object.keys(filter).length > 0)
+            a.push({ $match: filter });
+        a.push({ $group: { _id: `$${field}`, count: { $sum: 1 } } });
+
+        if (chart.debug)
+            console.log('chart pie', chart.label, entity, JSON.stringify(a, null, 2));
+
+        const list = await db.collection(entity).aggregate(a).toArray();
+
+        let labels, series, colors;
+        if (values?.length) {
+            labels  = values.map(v => v.label || v.name);
+            series  = values.map(v => list.find(l => String(l._id) === String(v.name))?.count || 0);
+            colors  = values.map(v => v.color).filter(Boolean);
+        } else {
+            labels  = list.map(l => String(l._id));
+            series  = list.map(l => l.count);
+            colors  = [];
+        }
+
+        return {
+            options: {
+                chart: { id: chart.id },
+                labels,
+                ...(colors.length ? { colors } : {}),
+            },
+            series,
+        };
+    };
+
     for (const chart of chartComponents) {
         const { id } = chart;
         console.log('generateChartApi', chart.id)
@@ -325,7 +361,9 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
                         filter[s.name] = value;
                 });
                 
-                if (x.type == 'date') {
+                if (chart.type === 'pie' || chart.type === 'donut') {
+                    r = await createChartDataTypePie(chart, {filter});
+                } else if (x.type == 'date') {
                     let {from_date} = req.query //YYYYMMDD
                     r = await createChartDataTypeDate(chart, {from_date, filter});
                 } else if(x.type == 'field') {
