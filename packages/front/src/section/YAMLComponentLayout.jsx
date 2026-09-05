@@ -16,6 +16,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import YAMLComponentTable from './YAMLComponentTable';
 import YAMLComponentChart from './YAMLComponentChart';
 import YAMLComponentWelcome from './YAMLComponentWelcome';
+import YAMLComponentCount from './YAMLComponentCount';
 
 // 컨테이너 근처에서
 
@@ -59,11 +60,20 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                     console.log(`Dashboard Component [${index}] ${component.label}:`, component);
                     const gradientIndex = index % cardGradients.length;
 
-                    // welcome: renders as a full-width banner without card wrapper
+                    // welcome: full-width banner, no card wrapper
                     if (component.component === 'welcome') {
                         return (
                             <Grid item key={index} size={{ xs: 12, md: component.size || 12 }}>
                                 <YAMLComponentWelcome component={component} />
+                            </Grid>
+                        );
+                    }
+
+                    // count: stat card, no card wrapper
+                    if (component.component === 'count') {
+                        return (
+                            <Grid item key={index} size={{ xs: 12, md: component.size || 3 }}>
+                                <YAMLComponentCount component={component} />
                             </Grid>
                         );
                     }
