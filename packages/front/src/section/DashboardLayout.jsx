@@ -27,6 +27,7 @@ import {
 
 import { useAdminContext } from '../AdminContext';
 import YAMLComponentLayout from "./YAMLComponentLayout";
+import { Box, Grid } from '@mui/material';
 //Custom Import Start
 
 //Custom Import End
@@ -34,13 +35,31 @@ import YAMLComponentLayout from "./YAMLComponentLayout";
 export const DashboardLayout = ({ custom, ...props }) => {
     const refresh = useRefresh();
     const yml = useAdminContext();
-    
+    const dashboard = yml?.front?.dashboard;
+
     // Custom List Code Start
 
     //Custom List Code End
-    return (
-        <YAMLComponentLayout components={yml?.front?.dashboard} />
-    )
+
+    if (!dashboard) return null;
+
+    // sections mode: dashboard is an object with a sections key
+    if (!Array.isArray(dashboard) && dashboard.sections) {
+        return (
+            <Box sx={{ minHeight: '100vh', padding: { xs: 2, md: 4 } }}>
+                <Grid container spacing={3} alignItems="flex-start">
+                    {dashboard.sections.map((section, index) => (
+                        <Grid item key={index} size={{ xs: 12, md: section.size || 12 }}>
+                            <YAMLComponentLayout components={section.components} compact />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        );
+    }
+
+    // default mode: dashboard is a flat array of components
+    return <YAMLComponentLayout components={dashboard} />;
 };
 
 

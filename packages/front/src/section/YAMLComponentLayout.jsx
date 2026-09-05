@@ -39,7 +39,7 @@ const cardGradients = [
     'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
 ];
 
-export const YAMLComponentLayout = ({ components, custom, ...props }) => {
+export const YAMLComponentLayout = ({ components, compact, custom, ...props }) => {
     const refresh = useRefresh();
     const yml = useAdminContext();
     const theme = useTheme();
@@ -47,7 +47,7 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
 
     return (
         <Box
-            sx={{
+            sx={compact ? {} : {
                 minHeight: '100vh',
                 padding: { xs: 2, md: 4 },
             }}
@@ -116,11 +116,11 @@ export const YAMLComponentLayout = ({ components, custom, ...props }) => {
                                                 }
                                             }}
                                         >
-                                            <Icon 
-                                                icon={component.icon} 
-                                                width={22} 
-                                                height={22} 
-                                                style={{ color: '#fff' }} 
+                                            <Icon
+                                                icon={component.icon}
+                                                width={22}
+                                                height={22}
+                                                style={{ color: '#fff' }}
                                             />
                                         </Box>
                                     )}

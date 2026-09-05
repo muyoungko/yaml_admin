@@ -14,11 +14,24 @@ const generateChartApi = async (app, db, yml, api_prefix) => {
     if (!dashboard)
         return;
 
-    const chartComponents = dashboard.filter(m => m.component === 'chart');
+    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
+
+    const chartComponents = [] 
+
+    if(dashboard.sections) {
+        dashboard.sections.forEach(section=>{
+            section.components?.filter(m => m.component === 'chart').forEach(m=>{
+                chartComponents.push(m)
+            });
+        })
+    } else if(Array.isArray(dashboard)){
+        dashboard.filter(m => m.component === 'chart').forEach(m=>{
+            chartComponents.push(m)
+        });
+    }
+
     if (chartComponents.length === 0)
         return;
-
-    const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
 
     const createChartDataTypeDate = async (chart, {from_date, filter}) => {
         const r = {
