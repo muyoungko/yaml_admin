@@ -33,13 +33,15 @@ const getChartIcon = (type) => {
     }
 };
 
-const cardGradients = [
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+const cardColors = [
+    '#6366f1', // indigo
+    '#ec4899', // pink
+    '#06b6d4', // cyan
+    '#10b981', // emerald
+    '#f59e0b', // amber
+    '#f97316', // orange
+    '#8b5cf6', // violet
+    '#14b8a6', // teal
 ];
 
 export const YAMLComponentLayout = ({ components, compact, custom, ...props }) => {
@@ -58,13 +60,13 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
             <Grid container spacing={3} >
                 {components?.map((component, index) => {
                     console.log(`Dashboard Component [${index}] ${component.label}:`, component);
-                    const gradientIndex = index % cardGradients.length;
+                    const iconColor = cardColors[index % cardColors.length];
 
                     // welcome: full-width banner, no card wrapper
                     if (component.component === 'welcome') {
                         return (
                             <Grid item key={index} size={{ xs: 12, md: component.size || 12 }}>
-                                <YAMLComponentWelcome component={component} />
+                                <YAMLComponentWelcome component={component} iconColor={iconColor} />
                             </Grid>
                         );
                     }
@@ -73,7 +75,7 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                     if (component.component === 'count') {
                         return (
                             <Grid item key={index} size={{ xs: 12, md: component.size || 3 }}>
-                                <YAMLComponentCount component={component} />
+                                <YAMLComponentCount component={component} iconColor={iconColor} />
                             </Grid>
                         );
                     }
@@ -111,7 +113,7 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
                                     }}
                                 >
-                                    <YAMLIcon icon={component.icon} size={44} />
+                                    <YAMLIcon icon={component.icon} size={44} color={iconColor} />
                                     <Typography
                                         variant="body2"
                                         sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.5, noWrap: true }}

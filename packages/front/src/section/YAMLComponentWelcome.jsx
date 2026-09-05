@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import YAMLIcon from './YAMLIcon';
 
-export const YAMLComponentWelcome = ({ component }) => {
+export const YAMLComponentWelcome = ({ component, iconColor }) => {
     const {
         text1,
         text2,
@@ -13,8 +13,10 @@ export const YAMLComponentWelcome = ({ component }) => {
         text1_color = '#ffffff',
         text2_color = 'rgba(255,255,255,0.55)',
         text3_color = 'rgba(255,255,255,0.40)',
-        icon_background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        icon_background,
     } = component;
+    // icon_background in YAML = explicit gradient/color (passed as background, icon becomes white)
+    // iconColor from layout = solid color (icon gets that color, bg auto alpha)
 
     return (
         <Box
@@ -48,7 +50,8 @@ export const YAMLComponentWelcome = ({ component }) => {
             <YAMLIcon
                 icon={icon}
                 size={44}
-                background={icon_background}
+                background={icon_background || undefined}
+                color={icon_background ? undefined : iconColor}
                 color="#fff"
                 sx={{ mr: { xs: 2.5, md: 4 } }}
             />

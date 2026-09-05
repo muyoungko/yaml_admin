@@ -5,7 +5,7 @@ import axiosInstance from '../common/axios';
 import YAMLIcon from './YAMLIcon';
 import { filterToQueryString } from './YAMLFilterUtil';
 
-export const YAMLComponentCount = ({ component }) => {
+export const YAMLComponentCount = ({ component, iconColor }) => {
     const { entity, filter, icon, label, desc, unit } = component;
     const theme = useTheme();
     const [count, setCount] = useState(null);
@@ -40,7 +40,7 @@ export const YAMLComponentCount = ({ component }) => {
             }}
         >
             {/* Icon badge */}
-            <YAMLIcon icon={icon} size={44} />
+            <YAMLIcon icon={icon} size={44} color={iconColor} />
 
             {/* Text */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
