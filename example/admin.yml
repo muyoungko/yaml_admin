@@ -987,7 +987,7 @@ front:
             id: member_type
             label: '사용자 현황'
             icon: 'solar:users-group-rounded-outline'
-            type: bar
+            type: pie
             size: 6
             height: 200
             filter:
