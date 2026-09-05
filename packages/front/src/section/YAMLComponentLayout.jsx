@@ -110,7 +110,7 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                     <YAMLIcon icon={component.icon} size={44} color={iconColor} />
                                     <Typography
                                         variant="body2"
-                                        sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.5, noWrap: true }}
+                                        sx={{ color: 'text.primary', fontWeight: 700, mb: 0.5, noWrap: true }}
                                     >
                                         {component.label}
                                     </Typography>

@@ -46,7 +46,7 @@ export const YAMLComponentCount = ({ component, iconColor }) => {
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography
                     variant="body2"
-                    sx={{ color: 'text.secondary', fontWeight: 700, mb: 0.5, noWrap: true }}
+                    sx={{ color: 'text.text.primary', fontWeight: 700, mb: 0.5, noWrap: true }}
                 >
                     {label}
                 </Typography>
