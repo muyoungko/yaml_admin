@@ -973,6 +973,7 @@ front:
             icon: 'solar:list-check-outline'
             type: bar
             size: 8
+            height: 150
             filter:
               - name: server_id
                 value: $server_id
@@ -987,7 +988,7 @@ front:
             id: member_type
             label: '사용자 현황'
             icon: 'solar:users-group-rounded-outline'
-            type: pie
+            type: donut
             size: 4
             height: 150
             filter:
@@ -1034,7 +1035,7 @@ front:
               series:
                 - label: '잠금'
                   if: lock==true
-                  color: '#6366f1'
+                  color: '#ef4444'
                 - label: '해제'
                   if: lock!=true
                   color: '#10b981'

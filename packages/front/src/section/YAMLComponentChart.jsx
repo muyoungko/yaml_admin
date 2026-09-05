@@ -63,7 +63,30 @@ const getEnhancedOptions = (baseOptions, chartType, yOptions, xOptions) => {
             plotOptions: {
                 pie: {
                     expandOnClick: true,
-                    dataLabels: { offset: -10, minAngleToShowLabel: 10 },
+                    dataLabels: { offset: -5, minAngleToShowLabel: 10 },
+                    donut: {
+                        size: '55%',
+                        labels: {
+                            show: chartType === 'donut',
+                            total: {
+                                show: true,
+                                label: '합계',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                color: '#64748b',
+                                offsetY: 4,
+                                formatter: (w) =>
+                                    w.globals.seriesTotals.reduce((a, b) => a + b, 0).toLocaleString(),
+                            },
+                            value: {
+                                fontSize: '18px',
+                                fontWeight: 700,
+                                color: '#1e293b',
+                                offsetY: -6,
+                                formatter: (val) => Number(val).toLocaleString(),
+                            },
+                        },
+                    },
                 },
             },
             tooltip: {

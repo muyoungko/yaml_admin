@@ -88,7 +88,7 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
     return (
         <ResourceContextProvider value={component.entity}>
             <ListContextProvider value={listContext}>
-                <Box sx={{ width: '100%', overflow: 'auto' }}>
+                <Box sx={{ width: '100%', overflow: 'auto', ...(component.height ? { minHeight: component.height } : {}) }}>
                     <Datagrid bulkActionButtons={false} rowClick={false} empty={<Box sx={{ p: 2, color: 'text.secondary' }}>{component.none ?? 'No data'}</Box>}>
                         {component.fields.map((fieldConf, index) => {
                             const fieldName = typeof fieldConf === 'string' ? fieldConf : fieldConf.name;
