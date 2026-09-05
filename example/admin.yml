@@ -989,6 +989,7 @@ front:
             icon: 'solar:users-group-rounded-outline'
             type: bar
             size: 6
+            height: 200
             filter:
               - name: server_id
                 value: $server_id
@@ -1000,13 +1001,13 @@ front:
               values:
                 - name: "관리자"
                   label: "관리자"
+                  color: '#1a66cc'
                 - name: "작업자"
                   label: "담당자"
+                  color: '#228B22'
             y:
               entity: member
-              series:
-                - label: '사용자'
-                  color: '#1a66cc'
+              
           - component: chart
             id: lock_history1
             label: '잠금/해제 이용횟수'

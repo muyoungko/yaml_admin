@@ -12,9 +12,18 @@ import { filterToQueryString } from './YAMLFilterUtil';
 const Chart2 = typeof Chart === 'object' ? Chart.default : Chart;
 
 // Enhanced chart options for better styling
-const getEnhancedOptions = (baseOptions, chartType, yOptions) => {
+const getEnhancedOptions = (baseOptions, chartType, yOptions, xOptions) => {
+    // x.values 에 color가 있으면 → distributed bar (바마다 개별 색상)
+    const valueColors = xOptions?.values?.map(v => v.color).filter(Boolean);
+    // y.series 에 color가 있으면 → 시리즈별 색상 (if 조건부 시리즈 등)
+    const seriesColors = yOptions?.series?.map(s => s.color).filter(Boolean);
+
+    const colors = valueColors?.length ? valueColors : seriesColors?.length ? seriesColors : undefined;
+    const distributed = chartType === 'bar' && !!valueColors?.length;
+
     const enhancedOptions = {
         ...baseOptions,
+        ...(colors ? { colors } : {}),
         chart: {
             ...baseOptions?.chart,
             toolbar: {
@@ -89,6 +98,7 @@ const getEnhancedOptions = (baseOptions, chartType, yOptions) => {
                 ...baseOptions?.plotOptions?.bar,
                 borderRadius: 6,
                 columnWidth: '60%',
+                distributed,
                 dataLabels: {
                     position: 'top',
                 },
@@ -188,7 +198,7 @@ export const YAMLComponentChart = ({ component, custom, ...props }) => {
 
     const enhancedOptions = useMemo(() => {
         if (!data?.options) return null;
-        return getEnhancedOptions(data.options, component?.type, component?.y);
+        return getEnhancedOptions(data.options, component?.type, component?.y, component?.x);
     }, [data?.options, component?.type, component?.y]);
 
     if (loading) {

@@ -92,12 +92,6 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                     border: '1px solid',
                                     borderColor: alpha(theme.palette.divider, 0.1),
                                     position: 'relative',
-                                    '&:hover': {
-                                        transform: 'translateY(-8px)',
-                                        boxShadow: '0 20px 40px -12px rgba(0,0,0,0.15)',
-                                        borderColor: 'transparent',
-                                        zIndex: 1,
-                                    },
                                 }}
                             >
                                 {/* Card Header with Gradient */}
