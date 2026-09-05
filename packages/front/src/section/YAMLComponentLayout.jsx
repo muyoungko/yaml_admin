@@ -16,6 +16,7 @@ import YAMLComponentTable from './YAMLComponentTable';
 import YAMLComponentChart from './YAMLComponentChart';
 import YAMLComponentWelcome from './YAMLComponentWelcome';
 import YAMLComponentCount from './YAMLComponentCount';
+import YAMLComponentList from './YAMLComponentList';
 import YAMLIcon from './YAMLIcon';
 
 // 컨테이너 근처에서
@@ -120,6 +121,7 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                 <CardContent sx={{ p: 3 }}>
                                     {component.component === 'table' && <YAMLComponentTable component={component} />}
                                     {component.component === 'chart' && <YAMLComponentChart component={component} />}
+                                    {component.component === 'list' && <YAMLComponentList component={component} />}
                                 </CardContent>
                             </Paper>
                         </Grid>

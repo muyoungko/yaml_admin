@@ -965,7 +965,7 @@ front:
                   if: value==1
                 - text: '해제'
                   if: value==0
-          - component: table
+          - component: list
             id: lock_by_item
             limit: 5
             entity: item
@@ -981,9 +981,9 @@ front:
               - name: lock_list
                 value: $gt 0
             fields:
-              - name: id
               - name: name
-              - name: lock_list
+              - name: ils.key
+              - name: lock_list.member.name
           - component: chart
             id: member_type
             label: '사용자 현황'
