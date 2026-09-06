@@ -940,31 +940,6 @@ front:
               - name: server_id
                 value: $server_id
           
-
-          - component: chart
-            api: '/api/mychart/lock_history2'
-            id: lock_history2
-            label: '일별 잠금 현황'
-            debug: true
-            icon: 'solar:chart-square-outline'
-            type: line
-            size: 12
-            height: 300
-            filter:
-              - name: server_id
-                value: $server_id
-                type: integer
-            x:
-              label: '날짜'
-              type: date
-            y:
-              type: integer
-              max: 1
-              value_text:
-                - text: '잠금'
-                  if: value==1
-                - text: '해제'
-                  if: value==0
           - component: list
             id: lock_by_item
             limit: 5
@@ -972,7 +947,7 @@ front:
             label: '현재 잠금 현황'
             icon: 'solar:list-check-outline'
             type: bar
-            size: 8
+            size: 7
             height: 150
             filter:
               - name: server_id
@@ -989,7 +964,7 @@ front:
             label: '사용자 현황'
             icon: 'solar:users-group-rounded-outline'
             type: donut
-            size: 4
+            size: 5
             height: 150
             filter:
               - name: server_id
@@ -1008,14 +983,37 @@ front:
                   color: '#228B22'
             y:
               entity: member
-              
+          - component: chart
+            api: '/api/mychart/lock_history2'
+            id: lock_history2
+            label: '일별 잠금 현황'
+            debug: true
+            icon: 'solar:chart-square-outline'
+            type: line
+            size: 8
+            height: 200
+            filter:
+              - name: server_id
+                value: $server_id
+                type: integer
+            x:
+              label: '날짜'
+              type: date
+            y:
+              type: integer
+              max: 1
+              value_text:
+                - text: '잠금'
+                  if: value==1
+                - text: '해제'
+                  if: value==0
           - component: chart
             id: lock_history1
             label: '잠금/해제 이용횟수'
             icon: 'solar:history-outline'
             type: bar
-            size: 12
-            height: 300
+            size: 4
+            height: 200
             filter:
               - name: server_id
                 value: $server_id
