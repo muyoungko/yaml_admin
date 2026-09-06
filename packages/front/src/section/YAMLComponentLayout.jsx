@@ -4,7 +4,8 @@ import {
 } from 'react-admin';
 
 import { useAdminContext } from '../AdminContext';
-import { Box, Card, Paper, CardContent, Grid, Typography } from '@mui/material';
+import { Box, Card, Paper, CardContent, Grid, Typography, Button } from '@mui/material';
+import { Link } from 'react-admin';
 
 import { useTheme, alpha } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -112,10 +113,30 @@ export const YAMLComponentLayout = ({ components, compact, custom, ...props }) =
                                     <YAMLIcon icon={component.icon} size={44} color={iconColor} />
                                     <Typography
                                         variant="body2"
-                                        sx={{ color: 'text.primary', fontWeight: 700, mb: 0.5, noWrap: true }}
+                                        sx={{ color: 'text.primary', fontWeight: 700, mb: 0.5, noWrap: true, flexGrow: 1 }}
                                     >
                                         {component.label}
                                     </Typography>
+                                    {component.more?.type === 'link' && component.more?.entity && (
+                                        <Button
+                                            component={Link}
+                                            to={`/${component.more.entity}`}
+                                            size="small"
+                                            variant="text"
+                                            sx={{
+                                                fontSize: '12px',
+                                                fontWeight: 600,
+                                                color: 'text.secondary',
+                                                px: 1.5,
+                                                py: 0.5,
+                                                borderRadius: 2,
+                                                whiteSpace: 'nowrap',
+                                                '&:hover': { bgcolor: alpha(theme.palette.text.secondary, 0.08) },
+                                            }}
+                                        >
+                                            {component.more.label || '더보기'}
+                                        </Button>
+                                    )}
                                 </Box>
 
                                 {/* Card Content */}

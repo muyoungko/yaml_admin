@@ -949,6 +949,10 @@ front:
             type: bar
             size: 7
             height: 150
+            more:
+              label: '더보기'
+              type: link
+              entity: item
             filter:
               - name: server_id
                 value: $server_id
@@ -970,6 +974,10 @@ front:
               - name: server_id
                 value: $server_id
                 type: integer
+            more:
+              label: '더보기'
+              type: link
+              entity: member
             x:
               type: field
               entity: member
