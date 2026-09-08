@@ -1,20 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import YAMLIcon from './YAMLIcon';
+import { fetcher } from '../common/axios';
 
 export const YAMLComponentWelcome = ({ component, iconColor }) => {
+    const [apiData, setApiData] = useState(null);
+
+    useEffect(() => {
+        if (component.api) {
+            fetcher(component.api).then(res => setApiData(res)).catch(() => {});
+        }
+    }, [component.api]);
+
+    const merged = { ...component, ...apiData };
     const {
         text1,
         text2,
         text3,
         icon,
         height = 180,
-        background = 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%)',
+        background = 'linear-gradient(135deg, #1e40af 0%, #2563eb 60%, #60a5fa 100%)',
         text1_color = '#ffffff',
-        text2_color = 'rgba(255,255,255,0.55)',
-        text3_color = 'rgba(255,255,255,0.40)',
+        text2_color = 'rgba(255,255,255,0.75)',
+        text3_color = 'rgba(255,255,255,0.50)',
+        text2_align,
         icon_background,
-    } = component;
+    } = merged;
     // icon_background in YAML = explicit gradient/color (passed as background, icon becomes white)
     // iconColor from layout = solid color (icon gets that color, bg auto alpha)
 
@@ -57,7 +68,7 @@ export const YAMLComponentWelcome = ({ component, iconColor }) => {
             />
 
             {/* Text */}
-            <Box>
+            <Box sx={{ flexGrow: 1 }}>
                 <Typography
                     variant="h5"
                     sx={{
@@ -78,6 +89,7 @@ export const YAMLComponentWelcome = ({ component, iconColor }) => {
                             color: text2_color,
                             fontWeight: 400,
                             fontSize: { xs: '0.85rem', md: '0.95rem' },
+                            ...(text2_align ? { textAlign: text2_align } : {}),
                         }}
                     >
                         {text2}

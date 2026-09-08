@@ -895,8 +895,12 @@ front:
         components:
           - component: welcome
             text1: "안녕하세요 MULTISIG 공간 방문을 환영합니다."
-            text2: "문의사항 및 지원 1566-4775 / mygo@emsson.co.kr"
-            background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%)'
+            text2: "문의사항 및 지원 1566-4775 mygo@emsson.co.kr"
+            text2_align: right
+            background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 60%, #60a5fa 100%)'
+            text1_color: '#ffffff'
+            text2_color: 'rgba(255,255,255,0.75)'
+            api: '/api/dashboard/welcome'
           - component: count
             size: 3
             icon: solar:lock-keyhole-minimalistic-outline
