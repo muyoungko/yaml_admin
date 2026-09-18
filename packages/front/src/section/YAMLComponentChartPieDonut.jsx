@@ -4,6 +4,7 @@ import Chart from 'react-apexcharts';
 import { Box, Skeleton, Typography } from '@mui/material';
 import { fetcher } from '../common/axios';
 import { filterToQueryString } from './YAMLFilterUtil';
+import { usePollingEffect } from './YAMLRefreshUtil';
 
 const Chart2 = typeof Chart === 'object' ? Chart.default : Chart;
 
@@ -17,8 +18,8 @@ export const YAMLComponentChartPieDonut = ({ component, custom, ...props }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        setLoading(true);
+    usePollingEffect((isInitial) => {
+        if (isInitial) setLoading(true);
         const queryString = filterToQueryString(component.filter);
         const apiUrl = component.api || `/api/chart/${component.id}`;
         fetcher(`${apiUrl}?${queryString}`).then(res => {
@@ -27,7 +28,7 @@ export const YAMLComponentChartPieDonut = ({ component, custom, ...props }) => {
         }).catch(() => {
             setLoading(false);
         });
-    }, [component.id]);
+    }, [component.id], component.refresh);
 
     const { chartOptions, labels, series, colors } = useMemo(() => {
         if (!data) return {};

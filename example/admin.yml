@@ -553,14 +553,15 @@ entity:
     crud:
       search:
         - name: id
-        - name: server_id
         - name: key
         - name: serial
+        - name: department_id
       list:
         - name: id
         - name: key
         - name: battery
         - name: serial
+        - name: department_id
         - name: item.item_id
         - name: lock_list
           label: "잠금자수"
@@ -577,6 +578,7 @@ entity:
             type: integer
         - name: key
         - name: serial
+        - name: department_id
         - name: version
           default: "2"
         - name: battery
@@ -588,6 +590,7 @@ entity:
             type: integer
         - name: key
         - name: serial
+        - name: department_id
         - name: version
         - name: battery
       show: 
@@ -595,6 +598,7 @@ entity:
         - name: id
         - name: key
         - name: serial
+        - name: department_id
         - name: version
         - name: battery
         - name: sync_date
@@ -614,6 +618,7 @@ entity:
           - name: server_id
           - name: key
           - name: serial
+          - name: department_id
           - name: version
         upsert: true
     fields:
@@ -638,6 +643,12 @@ entity:
         label: "시리얼"
         type: string
         required: true
+      - name: department_id
+        label: "부서"
+        type: reference
+        reference_entity: department
+        reference_match: id
+        reference_name: name
       - name: version
         label: "버전"
         type: string
@@ -826,6 +837,7 @@ entity:
     label: '운영자'
     unique:
       - name: email
+      - name: phone
     crud:
       search:
         - name: email
@@ -913,6 +925,7 @@ front:
                 value: $server_id
           - component: count
             size: 3
+            refresh: 3
             icon: solar:lock-keyhole-outline
             label: '현재 잠금 상태'
             desc: '현재 잠금 수'
@@ -921,8 +934,8 @@ front:
             filter:
               - name: server_id
                 value: $server_id
-              - name: lock
-                value: true
+              - name: lock_list
+                value: $gt 0
           - component: count
             size: 3
             icon: "solar:user-hands-outline"
@@ -947,9 +960,11 @@ front:
           - component: list
             id: lock_by_item
             limit: 5
+            refresh: 3
             entity: item
             label: '현재 잠금 현황'
             icon: 'solar:list-check-outline'
+            none: '잠금 없음'
             type: bar
             size: 7
             height: 150
@@ -1003,6 +1018,7 @@ front:
             icon: 'solar:chart-square-outline'
             type: line
             size: 8
+            refresh: 3
             height: 200
             filter:
               - name: server_id
@@ -1024,6 +1040,7 @@ front:
             label: '잠금/해제 이용횟수'
             icon: 'solar:history-outline'
             type: bar
+            refresh: 3
             size: 4
             height: 200
             filter:
@@ -1058,6 +1075,7 @@ front:
             icon: 'solar:history-outline'
             size: 12
             limit: 5
+            refresh: 3
             entity: lock_history
             sort:
               - name: reg_date
@@ -1077,6 +1095,7 @@ front:
             icon: 'solar:chart-square-outline'
             none: '모든 MULTISIG 배터리 정상'
             size: 12
+            refresh: 3
             filter:
               - name: server_id
                 value: $server_id

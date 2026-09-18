@@ -4,6 +4,7 @@ import { useAdminContext } from '../AdminContext';
 import { Box, Skeleton, Typography, Chip } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import { filterToObject } from './YAMLFilterUtil';
+import { withRefetchInterval } from './YAMLRefreshUtil';
 
 function getNestedValue(record, path) {
     return path.split('.').reduce((obj, key) => {
@@ -55,7 +56,10 @@ export const YAMLComponentList = ({ component }) => {
             sort,
             filter,
         },
-        { enabled: Object.keys(filter).length > 0 || !component.filter }
+        withRefetchInterval(
+            { enabled: Object.keys(filter).length > 0 || !component.filter },
+            component.refresh
+        )
     );
 
     if (isLoading) {

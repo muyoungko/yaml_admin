@@ -4,6 +4,7 @@ import { useTheme, alpha } from '@mui/material/styles';
 import axiosInstance from '../common/axios';
 import YAMLIcon from './YAMLIcon';
 import { filterToQueryString } from './YAMLFilterUtil';
+import { usePollingEffect } from './YAMLRefreshUtil';
 
 export const YAMLComponentCount = ({ component, iconColor }) => {
     const { entity, filter, icon, label, desc, unit } = component;
@@ -11,18 +12,16 @@ export const YAMLComponentCount = ({ component, iconColor }) => {
     const [count, setCount] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    usePollingEffect(() => {
         if (!entity) return;
-
         const queryString = `_start=0&_end=1&${filterToQueryString(filter)}`;
-
         axiosInstance.get(`/${entity}?${queryString}`)
             .then(res => {
                 setCount(parseInt(res.headers['x-total-count'] ?? 0));
             })
             .catch(() => setCount(null))
             .finally(() => setLoading(false));
-    }, [entity]);
+    }, [entity], component.refresh);
 
     return (
         <Box

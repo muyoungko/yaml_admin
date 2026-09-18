@@ -13,6 +13,7 @@ import { useAdminContext } from '../AdminContext';
 import { Box, Skeleton, Typography } from '@mui/material';
 import { getFieldShow } from '../common/field';
 import { filterToObject } from './YAMLFilterUtil';
+import { withRefetchInterval } from './YAMLRefreshUtil';
 
 export const YAMLComponentTable = ({ component, custom, ...props }) => {
     const { yml } = useAdminContext();
@@ -40,7 +41,10 @@ export const YAMLComponentTable = ({ component, custom, ...props }) => {
             sort,
             filter: filter
         },
-        { enabled: Object.keys(filter).length > 0 || !component.filter }
+        withRefetchInterval(
+            { enabled: Object.keys(filter).length > 0 || !component.filter },
+            component.refresh
+        )
     );
 
     const listContext = useMemo(() => ({

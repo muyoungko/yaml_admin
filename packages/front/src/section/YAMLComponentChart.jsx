@@ -1,13 +1,11 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import {
-    useRefresh,
-} from 'react-admin';
 
 import { useAdminContext } from '../AdminContext';
 import Chart from "react-apexcharts";
 import { Box, Skeleton } from '@mui/material';
 import { fetcher } from '../common/axios';
 import { filterToQueryString } from './YAMLFilterUtil';
+import { usePollingEffect } from './YAMLRefreshUtil';
 
 const Chart2 = typeof Chart === 'object' ? Chart.default : Chart;
 
@@ -181,13 +179,12 @@ const getEnhancedOptions = (baseOptions, chartType, yOptions, xOptions) => {
 };
 
 export const YAMLComponentChart = ({ component, custom, ...props }) => {
-    const refresh = useRefresh();
     const yml = useAdminContext();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        setLoading(true);
+    usePollingEffect((isInitial) => {
+        if (isInitial) setLoading(true);
         const queryString = filterToQueryString(component.filter);
         const apiUrl = component.api || `/api/chart/${component.id}`;
         fetcher(`${apiUrl}?${queryString}`).then(res => {
@@ -196,7 +193,7 @@ export const YAMLComponentChart = ({ component, custom, ...props }) => {
         }).catch(() => {
             setLoading(false);
         });
-    }, [component.id]);
+    }, [component.id], component.refresh);
 
     const enhancedOptions = useMemo(() => {
         if (!data?.options) return null;
