@@ -27,10 +27,22 @@ import {
 } from 'react-admin';
 
 import { useAdminContext } from '../AdminContext';
+import { useNavigate } from 'react-router-dom';
 import { getFieldShow } from '../common/field';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 //Custom Import Start
 
 //Custom Import End
+
+const BackButton = () => {
+    const navigate = useNavigate();
+    return (
+        <IconButton onClick={() => navigate(-1)} size="small" color="primary" sx={{ mr: 'auto' }}>
+            <ArrowBackIcon fontSize="small" />
+        </IconButton>
+    );
+};
 
 const DynamicTitle = () => {
     const record = useRecordContext();
@@ -115,7 +127,7 @@ export const DynamicShow = ({ custom, ...props }) => {
     //Custom List Code End
     return (
         <Show title={<DynamicTitle />} {...props}
-            actions={<TopToolbar>{crud.edit && <EditButton />}</TopToolbar>}
+            actions={<TopToolbar sx={{ width: '100%' }}><BackButton />{crud.edit && <EditButton />}</TopToolbar>}
         >
             <SimpleShowLayout>
                 {customFunc && <ShowContent customFunc={customFunc} fields={fields} />}

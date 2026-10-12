@@ -8,6 +8,7 @@ import {
     SelectInput,
     SimpleForm,
     TextInput,
+    TopToolbar,
     usePermissions,
     useRecordContext,
     Toolbar,
@@ -16,10 +17,21 @@ import {
 } from 'react-admin';
 import { getFieldEdit } from '../common/field';
 import { useAdminContext } from '../AdminContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 //Custom Import Start
 
 //Custom Import End
+
+const BackButton = () => {
+    const navigate = useNavigate();
+    return (
+        <IconButton onClick={() => navigate(-1)} size="small" color="primary" sx={{ mr: 'auto' }}>
+            <ArrowBackIcon fontSize="small" />
+        </IconButton>
+    );
+};
 
 const DynamicTitle = () => {
     const record = useRecordContext();
@@ -113,6 +125,7 @@ export const DynamicCreate = ({ custom, ...props }) => {
 
     return (
         <Create title={<DynamicTitle />} {...props} mutationMode='pessimistic' redirect="list"
+            actions={<TopToolbar sx={{ width: '100%' }}><BackButton /></TopToolbar>}
         //Custom Create Property Start
 
         //Custom Create Property End
