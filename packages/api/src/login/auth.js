@@ -13,9 +13,9 @@ const evaluateCondition = (condition, data) => {
 
 const resolveAuthority = (member, authorityConfig) => {
   if (!authorityConfig) return null;
-  for (const rule of Object.values(authorityConfig)) {
+  for (const [name, rule] of Object.entries(authorityConfig)) {
     if (evaluateCondition(rule.if, member)) {
-      return rule.default || null;
+      return { name, ...(rule.default || {}) };
     }
   }
   return null;
@@ -112,10 +112,9 @@ const withConfig = (config) => {
             delete member._id;
             const resolvedAuthority = resolveAuthority(member, authority);
             if (resolvedAuthority) member.authority = resolvedAuthority;
-            console.log('member', member)
             authenticateSuccess(req, res, member, next);
           } else
-            res.json({ r: false, msg: '비밀번호가 일치하지 않습니다.' });
+            res.json({ r: false, msg: 'Password is not correct' });
         }
         else
           res.json({ r: false, msg: '존재하지 않는 사용자입니다.' });

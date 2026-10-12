@@ -277,6 +277,8 @@ export const DynamicList = ({ custom, ...props }) => {
     }, [fields])
 
     const shouldShowFields = useCallback(( crud_field ) => {
+        if (crud_field.authority && crud_field.authority !== authority?.name)
+            return false
 
         if (
             fields.map(a => a.name).includes(crud_field.name)
