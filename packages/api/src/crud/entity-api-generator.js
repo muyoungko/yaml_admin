@@ -28,14 +28,39 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     // entity 속성이 있으면 해당 값을 실제 collection 이름으로 사용
     const collection_name = yml_entity.entity || entity_name
 
-    // filter 배열을 객체로 변환
-    let default_filter = {}
-    if (Array.isArray(yml_entity.filter)) {
-        yml_entity.filter.forEach(f => {
-            default_filter[f.name] = f.value
-        })
-    } else if (yml_entity.filter) {
-        default_filter = yml_entity.filter
+    // filter 배열을 객체로 변환 (동적 필터 지원: ${user.xxx} 변수 및 if 조건)
+    const resolveUserVar = (str, user) => {
+        if (!str || typeof str !== 'string') return str
+        return str.replace(/\$\{user\.(\w+)\}/g, (match, key) => user?.[key])
+    }
+
+    const evaluateIfCondition = (condition, user) => {
+        const resolved = resolveUserVar(condition, user)
+        try {
+            return Function(`"use strict"; return (${resolved})`)()
+        } catch(e) {
+            return false
+        }
+    }
+
+    const buildDefaultFilter = (req) => {
+        const filter = {}
+        if (Array.isArray(yml_entity.filter)) {
+            yml_entity.filter.forEach(f => {
+                if (f.if) {
+                    if (evaluateIfCondition(f.if, req.user)) {
+                        filter[f.name] = resolveUserVar(f.value, req.user)
+                    }
+                } else if (f.value && typeof f.value === 'string' && f.value.includes('${user.')) {
+                    filter[f.name] = resolveUserVar(f.value, req.user)
+                } else {
+                    filter[f.name] = f.value
+                }
+            })
+        } else if (yml_entity.filter) {
+            Object.assign(filter, yml_entity.filter)
+        }
+        return filter
     }
 
     const auth = withConfig({ db, jwt_secret: yml.login["jwt-secret"] });
@@ -299,7 +324,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         f.remove = { $ne: true }
 
         // default_filter 적용
-        Object.assign(f, default_filter)
+        Object.assign(f, buildDefaultFilter(req))
 
         //Custom f list Start
 
@@ -346,7 +371,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     app.get(`${api_prefix}/${entity_name}/:id`, auth.isAuthenticated, asyncErrorHandler(async (req, res) => {
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
-        Object.assign(f, default_filter)
+        Object.assign(f, buildDefaultFilter(req))
 
         let aggregate = await makeApiGenerateAggregate(yml_entity.api_generate)
 
@@ -432,7 +457,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
         entity['create_admin_id'] = req.user.id
 
         // default_filter 값을 entity에 자동 적용
-        Object.assign(entity, default_filter)
+        Object.assign(entity, buildDefaultFilter(req))
 
         // unique 검사
         await checkUnique(entity)
@@ -477,7 +502,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         let f = {}
         f[key_field.name] = entityId
-        Object.assign(f, default_filter)
+        Object.assign(f, buildDefaultFilter(req))
 
         for (let field of yml_entity.fields) {
             if (['mp4', 'image', 'file'].includes(field.type)) {
@@ -520,7 +545,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
         let f = {}
         f[key_field.name] = parseKey(req.params.id)
-        Object.assign(f, default_filter)
+        Object.assign(f, buildDefaultFilter(req))
         const entity = await db.collection(collection_name).findOne(f);
         if (!entity)
             return res.status(404).send('Not found');
