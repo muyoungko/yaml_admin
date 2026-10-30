@@ -22,7 +22,7 @@ const resolveAuthority = (member, authorityConfig) => {
 };
 
 const withConfig = (config) => {
-  const { db, jwt_secret, passwordEncoding, master_email, master_password, expires, authority } = config;
+  const { db, jwt_secret, passwordEncoding, master_email, master_password, expires, authority, token: tokenConfig } = config;
   const comparePassword = async (plainPass, hashword) => {
     if(passwordEncoding === 'bcrypt') {
       let isPasswordMatch = await bcrypt.compare(plainPass, hashword)
@@ -53,8 +53,14 @@ const withConfig = (config) => {
   }
 
   const authenticateSuccess = (req, res, user, next) => {
+    const payload = { ...user };
+    if (tokenConfig?.properties) {
+      tokenConfig.properties.forEach(p => {
+        if (user[p.name] !== undefined) payload[p.name] = user[p.name];
+      });
+    }
     jwt.sign(
-      user,
+      payload,
       jwt_secret,
       {
         expiresIn: '1000d',
@@ -112,6 +118,7 @@ const withConfig = (config) => {
             delete member._id;
             const resolvedAuthority = resolveAuthority(member, authority);
             if (resolvedAuthority) member.authority = resolvedAuthority;
+            console.log('token', member)
             authenticateSuccess(req, res, member, next);
           } else
             res.json({ r: false, msg: 'Password is not correct' });

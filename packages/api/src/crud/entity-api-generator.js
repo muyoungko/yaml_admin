@@ -31,11 +31,17 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
     // filter 배열을 객체로 변환 (동적 필터 지원: ${user.xxx} 변수 및 if 조건)
     const resolveUserVar = (str, user) => {
         if (!str || typeof str !== 'string') return str
+        const exactMatch = str.match(/^\$\{user\.(\w+)\}$/)
+        if (exactMatch) return user?.[exactMatch[1]]
         return str.replace(/\$\{user\.(\w+)\}/g, (match, key) => user?.[key])
     }
 
     const evaluateIfCondition = (condition, user) => {
-        const resolved = resolveUserVar(condition, user)
+        const resolved = condition.replace(/\$\{user\.(\w+)\}/g, (match, key) => {
+            const val = user?.[key]
+            if (typeof val === 'string') return `'${val}'`
+            return val
+        })
         try {
             return Function(`"use strict"; return (${resolved})`)()
         } catch(e) {
@@ -51,6 +57,8 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
                     if (evaluateIfCondition(f.if, req.user)) {
                         filter[f.name] = resolveUserVar(f.value, req.user)
                     }
+                    if(yml.debug || yml_entity.debug)   
+                        console.log('filter', f.if, req.user, resolveUserVar(f.value, req.user))
                 } else if (f.value && typeof f.value === 'string' && f.value.includes('${user.')) {
                     filter[f.name] = resolveUserVar(f.value, req.user)
                 } else {
@@ -341,7 +349,7 @@ const generateCrud = async ({ app, db, entity_name, yml_entity, yml, options }) 
 
             aggregate = [...aggregate, { $sort: s }, { $skip: parseInt(_start) }, { $limit: l }]
             if(yml.debug || yml_entity.debug)
-                console.log('list', entity_name, JSON.stringify(aggregate))
+                console.log('list', entity_name, JSON.stringify(aggregate, null, 2))
             list = await db.collection(collection_name).aggregate(aggregate).toArray()
         } else {
             if(yml.debug || yml_entity.debug)
